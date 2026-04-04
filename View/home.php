@@ -248,7 +248,7 @@ define("BRAND_COLOR", "#8e44ad"); ?>
 <main>
   <h1>Welcome to <?= env('APP_NAME') ?></h1>
   <p class="lead">Build powerful, secure, and scalable PHP applications with ease and speed.</p>
-  <a href="/docs" class="btn-primary" target="_blank" rel="noopener">Get Started</a>
+  <a href="https://github.com/deepakgaikwad2044/deepsync" class="btn-primary" target="_blank" rel="noopener">Get Started</a>
 
   <section class="features" aria-label="Core Features">
     <article class="feature">

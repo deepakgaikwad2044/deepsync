@@ -7,6 +7,7 @@
 > ⚡ Lightweight • 🔥 Powerful • 🧠 Modern PHP Framework  
 > Built with Core PHP + ORM + WebSockets  
 
+
 ---
 
 ## 🛡️ Badges  

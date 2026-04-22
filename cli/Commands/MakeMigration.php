@@ -30,6 +30,12 @@ class MakeMigration
         // 🗂 Migration directory
         $migrationDir = __DIR__ . "/../../database/migrations/";
 
+        // 📂 Check if migrations folder exists, if not create it
+        if (!is_dir($migrationDir)) {
+            mkdir($migrationDir, 0755, true); // 0755 permissions, true = recursive
+            CLI::info("📁 'migrations' folder created.\n");
+        }
+
         // 🔍 Check if a migration for this table already exists (inside file)
         $files = glob($migrationDir . "*.php");
         foreach ($files as $file) {

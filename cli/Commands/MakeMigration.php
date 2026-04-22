@@ -21,7 +21,6 @@ class MakeMigration
         // ⚠ Reserved table names
         $reservedTables = ['users', 'password_resets', 'migrations'];
 
-        // ❌ Check if table is reserved
         if (in_array(strtolower($table), $reservedTables)) {
             CLI::error("Migration for table '{$table}' is not allowed (reserved name).\n");
             return;
@@ -30,13 +29,12 @@ class MakeMigration
         // 🗂 Migration directory
         $migrationDir = __DIR__ . "/../../database/migrations/";
 
-        // 📂 Check if migrations folder exists, if not create it
         if (!is_dir($migrationDir)) {
-            mkdir($migrationDir, 0755, true); // 0755 permissions, true = recursive
+            mkdir($migrationDir, 0755, true);
             CLI::info("📁 'migrations' folder created.\n");
         }
 
-        // 🔍 Check if a migration for this table already exists (inside file)
+        // 🔍 Check existing migration
         $files = glob($migrationDir . "*.php");
         foreach ($files as $file) {
             $content = file_get_contents($file);
@@ -78,17 +76,83 @@ PHP;
         file_put_contents($path, $template);
 
         CLI::info("✅ Migration created: {$fileName}\n");
+
+        // 🔥 Auto create Model
+        $modelName = ucfirst($this->singular($table));
+        $this->createModel($modelName);
     }
 
-    // 🔥 Table name extractor
+    // 🔥 Extract table name
     private function extractTableName($name)
     {
-        // create_users_table → users
         if (preg_match('/create_(.*?)_table/', $name, $matches)) {
             return $matches[1];
         }
 
-        // fallback
         return strtolower($name);
+    }
+
+    // 🔥 Singular (countries → country)
+    private function singular($word)
+    {
+        if (substr($word, -3) === 'ies') {
+            return substr($word, 0, -3) . 'y';
+        }
+
+        if (substr($word, -1) === 's') {
+            return substr($word, 0, -1);
+        }
+
+        return $word;
+    }
+
+    // 🔥 Plural (country → countries)
+    private function plural($word)
+    {
+        if (substr($word, -1) === 'y') {
+            return substr($word, 0, -1) . 'ies';
+        }
+
+        return $word . 's';
+    }
+
+    // 🔥 Create Model
+    private function createModel($modelName)
+    {
+        $modelDir = __DIR__ . "/../../app/Models/";
+
+        if (!is_dir($modelDir)) {
+            mkdir($modelDir, 0755, true);
+        }
+
+        $path = $modelDir . $modelName . ".php";
+
+        // ❌ Check if exists
+        if (file_exists($path)) {
+            CLI::warning("⚠ Model {$modelName} already exists.\n");
+            return;
+        }
+
+        $table = strtolower($this->plural($modelName));
+
+        $template = "<?php
+
+namespace App\Models;
+
+use Database\Model;
+
+class {$modelName} extends Model
+{
+    protected static \$table = '{$table}';
+    protected static \$primaryKey = 'id';
+    protected array \$hidden = [];
+    
+    protected static array \$searchable = [];
+}
+";
+
+        file_put_contents($path, $template);
+
+        CLI::info("✅ Model created: {$modelName}.php\n");
     }
 }

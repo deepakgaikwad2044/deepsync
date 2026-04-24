@@ -172,6 +172,6 @@ function route($name, $params = [])
 {
     return \App\Core\Router::route($name, $params);
 }
- 
+
 
 ?>

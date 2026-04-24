@@ -1,6 +1,7 @@
 <?php
 namespace App\Controllers;
 
+
 // Import the Auth class
 use App\Config\Auth;
 use App\Models\User;
@@ -8,6 +9,7 @@ use App\Models\profile;
 use App\Models\order;
 use App\Config\Database;
 use App\Core\Response;
+use App\Core\Blade;
 
 class BaseController
 {
@@ -31,9 +33,22 @@ class BaseController
   {
     view("home");
   }
+  
   public function pageNotFound()
   {
     return view("err400");
+  }
+  
+  public function b() {
+ 
+$blade = new Blade();
+
+echo $blade->render('test', [
+    'name' => '<script>alert("XSS")</script>',
+    'users' => ['Deepak', 'Suraj', 'Akash']
+]);
+
+
   }
 }
 ?>

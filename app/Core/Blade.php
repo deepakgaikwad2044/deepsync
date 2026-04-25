@@ -5,50 +5,79 @@ namespace App\Core;
 class Blade
 {
     protected string $viewPath;
+    protected string $cachePath;
 
     public function __construct()
     {
         $this->viewPath = rtrim(base_path("view/"), '/') . '/';
+        $this->cachePath = base_path("cache/");
+
+        if (!is_dir($this->cachePath)) {
+            mkdir($this->cachePath, 0777, true);
+        }
     }
 
     /* ================= RENDER ================= */
     public function render($file, $data = [])
     {
-        $viewFile = $this->viewPath . $file . ".blade.php";
+        $filePath = $this->viewPath . $file . ".blade.php";
 
-        if (!file_exists($viewFile)) {
-            throw new \Exception("View not found: " . $file);
+        if (!file_exists($filePath)) {
+            die("View not found: $file");
         }
 
-        $template = file_get_contents($viewFile);
-        $compiled = $this->compile($template);
+        $cacheFile = $this->cachePath . md5($filePath) . ".php";
 
-        extract($data);
+        // compile if not exists or updated
+        if (!file_exists($cacheFile) || filemtime($filePath) > filemtime($cacheFile)) {
+            $compiled = $this->compile(file_get_contents($filePath));
+            file_put_contents($cacheFile, $compiled);
+        }
+
+        extract($this->sanitize($data));
 
         ob_start();
-        eval('?>' . $compiled);
+        include $cacheFile;
         return ob_get_clean();
+    }
+
+    /* ================= SANITIZE ================= */
+    private function sanitize($data)
+    {
+        $safe = [];
+
+        foreach ($data as $key => $value) {
+            if (is_string($value)) {
+                $safe[$key] = htmlspecialchars($value, ENT_QUOTES, "UTF-8");
+            } elseif (is_array($value)) {
+                $safe[$key] = $this->sanitize($value);
+            } else {
+                $safe[$key] = $value;
+            }
+        }
+
+        return $safe;
     }
 
     /* ================= COMPILER ================= */
     protected function compile($template)
     {
         $sections = [];
-        $parent = null;
+        $layout = null;
 
-        /* ---------- @extends ---------- */
+        /* @extends */
         $template = preg_replace_callback(
-            '/@extends\s*\(\s*[\'"](.+?)[\'"]\s*\)/',
-            function ($m) use (&$parent) {
-                $parent = $m[1];
+            '/@extends\([\'"](.+?)[\'"]\)/',
+            function ($m) use (&$layout) {
+                $layout = $m[1];
                 return '';
             },
             $template
         );
 
-        /* ---------- @section ---------- */
+        /* @section */
         $template = preg_replace_callback(
-            '/@section\s*\(\s*[\'"](.+?)[\'"]\s*\)(.*?)@endsection/s',
+            '/@section\([\'"](.+?)[\'"]\)(.*?)@endsection/s',
             function ($m) use (&$sections) {
                 $sections[$m[1]] = $m[2];
                 return '';
@@ -56,22 +85,39 @@ class Blade
             $template
         );
 
-        /* ---------- @include ---------- */
+        /* @include */
         $template = preg_replace_callback(
-            '/@include\s*\(\s*[\'"](.+?)[\'"]\s*\)/',
+            '/@include\([\'"](.+?)[\'"]\)/',
             function ($m) {
-                $file = rtrim(base_path("view/"), '/') . '/' . $m[1] . ".blade.php";
+                $file = $this->viewPath . $m[1] . ".blade.php";
 
                 if (!file_exists($file)) {
-                    return "<!-- include not found: {$m[1]} -->";
+                    return "<!-- include not found -->";
                 }
 
-                return file_get_contents($file);
+                return $this->compile(file_get_contents($file));
             },
             $template
         );
 
-      /* {{ }} SAFE OUTPUT */
+        /* @yield replace for layout */
+        if ($layout) {
+            $layoutFile = $this->viewPath . $layout . ".blade.php";
+
+            if (file_exists($layoutFile)) {
+                $layoutCompiled = $this->compile(file_get_contents($layoutFile));
+
+                foreach ($sections as $key => $value) {
+                    $layoutCompiled = str_replace("@yield('$key')", $value, $layoutCompiled);
+                }
+
+                $template = $layoutCompiled;
+            }
+        }
+
+        /* ================= OUTPUT ================= */
+
+        // {{ $var }} (SAFE)
         $template = preg_replace_callback(
             '/\{\{\s*(.+?)\s*\}\}/',
             function ($m) {
@@ -80,45 +126,22 @@ class Blade
             $template
         );
 
-        /* {!! !!} RAW OUTPUT */
-        $template = preg_replace_callback(
+        // {!! $var !!} (RAW)
+        $template = preg_replace(
             '/\{!!\s*(.+?)\s*!!\}/',
-            function ($m) {
-                return '<?php echo ' . $m[1] . '; ?>';
-            },
+            '<?php echo $1; ?>',
             $template
         );
 
-        /* ---------- IF / ELSE ---------- */
+        /* IF */
         $template = preg_replace('/@if\s*\((.+?)\)/', '<?php if($1): ?>', $template);
         $template = preg_replace('/@elseif\s*\((.+?)\)/', '<?php elseif($1): ?>', $template);
         $template = str_replace('@else', '<?php else: ?>', $template);
         $template = str_replace('@endif', '<?php endif; ?>', $template);
 
-        /* ---------- FOREACH ---------- */
+        /* FOREACH */
         $template = preg_replace('/@foreach\s*\((.+?)\)/', '<?php foreach($1): ?>', $template);
         $template = str_replace('@endforeach', '<?php endforeach; ?>', $template);
-
-        /* ---------- HANDLE LAYOUT ---------- */
-        if ($parent) {
-
-            $parentFile = $this->viewPath . $parent . ".blade.php";
-
-            if (!file_exists($parentFile)) {
-                return $template;
-            }
-
-            $parentTemplate = file_get_contents($parentFile);
-
-            /* inject sections into layout */
-            foreach ($sections as $key => $value) {
-                $parentTemplate = str_replace("@yield('$key')", $value, $parentTemplate);
-                $parentTemplate = str_replace("@yield(\"$key\")", $value, $parentTemplate);
-            }
-
-            /* compile final merged layout */
-            return $this->compile($parentTemplate);
-        }
 
         return $template;
     }

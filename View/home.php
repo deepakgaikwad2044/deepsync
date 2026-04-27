@@ -275,6 +275,7 @@ define("BRAND_COLOR", "#8e44ad"); ?>
       <p>Comes with helpful tools, clear documentation, and simple APIs to boost your productivity.</p>
     </article>
   </section>
+  
 </main>
 
 <footer>

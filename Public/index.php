@@ -39,4 +39,6 @@ require_once APP_ROOT . "/Routes/api.php";
 // 🚀 Dispatch route
 Router::dispatch();
 
+
 ?>
+

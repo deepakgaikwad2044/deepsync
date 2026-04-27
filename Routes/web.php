@@ -20,6 +20,9 @@ use App\Controllers\AppController;
 // Web
 Router::group("web", function () {
   Router::get("/", [BaseController::class, "home"]);
+  
+  
+  Router::get("b", [BaseController::class , "b"]);
 
   // USER GUEST ROUTES
   Router::group(

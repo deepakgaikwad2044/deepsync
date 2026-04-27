@@ -13,45 +13,46 @@ class LoginController
   }
 
   public function login()
-  {
+{
     $data = $_POST;
+
+    $email = $data['email'];
+    $password = $data['password'];
 
     $validator = new Validator();
 
     $result = $validator->validate($data, [
-      "email" => "required|email|exists:users,email",
-      "password" => "required|len:6",
+        "email" => "required|email|exists:users,email",
+        "password" => "required|len:6",
     ]);
 
     if (!$result["status"]) {
-      $_SESSION["errors"] = $result["errors"];
-      $_SESSION["old"] = $data;
-      redirect(route("user.login"));
-      return;
+        $_SESSION["errors"] = $result["errors"];
+        $_SESSION["old"] = $data;
+
+        redirect(route("user.login"));
+        return;
     }
 
-    // ---- AUTH CHECK (example) ----
+    // 🔥 USER FETCH
     $user = User::query()
-      ->where("email", $data["email"])
-      ->firstRaw();
+        ->where('email', $email)
+        ->first();
 
-    if (!$user || !password_verify($data["password"], $user["password"])) {
-      $_SESSION["errors"]["password"] = "Invalid email or password";
-      $_SESSION["old"] = $data;
+    // 🔥 AUTH CHECK
+    if (!$user || !password_verify($password, $user['password'])) {
+        $_SESSION["errors"]["password"] = "Invalid email or password";
+        $_SESSION["old"] = $data;
 
-      redirect(route("user.login"));
-      return;
+        redirect(route("user.login"));
+        return;
     }
 
-    // login success
-    $_SESSION["user_id"] = $user["id"];
-    redirect(route("user.dashboard"));
-
-    // ---- LOGIN SUCCESS ----
-    $_SESSION["user_id"] = $user["id"];
+    // 🔥 SUCCESS LOGIN
+    $_SESSION["user_id"] = $user['id'];
 
     unset($_SESSION["errors"], $_SESSION["old"]);
 
     redirect(route("user.dashboard"));
-  }
+}
 }

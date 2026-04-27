@@ -40,7 +40,7 @@ class RegisterController
             $user = User::register([
                 "name" => $name,
                 "email" => $email,
-                "password" => password_hash($password, PASSWORD_BCRYPT),
+                "password" => $password,
             ]);
 
             $_SESSION["user_id"] = $user["id"];

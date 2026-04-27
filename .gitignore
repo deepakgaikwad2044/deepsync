@@ -2,3 +2,4 @@ dump.rdb
 /app/WebSockets/Realtime/storage/
 /vendor/
 /cache/
+/public/storage/

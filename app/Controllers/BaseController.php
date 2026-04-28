@@ -36,18 +36,19 @@ class BaseController
   
   public function pageNotFound()
   {
-    return view("err400");
+    return view("err404", [
+    "code" => 404,
+    "message" => "Page not found"
+]);
   }
   
   public function b() {
  
-$blade = new Blade();
-
-echo $blade->render('test', [
-    'name' => '<script>alert("XSS")</script>',
-    'users' => ['Deepak', 'Suraj', 'Akash']
+return view("test", [
+    "name" => "<script> alert('work') </script>",
+    "user" => "Admin",
+    "users" => ["A", "B", "C"]
 ]);
-
 
   }
 }

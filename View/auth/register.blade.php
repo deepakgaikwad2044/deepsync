@@ -1,7 +1,8 @@
-<?php includes("layouts.header");
+@include("layouts.header")
+
+@php
 $errors = errors();
-$success = success();
-?>
+@endphp
 
 <style>
 :root{
@@ -144,92 +145,81 @@ button,
   <div class="register-card">
 
     <div class="brand">
-      <h1><?= env('APP_NAME') ?></h1>
+      <h1>{{ env('APP_NAME') }}</h1>
       <p>Create your account</p>
     </div>
 
-    <form action="<?= Route(
-      "user.register.verify"
-    ) ?>" method="post" novalidate>
-      <?= csrf_field() ?>
+    <form action="{{ route('user.register.verify') }}" method="post" novalidate>
 
-      <!-- FORM ERROR -->
-      <?php if (!empty($errors["form"])): ?>
+      {!! csrf_field() !!}
+
+     
+      @if(!empty($errors["form"]))
         <div class="form-error">
-          <?= htmlspecialchars($errors["form"]) ?>
+          {{ $errors["form"] }}
         </div>
-      <?php endif; ?>
+      @endif
 
-      <!-- NAME -->
-      <div class="form-group <?= !empty($errors["name"]) ? "has-error" : "" ?>">
+      {{-- NAME --}}
+      <div class="form-group {{ !empty($errors['name']) ? 'has-error' : '' }}">
         <label>Name</label>
         <input
           type="text"
           name="name"
           placeholder="Deepak Gaikwad"
-          value="<?= old("name") ?>"
+          value="{{ old('name') }}"
         >
-        <?php if (!empty($errors["name"])): ?>
-          <div class="error-text"><?= htmlspecialchars($errors["name"]) ?></div>
-        <?php endif; ?>
+        @if(!empty($errors["name"]))
+          <div class="error-text">{{ $errors["name"] }}</div>
+        @endif
       </div>
 
-      <!-- EMAIL -->
-      <div class="form-group <?= !empty($errors["email"])
-        ? "has-error"
-        : "" ?>">
+      {{-- EMAIL --}}
+      <div class="form-group {{ !empty($errors['email']) ? 'has-error' : '' }}">
         <label>Email</label>
         <input
           type="email"
           name="email"
           placeholder="deepak@gmail.com"
-          value="<?= old("email") ?>"
+          value="{{ old('email') }}"
         >
-        <?php if (!empty($errors["email"])): ?>
-          <div class="error-text"><?= htmlspecialchars(
-            $errors["email"]
-          ) ?></div>
-        <?php endif; ?>
+        @if(!empty($errors["email"]))
+          <div class="error-text">{{ $errors["email"] }}</div>
+        @endif
       </div>
 
-      <!-- PASSWORD -->
-      <div class="form-group <?= !empty($errors["password"])
-        ? "has-error"
-        : "" ?>">
+      {{-- PASSWORD --}}
+      <div class="form-group {{ !empty($errors['password']) ? 'has-error' : '' }}">
         <label>Password</label>
         <input
           type="password"
           name="password"
           placeholder="Minimum 6 characters"
         >
-        <?php if (!empty($errors["password"])): ?>
-          <div class="error-text"><?= htmlspecialchars(
-            $errors["password"]
-          ) ?></div>
-        <?php endif; ?>
+        @if(!empty($errors["password"]))
+          <div class="error-text">{{ $errors["password"] }}</div>
+        @endif
       </div>
-      
-      
-         <!-- Confirm password -->
-      <div class="form-group <?= !empty($errors["confirm_password"])
-        ? "has-error"
-        : "" ?>">
+
+      {{-- CONFIRM PASSWORD --}}
+      <div class="form-group {{ !empty($errors['confirm_password']) ? 'has-error' : '' }}">
         <label>Confirm Password</label>
         <input
           type="password"
           name="confirm_password"
           placeholder="Confirm password"
         >
-        <?php if (!empty($errors["confirm_password"])): ?>
-          <div class="error-text"><?= $errors["confirm_password"] ?></div>
-        <?php endif; ?>
+        @if(!empty($errors["confirm_password"]))
+          <div class="error-text">{{ $errors["confirm_password"] }}</div>
+        @endif
       </div>
 
       <div class="btn-group">
         <button type="submit" class="btn-primary">
           Sign Up
         </button>
-        <a href="<?= route("user.login") ?>" class="btn-link btn-outline">
+
+        <a href="{{ route('user.login') }}" class="btn-link btn-outline">
           Login
         </a>
       </div>
@@ -239,4 +229,4 @@ button,
   </div>
 </div>
 
-<?php includes("layouts.footer"); ?>
+@include("layouts.footer")

@@ -62,6 +62,3 @@ function old($key = null, $default = '')
 }
 
 
-
-?>
-

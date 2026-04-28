@@ -2,12 +2,13 @@
 
 @section('content')
 
-<h1>Hello {{ $name }}</h1>
+<h1> safe: {{ $name }}</h1>
 
-@if($name)
-User exists 😎
-@else
-No user 😢
+<h1> Raw :{!! $name !!} </h1>
+  
+  
+ @if($user)
+Welcome {{ $user }}
 @endif
 
 @foreach($users as $user)

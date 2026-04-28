@@ -20,7 +20,7 @@ class Blade
     /* ================= RENDER ================= */
     public function render($file, $data = [])
     {
-        $filePath = $this->viewPath . $file . ".blade.php";
+        $filePath = $this->viewPath . str_replace('.', '/', $file) . ".blade.php";
 
         if (!file_exists($filePath)) {
             die("View not found: $file");
@@ -28,35 +28,16 @@ class Blade
 
         $cacheFile = $this->cachePath . md5($filePath) . ".php";
 
-        // compile if not exists or updated
         if (!file_exists($cacheFile) || filemtime($filePath) > filemtime($cacheFile)) {
             $compiled = $this->compile(file_get_contents($filePath));
             file_put_contents($cacheFile, $compiled);
         }
 
-        extract($this->sanitize($data));
+        extract($data);
 
         ob_start();
         include $cacheFile;
         return ob_get_clean();
-    }
-
-    /* ================= SANITIZE ================= */
-    private function sanitize($data)
-    {
-        $safe = [];
-
-        foreach ($data as $key => $value) {
-            if (is_string($value)) {
-                $safe[$key] = htmlspecialchars($value, ENT_QUOTES, "UTF-8");
-            } elseif (is_array($value)) {
-                $safe[$key] = $this->sanitize($value);
-            } else {
-                $safe[$key] = $value;
-            }
-        }
-
-        return $safe;
     }
 
     /* ================= COMPILER ================= */
@@ -65,17 +46,17 @@ class Blade
         $sections = [];
         $layout = null;
 
-        /* @extends */
+        /* ========= @extends ========= */
         $template = preg_replace_callback(
             '/@extends\([\'"](.+?)[\'"]\)/',
             function ($m) use (&$layout) {
-                $layout = $m[1];
+                $layout = str_replace('.', '/', $m[1]);
                 return '';
             },
             $template
         );
 
-        /* @section */
+        /* ========= @section ========= */
         $template = preg_replace_callback(
             '/@section\([\'"](.+?)[\'"]\)(.*?)@endsection/s',
             function ($m) use (&$sections) {
@@ -85,65 +66,94 @@ class Blade
             $template
         );
 
-        /* @include */
+        /* ========= @include ========= */
         $template = preg_replace_callback(
             '/@include\([\'"](.+?)[\'"]\)/',
             function ($m) {
-                $file = $this->viewPath . $m[1] . ".blade.php";
+                $file = $this->viewPath . str_replace('.', '/', $m[1]) . ".blade.php";
 
                 if (!file_exists($file)) {
-                    return "<!-- include not found -->";
+                    return "<!-- include not found: {$m[1]} -->";
                 }
 
-                return $this->compile(file_get_contents($file));
+                return file_get_contents($file);
             },
             $template
         );
 
-        /* @yield replace for layout */
+        /* ========= Layout ========= */
         if ($layout) {
             $layoutFile = $this->viewPath . $layout . ".blade.php";
 
             if (file_exists($layoutFile)) {
-                $layoutCompiled = $this->compile(file_get_contents($layoutFile));
+                $layoutContent = file_get_contents($layoutFile);
 
                 foreach ($sections as $key => $value) {
-                    $layoutCompiled = str_replace("@yield('$key')", $value, $layoutCompiled);
+                    $pattern = '/@yield\([\'"]' . preg_quote($key, '/') . '[\'"]\)/';
+                    $layoutContent = preg_replace($pattern, $value, $layoutContent);
                 }
 
-                $template = $layoutCompiled;
+                $template = $layoutContent;
             }
         }
+        
+        /* ================= COMMENTS ================= */
+$template = preg_replace('/\{\{\-\-(.*?)\-\-\}\}/s', '', $template);
 
-        /* ================= OUTPUT ================= */
 
-        // {{ $var }} (SAFE)
-        $template = preg_replace_callback(
-            '/\{\{\s*(.+?)\s*\}\}/',
-            function ($m) {
-                return '<?php echo htmlspecialchars(' . $m[1] . ', ENT_QUOTES, "UTF-8"); ?>';
-            },
-            $template
-        );
+/* ================= @php BLOCK ================= */
+$template = preg_replace_callback(
+    '/@php(.*?)@endphp/s',
+    function ($m) {
+        return '<?php ' . $m[1] . ' ?>';
+    },
+    $template
+);
 
-        // {!! $var !!} (RAW)
+        /* ================= RAW ================= */
         $template = preg_replace(
-            '/\{!!\s*(.+?)\s*!!\}/',
+            '/\{!!\s*(.*?)\s*!!\}/s',
             '<?php echo $1; ?>',
             $template
         );
 
-        /* IF */
-        $template = preg_replace('/@if\s*\((.+?)\)/', '<?php if($1): ?>', $template);
-        $template = preg_replace('/@elseif\s*\((.+?)\)/', '<?php elseif($1): ?>', $template);
-        $template = str_replace('@else', '<?php else: ?>', $template);
-        $template = str_replace('@endif', '<?php endif; ?>', $template);
+        /* ================= SAFE ================= */
+        $template = preg_replace(
+            '/\{\{\s*(.*?)\s*\}\}/',
+            '<?php echo htmlspecialchars($1, ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8"); ?>',
+            $template
+        );
 
-        /* FOREACH */
-        $template = preg_replace('/@foreach\s*\((.+?)\)/', '<?php foreach($1): ?>', $template);
-        $template = str_replace('@endforeach', '<?php endforeach; ?>', $template);
+        /* ================= CONDITIONS (FIXED) ================= */
+        $template = preg_replace_callback(
+            '/@if\s*\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/',
+            function ($m) {
+                return '<?php if(' . $m[1] . '): ?>';
+            },
+            $template
+        );
+
+        $template = preg_replace_callback(
+            '/@elseif\s*\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/',
+            function ($m) {
+                return '<?php elseif(' . $m[1] . '): ?>';
+            },
+            $template
+        );
+
+        $template = preg_replace('/@else\b/', '<?php else: ?>', $template);
+        $template = preg_replace('/@endif\b/', '<?php endif; ?>', $template);
+
+        /* ================= LOOPS ================= */
+        $template = preg_replace(
+            '/@foreach\s*\((.*?)\)/',
+            '<?php foreach($1): ?>',
+            $template
+        );
+
+        $template = preg_replace('/@endforeach/', '<?php endforeach; ?>', $template);
+
 
         return $template;
     }
 }
-

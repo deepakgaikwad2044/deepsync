@@ -1,4 +1,4 @@
-<?php includes("layouts.header"); ?>
+@include("layouts.header")
 
 <style>
 
@@ -91,7 +91,6 @@ main{
 👥 Live User Dashboard
 </div>
 
-<!-- BIG NUMBER -->
 <div id="totalUsers" class="big-number">0</div>
 
 <div class="user-details">
@@ -120,7 +119,7 @@ Last updated: <span id="lastUpdated">--</span>
 
 </main>
 
-<?php includes("layouts.footer"); ?>
+@include("layouts.footer")
 
 <script>
 
@@ -144,7 +143,6 @@ function updateUI(activeUsers){
 
  const inactiveUsers = Math.max(TOTAL_USERS - activeUsers, 0);
 
- // ✅ FIX HERE
  const percent = Math.min((activeUsers / TOTAL_USERS) * 100, 100);
 
  totalUsersEl.text(TOTAL_USERS);
@@ -167,22 +165,21 @@ function updateUI(activeUsers){
 ========================= */
 $.ajax({
 
- url:"<?= route("websocket.user.count") ?>",
+ url:"{{ route('websocket.user.count') }}",
  method:"GET",
 
  success:function(response){
 
-console.log(response)
+  console.log(response);
+
   if(!response.data) return;
 
   const data = response.data;
 
-  // ✅ Backend keys
   TOTAL_USERS = Number(data.total_user) || 0;
 
   const inactiveUsers = Number(data.inactive_users) || 0;
 
-  // ✅ Calculate active users
   const activeUsers = TOTAL_USERS - inactiveUsers;
 
   updateUI(activeUsers);
@@ -212,7 +209,6 @@ socket.onopen = () => {
 
 };
 
-
 socket.onmessage = (event) => {
 
  try{
@@ -223,7 +219,6 @@ socket.onmessage = (event) => {
 
   if(msg.event === "userupdated"){
 
-   // ✅ Backend keys
    const {inactive_users, total_user} = msg.data;
 
    TOTAL_USERS = Number(total_user) || 0;
@@ -240,11 +235,9 @@ socket.onmessage = (event) => {
 
 };
 
-
 socket.onerror = (err) => {
  console.log("WebSocket Error:", err);
 };
-
 
 socket.onclose = () => {
  console.log("Realtime Disconnected ❌");

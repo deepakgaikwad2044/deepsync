@@ -45,6 +45,21 @@ class Blade
     {
         $sections = [];
         $layout = null;
+        
+        
+        /* ================= VERBATIM ================= */
+$verbatimBlocks = [];
+
+$template = preg_replace_callback(
+    '/@verbatim(.*?)@endverbatim/s',
+    function ($m) use (&$verbatimBlocks) {
+        $key = '__VERBATIM__' . count($verbatimBlocks) . '__';
+        $verbatimBlocks[$key] = $m[1]; // store raw content
+        return $key; // replace with placeholder
+    },
+    $template
+);
+
 
         /* ========= @extends ========= */
         $template = preg_replace_callback(
@@ -66,22 +81,7 @@ class Blade
             $template
         );
 
-        /* ========= @include ========= */
-        $template = preg_replace_callback(
-            '/@include\([\'"](.+?)[\'"]\)/',
-            function ($m) {
-                $file = $this->viewPath . str_replace('.', '/', $m[1]) . ".blade.php";
-
-                if (!file_exists($file)) {
-                    return "<!-- include not found: {$m[1]} -->";
-                }
-
-                return file_get_contents($file);
-            },
-            $template
-        );
-
-        /* ========= Layout ========= */
+        /* ========= Layout Merge ========= */
         if ($layout) {
             $layoutFile = $this->viewPath . $layout . ".blade.php";
 
@@ -96,19 +96,32 @@ class Blade
                 $template = $layoutContent;
             }
         }
-        
+
+        /* ========= @include (SAFE) ========= */
+        $template = preg_replace_callback(
+            '/@include\([\'"](.+?)[\'"]\)/',
+            function ($m) {
+                $file = $this->viewPath . str_replace('.', '/', $m[1]) . ".blade.php";
+
+                if (!file_exists($file)) {
+                    return "<!-- include not found: {$m[1]} -->";
+                }
+
+                // inline compile → no render() → no recursion
+                return $this->compile(file_get_contents($file));
+            },
+            $template
+        );
+
         /* ================= COMMENTS ================= */
-$template = preg_replace('/\{\{\-\-(.*?)\-\-\}\}/s', '', $template);
+        $template = preg_replace('/\{\{\-\-(.*?)\-\-\}\}/s', '', $template);
 
-
-/* ================= @php BLOCK ================= */
-$template = preg_replace_callback(
-    '/@php(.*?)@endphp/s',
-    function ($m) {
-        return '<?php ' . $m[1] . ' ?>';
-    },
-    $template
-);
+        /* ================= @php ================= */
+        $template = preg_replace_callback(
+            '/@php(.*?)@endphp/s',
+            fn($m) => '<?php ' . $m[1] . ' ?>',
+            $template
+        );
 
         /* ================= RAW ================= */
         $template = preg_replace(
@@ -126,17 +139,19 @@ $template = preg_replace_callback(
 
         /* ================= CONDITIONS (FIXED) ================= */
         $template = preg_replace_callback(
-            '/@if\s*\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/',
+            '/@if\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)/',
             function ($m) {
-                return '<?php if(' . $m[1] . '): ?>';
+                $cond = trim($m[1]) ?: 'false';
+                return "<?php if($cond): ?>";
             },
             $template
         );
 
         $template = preg_replace_callback(
-            '/@elseif\s*\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/',
+            '/@elseif\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)/',
             function ($m) {
-                return '<?php elseif(' . $m[1] . '): ?>';
+                $cond = trim($m[1]) ?: 'false';
+                return "<?php elseif($cond): ?>";
             },
             $template
         );
@@ -154,6 +169,15 @@ $template = preg_replace_callback(
         $template = preg_replace('/@endforeach/', '<?php endforeach; ?>', $template);
 
 
+
+/* ================= RESTORE VERBATIM ================= */
+if (!empty($verbatimBlocks)) {
+    $template = str_replace(
+        array_keys($verbatimBlocks),
+        array_values($verbatimBlocks),
+        $template
+    );
+}
         return $template;
     }
 }

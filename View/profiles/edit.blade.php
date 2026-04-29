@@ -1,3 +1,6 @@
+@extends("layouts.layouts")
+
+@section("content")
 @php
     $errors = errors();
     $success = success();
@@ -9,8 +12,6 @@
 
     $profileImg = $user["avtar"] ?? "/public/images/default.png";
 @endphp
-
-@include("layouts.header")
 
 <style>
 :root{
@@ -143,6 +144,9 @@
   </div>
 </div>
 
+@endsection
+
+@section("scripts")
 <script>
 document.getElementById('profile').addEventListener('change', function(e){
   const file = e.target.files[0];
@@ -151,5 +155,5 @@ document.getElementById('profile').addEventListener('change', function(e){
   }
 });
 </script>
+@endsection
 
-@include("layouts.footer")

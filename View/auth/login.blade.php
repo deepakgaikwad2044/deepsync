@@ -1,9 +1,10 @@
-@extends('layouts.layouts')
+@extends("layouts.layouts")
 
 @section('content')
 @php
 $errors = errors();
 @endphp
+
 <style>
 :root{
   --brand: #8e44ad;
@@ -207,5 +208,4 @@ button,
 
   </div>
 </div>
-
 @endsection

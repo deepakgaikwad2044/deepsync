@@ -22,6 +22,10 @@ Router::group("web", function () {
   Router::get("/", [BaseController::class, "home"])->name("home");
   
   
+   Router::get("/deepsync/about", [BaseController::class, "about"])->name("deep.about");
+  
+   Router::get("/deepsync/docs", [BaseController::class, "docs"])->name("deep.docs"); 
+  
   Router::get("b", [BaseController::class , "b"]);
 
   // USER GUEST ROUTES

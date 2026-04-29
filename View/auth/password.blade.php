@@ -1,10 +1,10 @@
+@extends("layouts.layouts")
+@section("content")
 @php
     $errors = errors();
     $success = success();
     $verified = $_SESSION['verified'] ?? false;
 @endphp
-
-@include("layouts.header")
 
 <style>
 :root {
@@ -157,5 +157,4 @@ body {
 
   </div>
 </div>
-
-@include("layouts.footer")
+@endsection

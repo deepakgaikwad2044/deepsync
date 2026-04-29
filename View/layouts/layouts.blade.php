@@ -1,8 +1,10 @@
 @include('layouts.header')
-@include('layouts.footer')
+
 @yield('content')
+@include('layouts.footer')
 
-
+{{-- js Scripts --}}
+@yield('scripts')
 
 
 </body>

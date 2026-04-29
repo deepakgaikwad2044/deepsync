@@ -1,8 +1,9 @@
-@include("layouts.header")
-
+@extends("layouts.layouts")
+@section('content')
 @php
 $errors = errors();
 @endphp
+
 
 <style>
 :root{
@@ -229,4 +230,4 @@ button,
   </div>
 </div>
 
-@include("layouts.footer")
+@endsection

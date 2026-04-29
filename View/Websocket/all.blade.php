@@ -1,4 +1,6 @@
-@include("layouts.header")
+@extends("layouts.layouts")
+
+@section('content')
 
 <style>
 
@@ -119,8 +121,10 @@ Last updated: <span id="lastUpdated">--</span>
 
 </main>
 
-@include("layouts.footer")
+@endsection
 
+
+@section("scripts")
 <script>
 
 const totalUsersEl = $("#totalUsers");
@@ -244,3 +248,4 @@ socket.onclose = () => {
 };
 
 </script>
+@endsection

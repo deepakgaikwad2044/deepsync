@@ -34,6 +34,17 @@ class BaseController
     view("home");
   }
   
+   public function about()
+  {
+    view("about");
+  }
+  
+    public function docs()
+  {
+    view("docs");
+  }
+  
+  
   public function pageNotFound()
   {
     return view("err404", [

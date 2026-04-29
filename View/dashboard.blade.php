@@ -1,7 +1,8 @@
-@include("layouts.header")
+@extends("layouts.layouts")
+@section("content")
 
 <style>
-/* tu apna pura style yaha rakh sakta hai */
+
 .top_navbar{
   background: #fff;
   box-shadow: 0 4px 12px rgba(0,0,0,.08);
@@ -58,10 +59,11 @@
 
 </div>
 
-@include("layouts.footer")
+@endsection
 
-  <!--- TOAST SUCCESS  --->
-  
+@section("scripts")
+
+  {{--- TOAST SUCCESS  ---}}
 @if(isset($_SESSION['success']))
 <script>
 $(document).ready(function(){
@@ -70,3 +72,5 @@ $(document).ready(function(){
 </script>
 <?php unset($_SESSION['success']); ?>
 @endif
+
+@endsection

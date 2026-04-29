@@ -1,4 +1,6 @@
-@include("layouts.header")
+@extends("layouts.layouts")
+
+@section('content')
 
 <style>
 :root {
@@ -208,7 +210,10 @@ tr:hover {
 
 </main>
 
-@include("layouts.footer")
+
+@endsection
+
+@section("scripts")
 
 <script src="/public/js/ds-datatable.js"></script>
 
@@ -290,3 +295,4 @@ $(document).on("submit","#user_editForm",function(e){
   );
 });
 </script>
+@endsection

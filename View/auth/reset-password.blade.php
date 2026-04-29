@@ -1,4 +1,6 @@
-@include("layouts.header")
+@extends("layouts.layouts")
+
+@section('content')
 
 @php
     $errors = $_SESSION["errors"] ?? [];
@@ -205,5 +207,4 @@ button, a {
 
   </div>
 </div>
-
-@include("layouts.footer")
+@endsection

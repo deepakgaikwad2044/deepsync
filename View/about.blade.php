@@ -5,6 +5,9 @@
 <section class="about">
 
   <h1 class="about-title">About Deep Sync 🚀</h1>
+  
+    <a href="{{ route('home') }}" class="back-btn text">← Back</a>
+     
 
   <p class="about-lead">
     Deep Sync is a lightweight and powerful PHP framework designed to help developers
@@ -61,9 +64,7 @@
   </div>
 
   <div class="about-footer">
-    <p>
-      Built with ❤️ using pure PHP by passionate developers.
-    </p>
+    <p>Built with ❤️ using pure PHP by passionate developers.</p>
   </div>
 
 </section>

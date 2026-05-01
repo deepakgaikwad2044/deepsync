@@ -109,6 +109,23 @@ body {
   text-decoration: none;
 }
 
+/* Back btn */
+.back-btn{
+  display:inline-block;
+  margin-bottom:15px;
+  padding:8px 14px;
+  background:#8e44ad;
+  color:#fff;
+  border-radius:8px;
+  text-decoration:none;
+  font-weight:600;
+  transition:0.2s;
+}
+
+.back-btn:hover{
+  background:#6c3483;
+}
+
 /* FEATURES */
 .features {
   display: grid;

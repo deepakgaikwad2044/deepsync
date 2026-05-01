@@ -12,6 +12,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\ProfileController;
 use App\Controllers\PasswordController;
 use App\Controllers\ForgotPasswordController;
+use App\Controllers\DocsController;
 use App\Controllers\DemoDatatableController;
 use App\Controllers\DemoWebsocketController;
 use App\Controllers\AppController;
@@ -24,9 +25,9 @@ Router::group("web", function () {
   
    Router::get("/deepsync/about", [BaseController::class, "about"])->name("deep.about");
   
-   Router::get("/deepsync/docs", [BaseController::class, "docs"])->name("deep.docs"); 
-  
-  Router::get("b", [BaseController::class , "b"]);
+   Router::get("/deepsync/docs", [DocsController::class, "index"])->name("deep.docs"); 
+   
+Router::get("/docs/{slug}", [DocsController::class, "show"])->name("docs.slug");
 
   // USER GUEST ROUTES
   Router::group(

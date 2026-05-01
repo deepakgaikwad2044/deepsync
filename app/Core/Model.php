@@ -734,4 +734,31 @@ class Model
       ],
     ];
   }
+  
+public static function pagination($perPage = 5)
+{
+    $page = $_GET['page'] ?? 1;
+    $page = max(1, (int)$page);
+
+    $all = static::query()
+        ->orderBy('id', 'ASC')
+        ->get();
+
+    $total = count($all);
+    $lastPage = max(1, ceil($total / $perPage));
+
+    $offset = ($page - 1) * $perPage;
+    $data = array_slice($all, $offset, $perPage);
+
+    return [
+        "data" => $data,
+        "meta" => [
+            "current_page" => $page,
+            "last_page" => $lastPage,
+            "total" => $total,
+            "per_page" => $perPage
+        ]
+    ];
+}
+
 }

@@ -139,7 +139,7 @@ PHP;
 
 namespace App\Models;
 
-use Database\Model;
+use App\Core\Model;
 
 class {$modelName} extends Model
 {

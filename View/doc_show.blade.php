@@ -6,40 +6,83 @@
 body {
   background: #f5f6fa;
   font-family: 'Segoe UI', sans-serif;
+  margin: 0;
 }
 
 /* MAIN WRAPPER */
 .doc-single {
   max-width: 850px;
-  margin: 40px auto;
-  padding: 25px;
+  margin: 30px auto;
+  padding: 15px;
 }
 
-/* CARD STYLE */
+/* CARD */
 #doc-container {
   background: #fff;
-  padding: 30px;
-  border-radius: 16px;
+  padding: 22px;
+  border-radius: 14px;
   border: 1px solid #eee;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+  overflow: hidden;
 }
 
 /* TITLE */
 #doc-container h1 {
-  font-size: 30px;
+  font-size: 26px;
   color: #8e44ad;
   margin-bottom: 10px;
+  line-height: 1.3;
 }
 
-/* CONTENT */
-#doc-container div {
+/* HEADINGS INSIDE CONTENT */
+#doc-container h2 {
+  font-size: 20px;
   margin-top: 20px;
+  color: #2c3e50;
+}
+
+#doc-container h3 {
   font-size: 16px;
-  line-height: 1.8;
+  margin-top: 15px;
   color: #444;
 }
 
-/* CLEAN HR */
+/* TEXT CONTENT */
+#doc-container div {
+  margin-top: 15px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #444;
+}
+
+/* CODE BLOCK */
+#doc-container pre {
+  background: #2d2d2d;
+  color: #f1f1f1;
+  padding: 12px;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-size: 13px;
+}
+
+/* INLINE CODE */
+#doc-container code {
+  background: #eee;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* LIST */
+#doc-container ul {
+  padding-left: 18px;
+}
+
+#doc-container li {
+  margin-bottom: 6px;
+}
+
+/* HR */
 #doc-container hr {
   border: none;
   height: 1px;
@@ -50,13 +93,14 @@ body {
 /* BACK BUTTON */
 .doc-single a {
   display: inline-block;
-  margin-top: 20px;
+  margin-top: 18px;
   padding: 8px 14px;
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 10px;
   text-decoration: none;
   color: #333;
+  font-size: 14px;
   transition: 0.2s;
 }
 
@@ -66,25 +110,79 @@ body {
   border-color: #8e44ad;
 }
 
-/* LOADING STYLE */
+/* LOADING */
 #doc-container p {
   text-align: center;
   color: #888;
   font-size: 14px;
 }
 
-/* MOBILE */
-@media (max-width: 600px) {
+/* 📱 MOBILE */
+@media (max-width: 480px) {
+
   .doc-single {
-    padding: 15px;
+    margin: 20px auto;
+    padding: 10px;
   }
 
   #doc-container {
-    padding: 18px;
+    padding: 16px;
+    border-radius: 12px;
   }
 
   #doc-container h1 {
-    font-size: 22px;
+    font-size: 20px;
+  }
+
+  #doc-container h2 {
+    font-size: 17px;
+  }
+
+  #doc-container h3 {
+    font-size: 14px;
+  }
+
+  #doc-container div {
+    font-size: 13px;
+  }
+
+  #doc-container pre {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .doc-single a {
+    font-size: 13px;
+    padding: 7px 12px;
+  }
+}
+
+/* 📱 TABLET */
+@media (min-width: 481px) and (max-width: 768px) {
+  .doc-single {
+    max-width: 95%;
+  }
+}
+
+
+/* Default (desktop) */
+.top-back {
+  display: none;
+}
+
+.bottom-back {
+  display: inline-block;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .top-back {
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .bottom-back {
+    display: none;
   }
 }
 </style>
@@ -93,13 +191,13 @@ body {
 
 <div class="doc-single">
 
-  <!-- JS yaha content dalega -->
-  <div id="doc-container">
-    <p>Loading... ⏳</p>
-  </div>
+<a href="{{ route('deep.docs')}}" class="back-btn top-back">← Back</a>
 
-  <br>
-  <a href="{{ route('deep.docs')}}">← Back</a>
+<div id="doc-container">
+  <p>Loading... ⏳</p>
+</div>
+
+<a href="{{ route('deep.docs')}}" class="back-btn bottom-back">← Back</a>
 
 </div>
 

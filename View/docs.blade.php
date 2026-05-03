@@ -7,53 +7,71 @@
 body {
   background: #f5f6fa;
   font-family: 'Segoe UI', sans-serif;
+  margin: 0;
 }
 
+/* WRAPPER */
 .docs-wrapper {
   max-width: 900px;
-  margin: 40px auto;
-  padding: 0 15px;
+  margin: 30px auto;
+  padding: 0 12px;
 }
 
+/* HEADER */
 h1 {
-  font-size: 28px;
-  margin-bottom: 20px;
+  font-size: 24px;
+  margin-bottom: 15px;
   color: #2c3e50;
+}
+
+/* BACK BUTTON */
+.back-btn {
+  display: inline-block;
+  margin-bottom: 15px;
+  background: #8e44ad;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.back-btn:hover {
+  text-decoration: underline;
 }
 
 /* CARD */
 .doc-card {
   background: #fff;
-  padding: 20px 22px;
-  margin-bottom: 18px;
-  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  border-radius: 12px;
   border: 1px solid #eee;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
   transition: 0.2s ease;
 }
 
 .doc-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
 .doc-card h2 {
-  font-size: 20px;
-  margin-bottom: 10px;
+  font-size: 18px;
+  margin-bottom: 8px;
   color: #8e44ad;
 }
 
 .doc-card div {
   color: #555;
-  line-height: 1.6;
-  font-size: 14px;
+  line-height: 1.5;
+  font-size: 13px;
 }
 
 .doc-card a {
   display: inline-block;
-  margin-top: 10px;
+  margin-top: 8px;
   color: #8e44ad;
   font-weight: 600;
+  font-size: 13px;
   text-decoration: none;
 }
 
@@ -61,6 +79,52 @@ h1 {
   text-decoration: underline;
 }
 
+/* 📱 MOBILE (Small devices) */
+@media (max-width: 480px) {
+  .docs-wrapper {
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  .doc-card {
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .doc-card h2 {
+    font-size: 16px;
+  }
+
+  .doc-card div {
+    font-size: 12px;
+  }
+
+  .doc-card a {
+    font-size: 12px;
+  }
+}
+
+/* 📱📱 TABLET */
+@media (min-width: 481px) and (max-width: 768px) {
+  .docs-wrapper {
+    max-width: 95%;
+  }
+
+  .doc-card {
+    padding: 18px;
+  }
+}
+
+/* 💻 DESKTOP */
+@media (min-width: 769px) {
+  .docs-wrapper {
+    max-width: 900px;
+  }
+}
 </style>
 
 <div class="docs-wrapper">
@@ -111,7 +175,7 @@ function renderDocs(docs) {
 
     html += `
       <div class="doc-card">
-        <h2>${doc.title || 'No Title'}i4</h2>
+       
         <div>${content}...</div>
         <a href="/docs/${doc.slug}">Read More →</a>
       </div>
@@ -121,9 +185,6 @@ function renderDocs(docs) {
   $("#docs-container").html(html);
 }
 
-$(document).ready(function() {
-  loadDocs(1);
-});
 </script>
 
 @endsection

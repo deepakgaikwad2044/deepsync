@@ -10,10 +10,10 @@ class MigrateInstall
     public function handle($args)
     {
         $driver = env("DB_CONNECTION");
-        $host = env("DB_HOST");
-        $port = env("DB_PORT");
-        $user = env("DB_USERNAME");
-        $pass = env("DB_PASSWORD");
+        $host   = env("DB_HOST");
+        $port   = env("DB_PORT");
+        $user   = env("DB_USERNAME");
+        $pass   = env("DB_PASSWORD");
         $dbname = env("DB_NAME");
 
         try {
@@ -94,12 +94,10 @@ class MigrateInstall
                 }
             }
 
-            // ---------------- DOCS SEED ----------------
-            $count = $pdo->query("SELECT COUNT(*) FROM docs")->fetchColumn();
+            // ---------------- DOCS SEED (UPSERT) ----------------
+         
 
-            if ($count == 0) {
-
-             $docs = [
+ $docs = [
 
 ["🚀 Installation", "installation",
 "<h2>🚀 Installation Guide</h2>
@@ -266,18 +264,22 @@ DELETE /api/user/1
 
 ];
 
-                $stmt = $pdo->prepare("INSERT INTO docs (title, slug, content) VALUES (?, ?, ?)");
 
-                foreach ($docs as $doc) {
-                    $stmt->execute($doc);
-                }
+            // 🔥 UPSERT Query
+            $stmt = $pdo->prepare("
+                INSERT INTO docs (title, slug, content)
+                VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    title = VALUES(title),
+                    content = VALUES(content)
+            ");
 
-                CLI::success("📚 Docs seeded successfully!\n");
-
-            } 
-            else {
-                CLI::warning("Docs already exist, skipping seed!\n");
+            foreach ($docs as $doc) {
+                $stmt->execute($doc);
+                CLI::info("✔ Synced: " . $doc[1] . "\n");
             }
+
+            CLI::success("📚 Docs synced successfully!\n");
 
         } catch (\PDOException $e) {
             CLI::error("Error: " . $e->getMessage() . "\n");

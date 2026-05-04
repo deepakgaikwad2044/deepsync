@@ -161,3 +161,21 @@ function route($name, $params = [])
     return \App\Core\Router::route($name, $params);
 }
 
+
+use App\Core\Response;
+
+if (!function_exists('response')) {
+    function response(): Response
+    {
+        return new Response();
+    }
+}
+
+if (!function_exists('isAjax')) {
+    function isAjax(): bool
+    {
+        return Response::isAjax();
+    }
+}
+ 
+

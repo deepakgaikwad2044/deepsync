@@ -11,26 +11,24 @@ class DocsController
     {
         $docs = Doc::pagination(3);
 
-      
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+     
+        if (isAjax()) {
             return Response::success("data found", [
                 "docs" => $docs
             ]);
         }
-
+       
         // 👉 Normal page
-        return view("docs");
+        return view("docs", ["docs"=>$docs]);
     }
 
     public function show($slug)
     { 
-      
-  
         $doc = Doc::query()
             ->where("slug", $slug)
             ->first();
             
-            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+if (!empty(Response::isAjax())) {
             return Response::success("data found", [
                 "doc" => $doc
             ]);

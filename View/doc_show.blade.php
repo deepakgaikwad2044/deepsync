@@ -185,6 +185,33 @@ body {
     display: none;
   }
 }
+
+/* 🔥 COPY BUTTON INSIDE CODE BLOCK */
+#doc-container pre {
+  position: relative;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #8e44ad;
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.copy-btn:hover {
+  background: #6c3483;
+}
+
+.copy-btn.copied {
+  background: #27ae60;
+}
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -240,6 +267,7 @@ function loadDoc(slug) {
       `;
 
       $("#doc-container").html(html);
+      initCopyButtons();
     },
 
     error: function(xhr) {
@@ -251,5 +279,47 @@ function loadDoc(slug) {
 
 }
 </script>
+<script>
+
+// 🔥 COPY BUTTON AUTO ADD
+function initCopyButtons() {
+
+  document.querySelectorAll("#doc-container pre").forEach(pre => {
+
+    // agar already button hai to skip
+    if (pre.querySelector(".copy-btn")) return;
+
+    let btn = document.createElement("button");
+    btn.innerText = "Copy";
+    btn.className = "copy-btn";
+
+    pre.appendChild(btn);
+  });
+}
+
+// 🔥 COPY LOGIC
+document.addEventListener("click", function(e) {
+
+  if (e.target.classList.contains("copy-btn")) {
+
+    let code = e.target.parentElement.innerText
+      .replace("Copy", "")
+      .trim();
+
+    navigator.clipboard.writeText(code);
+
+    e.target.innerText = "Copied!";
+    e.target.classList.add("copied");
+
+    setTimeout(() => {
+      e.target.innerText = "Copy";
+      e.target.classList.remove("copied");
+    }, 1500);
+  }
+});
+
+</script>
+
+
 
 @endsection

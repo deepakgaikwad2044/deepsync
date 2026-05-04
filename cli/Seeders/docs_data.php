@@ -82,24 +82,220 @@ Router::post('/login', [AuthController::class, 'login']);
 ],
 
 ["🗄️ Database ORM", "database-orm",
-"<h2>🗄️ ORM System</h2>
+"
+<h2>🗄️ Deep Sync ORM System</h2>
 
-<p>A lightweight ORM system built on PDO.</p>
+<p>
+Deep Sync ORM is a lightweight, chainable, and PDO-based Active Record ORM.
+It allows you to interact with database using clean and expressive syntax without writing raw SQL.
+</p>
 
-<h3>Usage:</h3>
+<hr>
+
+<h3>🚀 Basic Usage</h3>
 
 <pre>
 User::all();
 User::find(1);
+User::where('email', '=', 'test@gmail.com')->first();
+</pre>
+
+<hr>
+
+<h3>✨ Features</h3>
+
+<ul>
+<li>⚡ Active Record Pattern</li>
+<li>🔒 Secure PDO Prepared Queries</li>
+<li>🔗 Chainable Query Builder</li>
+<li>📦 Relationship Support (hasOne, hasMany, belongsTo)</li>
+<li>🔍 Search & Filtering System</li>
+<li>📊 Pagination + Datatable Support</li>
+<li>🧠 Hidden Fields Support</li>
+<li>📈 Join & Group By Queries</li>
+</ul>
+
+<hr>
+
+<h3>🧱 Core Query Methods</h3>
+
+<pre>
+User::query()
+    ->select(['id', 'name'])
+    ->where('status', '=', 'active')
+    ->orderBy('id', 'DESC')
+    ->limit(10)
+    ->get();
+</pre>
+
+<hr>
+
+<h3>🔎 Where Conditions</h3>
+
+<pre>
+// Basic where
+User::where('id', '=', 1)->first();
+
+// Short syntax (auto '=')
 User::where('email', 'test@gmail.com')->first();
 </pre>
 
-<h3>Features:</h3>
+<hr>
+
+<h3>📦 Data Fetch Methods</h3>
+
 <ul>
-<li>Active Record pattern</li>
-<li>Secure PDO queries</li>
-<li>Chainable methods</li>
-</ul>"
+<li><code>all()</code> → Fetch all records</li>
+<li><code>get()</code> → Execute built query</li>
+<li><code>first()</code> → First record only</li>
+<li><code>find(id)</code> → Find by primary key</li>
+</ul>
+
+<pre>
+User::all();
+User::find(5);
+User::query()->where('id', 1)->first();
+</pre>
+
+<hr>
+
+<h3>🧬 Relationships</h3>
+
+<h4>➡️ hasOne</h4>
+
+<pre>
+public function profile()
+{
+    return $this->hasOne(Profile::class, 'user_id');
+}
+</pre>
+
+<h4>➡️ hasMany</h4>
+
+<pre>
+public function posts()
+{
+    return $this->hasMany(Post::class, 'user_id');
+}
+</pre>
+
+<h4>➡️ belongsTo</h4>
+
+<pre>
+public function user()
+{
+    return $this->belongsTo(User::class, 'user_id');
+}
+</pre>
+
+<hr>
+
+<h3>🔗 Eager Loading (with)</h3>
+
+<pre>
+User::query()
+    ->with('profile', 'posts')
+    ->get();
+</pre>
+
+<hr>
+
+<h3>🔀 Joins</h3>
+
+<pre>
+User::query()
+    ->join('profiles', 'users.id', '=', 'profiles.user_id')
+    ->get();
+</pre>
+
+<hr>
+
+<h3>📊 Aggregation</h3>
+
+<pre>
+User::query()->count();
+User::query()->groupBy('status')->get();
+</pre>
+
+<hr>
+
+<h3>✏️ Insert / Update / Delete</h3>
+
+<h4>Insert</h4>
+
+<pre>
+User::create([
+    'name' => 'Deepak',
+    'email' => 'test@gmail.com'
+]);
+</pre>
+
+<h4>Update</h4>
+
+<pre>
+User::update(1, [
+    'name' => 'Updated Name'
+]);
+</pre>
+
+<h4>Delete</h4>
+
+<pre>
+User::deleteWhere('id', 1);
+</pre>
+
+<hr>
+
+<h3>🔍 Find Helpers</h3>
+
+<pre>
+User::findById(1);
+User::findByEmail('test@gmail.com');
+User::findByColumn('status', 'active');
+</pre>
+
+<hr>
+
+<h3>📊 Pagination System</h3>
+
+<pre>
+User::pagination(10);
+</pre>
+
+<hr>
+
+<h3>📈 Datatable System (Advanced)</h3>
+
+<pre>
+User::datatable([
+    'page' => 1,
+    'perPage' => 10,
+    'search' => 'deepak',
+    'orderBy' => 'id',
+    'orderDir' => 'DESC'
+]);
+</pre>
+
+<hr>
+
+<h3>🧠 Group Datatable</h3>
+
+<pre>
+User::groupDatatable([
+    'groupBy' => 'status',
+    'select' => 'status, COUNT(*) as total'
+]);
+</pre>
+
+<hr>
+
+<h3>🚀 Summary</h3>
+
+<p>
+Deep Sync ORM gives you a powerful Laravel-like experience in pure PHP with:
+clean syntax, security, and high performance query building.
+</p>
+"
 ],
 
 ["⚡ WebSocket Setup", "websocket-setup",

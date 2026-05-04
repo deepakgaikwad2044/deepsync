@@ -51,24 +51,12 @@ function public_path($filepath)
 // Function to handle view folder
 function view($file_path, $data = [])
 {
-  $path = str_replace("\\", DIRECTORY_SEPARATOR, $file_path);
+    $blade = new \App\Core\Blade();
 
-  $path = str_replace(".", DIRECTORY_SEPARATOR, $path);
+    // dot notation support (test.home → test/home)
+    $path = str_replace(".", DIRECTORY_SEPARATOR, $file_path);
 
-  $file =
-    APP_ROOT .
-    DIRECTORY_SEPARATOR .
-    "view" .
-    DIRECTORY_SEPARATOR .
-    $path .
-    ".php";
-
-  if (file_exists($file)) {
-    extract($data);
-    require $file;
-  } else {
-    echo "Page not found " . $file;
-  }
+    echo $blade->render($path, $data);
 }
 
 //handle includes file
@@ -173,5 +161,3 @@ function route($name, $params = [])
     return \App\Core\Router::route($name, $params);
 }
 
-
-?>

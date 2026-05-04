@@ -1,4 +1,6 @@
-<?php includes("layouts.header"); ?>
+@extends("layouts.layouts")
+
+@section('content')
 
 <style>
 :root {
@@ -80,22 +82,38 @@ tr:hover {
   transform: scale(1.2);
 }
 
+/* MODAL */
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.modal-box{
+  background:#fff;
+  padding:1.2rem;
+  border-radius:.5rem;
+  width:100%;
+  max-width:400px;
+  box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
 </style>
 
 <main>
 
-<a href="<?= route("user.dashboard") ?>" >
-<i class="fa-solid fa-arrow-left text-white back-btn"></i>
+<a href="{{ route('user.dashboard') }}">
+  <i class="fa-solid fa-arrow-left text-white back-btn"></i>
 </a>
 
 <div class="d-flex justify-content-around align-items-center">
+  <h2 class="mt-3">Datatable</h2>
 
-<h2 class="mt-3">Datatable</h2>
-
-<span class="btn btn-dark" id="openCreateModalBtn">+</span>
-
+  <span class="btn btn-dark" id="openCreateModalBtn">+</span>
 </div>
-
 
 <div class="table-responsive mt-3">
 
@@ -117,10 +135,8 @@ tr:hover {
 
 </div>
 
-
-<!-- CREATE USER MODAL -->
-
-<div id="createModal" class="modal-overlay" style="display:none">
+<!-- CREATE MODAL -->
+<div id="createModal" class="modal-overlay">
 
 <div class="modal-box">
 
@@ -144,26 +160,17 @@ tr:hover {
 </div>
 
 <div class="text-end mt-3">
-
 <button type="button" class="btn btn-secondary" onclick="closeModalFade()">Cancel</button>
-
-<button type="submit" class="btn btn-primary">
-Create
-</button>
-
+<button type="submit" class="btn btn-primary">Create</button>
 </div>
 
 </form>
 
 </div>
-
 </div>
 
-
-
-<!-- EDIT USER MODAL -->
-
-<div id="editModal" class="modal-overlay" style="display:none">
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal-overlay">
 
 <div class="modal-box">
 
@@ -185,156 +192,107 @@ Create
 
 <div class="mb-2">
 <label>Status</label>
-
 <select id="edit_status" name="account_status" class="form-control">
 <option value="1">Active</option>
 <option value="0">Inactive</option>
 </select>
-
 </div>
 
 <div class="text-end mt-3">
-
 <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-
-<button type="submit" class="btn btn-primary">
-Update
-</button>
-
+<button type="submit" class="btn btn-primary">Update</button>
 </div>
 
 </form>
 
 </div>
-
 </div>
 
+</main>
+
+
+@endsection
+
+@section("scripts")
 
 <script src="/public/js/ds-datatable.js"></script>
 
 <script>
-
-/* DATATABLE */
-
 DS_Table.init("datatable", {
+  ajax: "{{ route('table.data') }}",
+  dataSrc: "data",
+  columns: {
+    Id: "id",
+    Name: "name",
+    Email: "email",
+    Status: {
+      label: "account_status",
+      render: row => {
+        return row.account_status == 1
+          ? `<span class="badge bg-success text-white">active</span>`
+          : `<span class="badge bg-danger text-white">inactive</span>`;
+      }
+    },
+    action: {
+      label: "Action",
+      render: row => `
+        <span class="text-primary action-btn"
+          onclick='openEditModal(${JSON.stringify(row)})'>
+          <i class="fa-solid fa-pen-to-square"></i>
+        </span>
 
-ajax: "<?= route("table.data") ?>",
-
-dataSrc: "data",
-
-columns: {
-
-Id: "id",
-
-Name: "name",
-
-Email: "email",
-
-Status: {
-label: "account_status",
-
-render: row => {
-
-return row.account_status == 1
-? `<span class="badge bg-success text-white">active</span>`
-: `<span class="badge bg-danger text-white">inactive</span>`;
-
-}
-},
-
-action: {
-
-label: "Action",
-
-render: row => `
-<span class="text-primary action-btn"
-onclick='openEditModal(${JSON.stringify(row)})'>
-<i class="fa-solid fa-pen-to-square"></i>
-</span>
-
-<span class="text-danger action-btn"
-onclick="DS_Table.delete('datatable','/datatable/delete', ${row.id})">
-<i class="fa-solid fa-trash"></i>
-</span>
-`
-
-}
-
-},
-
-disableAutoSearchInput: true
-
+        <span class="text-danger action-btn"
+          onclick="DS_Table.delete('datatable','/datatable/delete', ${row.id})">
+          <i class="fa-solid fa-trash"></i>
+        </span>
+      `
+    }
+  },
+  disableAutoSearchInput: true
 });
 
-
-/* OPEN CREATE MODAL */
-
-$("#openCreateModalBtn").click(function(){
-
-$("#createModal").fadeIn();
-
-});
+/* MODALS */
+$("#openCreateModalBtn").click(() => $("#createModal").fadeIn());
 
 function closeModalFade(){
-
-$("#createModal").fadeOut();
-
+  $("#createModal").fadeOut();
 }
 
-
-/* EDIT MODAL */
-
 function openEditModal(row){
+  $("#edit_id").val(row.id);
+  $("#edit_name").val(row.name);
+  $("#edit_email").val(row.email);
+  $("#edit_status").val(row.account_status);
 
-$("#edit_id").val(row.id);
-$("#edit_name").val(row.name);
-$("#edit_email").val(row.email);
-$("#edit_status").val(row.account_status);
-
-$("#editModal").fadeIn();
-
+  $("#editModal").fadeIn();
 }
 
 function closeModal(){
-
-$("#editModal").fadeOut();
-
+  $("#editModal").fadeOut();
 }
 
-
-/* CREATE USER */
-
+/* CREATE */
 $(document).on("submit","#user_createForm",function(e){
+  e.preventDefault();
 
-e.preventDefault();
-
-DS_Form.submit(
-"user_createForm",
-"<?= route("datatable.create") ?>",
-"datatable",
-"createModal"
-);
-
+  DS_Form.submit(
+    "user_createForm",
+    "{{ route('datatable.create') }}",
+    "datatable",
+    "createModal"
+  );
 });
 
-
-/* UPDATE USER */
-
+/* UPDATE */
 $(document).on("submit","#user_editForm",function(e){
+  e.preventDefault();
 
-e.preventDefault();
-
-DS_Form.submit(
-"user_editForm",
-"<?= route("datatable.update") ?>",
-"datatable",
-"editModal"
-);
-
+  DS_Form.submit(
+    "user_editForm",
+    "{{ route('datatable.update') }}",
+    "datatable",
+    "editModal"
+  );
 });
-
 </script>
-
-</main>
-
-<?php includes("layouts.footer"); ?>
+@endsection

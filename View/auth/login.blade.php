@@ -1,9 +1,9 @@
-<?php
-includes("layouts.header");
+@extends("layouts.layouts")
 
+@section('content')
+@php
 $errors = errors();
-$success = success();
-?>
+@endphp
 
 <style>
 :root{
@@ -146,89 +146,66 @@ button,
 }
 </style>
 
+
 <div class="login-container">
   <div class="login-card">
 
     <div class="brand">
-      <h1> <?= env('APP_NAME') ?></h1>
+      <h1>{{ env('APP_NAME') }}</h1>
       <p>Secure access to your workspace</p>
     </div>
-    
-  
-    <form action="<?= route("user.login.verify") ?>" method="post">
-      
-      <?php
-      $success = get_flash("success");
-      $error = get_flash("error");
-      if ($success): ?>
-  <div class="success-alert"><?= htmlspecialchars($success) ?></div>
-<?php endif;
-      ?>
 
-<?php if ($error): ?>
-  <div class="error-alert"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
+    <form action="{{ route('user.login.verify') }}" method="post">
 
+    @if(get_flash('success'))
+    {{ get_flash('success') }}
+@endif
 
-      <?= csrf_field() ?>
+      @if(get_flash('error'))
+        <div class="error-alert">
+          {{ get_flash('error') }}
+        </div>
+      @endif
+
+      {!! csrf_field() !!}
 
       <!-- EMAIL -->
-      <div class="form-group <?= !empty($errors["email"])
-        ? "has-error"
-        : "" ?>">
+      <div class="form-group {{ !empty($errors['email']) ? 'has-error' : '' }}">
         <label>Email</label>
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter email"
-          value="<?= old("email") ?>"
-        >
+        <input type="email" name="email" placeholder="Enter email" value="{{ old('email') }}">
 
-        <?php if (!empty($errors["email"])): ?>
+        @if(!empty($errors['email']))
           <div class="error-text">
-            <?= $errors["email"] ?>
+            {{ $errors['email'] }}
           </div>
-        <?php endif; ?>
+        @endif
       </div>
 
       <!-- PASSWORD -->
-      <div class="form-group <?= !empty($errors["password"])
-        ? "has-error"
-        : "" ?>">
+      <div class="form-group {{ !empty($errors['password']) ? 'has-error' : '' }}">
         <label>Password</label>
-        <input
-          type="password"
-          name="password"
-          placeholder="Enter password"
-        >
+        <input type="password" name="password" placeholder="Enter password">
 
-        <?php if (!empty($errors["password"])): ?>
+        @if(!empty($errors['password']))
           <div class="error-text">
-            <?= $errors["password"] ?>
+            {{ $errors['password'] }}
           </div>
-        <?php endif; ?>
+        @endif
       </div>
-      
-      
-      <div style="text-align:right; margin-top:-8px; margin-bottom:16px;">
-  <a href="<?= Route("user.forgot.password") ?>" id="forgot_password" >
-     Forgot password?
-  </a>
-</div>
 
+      <div style="text-align:right; margin-top:-8px; margin-bottom:16px;">
+        <a href="{{ route('user.forgot.password') }}" id="forgot_password">
+          Forgot password?
+        </a>
+      </div>
 
       <div class="btn-group">
-        <button type="submit" name="submit" class="btn-primary">
-          Login
-        </button>
-        <a href="/register" class="btn-link btn-outline">
-          Register
-        </a>
+        <button type="submit" class="btn-primary">Login</button>
+        <a href="/register" class="btn-link btn-outline">Register</a>
       </div>
 
     </form>
 
   </div>
 </div>
-
-<?php includes("layouts.footer"); ?>
+@endsection

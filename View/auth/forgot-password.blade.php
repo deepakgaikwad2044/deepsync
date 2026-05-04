@@ -1,10 +1,11 @@
-<?php
-includes("layouts.header");
+@extends("layouts.layouts")
+@section("content")
 
-$errors = errors();
-$success = success();
-?>
-
+@php
+    $errors = errors();
+    $flash_success = get_flash("success");
+    $flash_error = get_flash("error");
+@endphp
 
 <style>
 :root{
@@ -135,10 +136,6 @@ button,a{
   background:transparent;
   color:var(--brand);
 }
-
-@media(max-width:480px){
-  .card{ padding:24px; }
-}
 </style>
 
 <div class="container">
@@ -149,50 +146,48 @@ button,a{
       <p>We’ll send a reset link to your email</p>
     </div>
 
-<?php
-$success = get_flash("success");
-$error = get_flash("error");
-if ($success): ?>
-  <div class="success-alert"><?= htmlspecialchars($success) ?></div>
-<?php endif;
-?>
+    {{-- FLASH MESSAGES --}}
+    @if(!empty($flash_success))
+      <div class="alert alert-success">
+        {{ $flash_success }}
+      </div>
+    @endif
 
-<?php if ($error): ?>
-  <div class="error-alert"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
- 
+    @if(!empty($flash_error))
+      <div class="alert alert-error">
+        {{ $flash_error }}
+      </div>
+    @endif
 
-    <form action="/users/forgot/password" method="POST">
-      
-      <?= csrf_field() ?>
+    <form action="{{ route('users.forgot.password') }}" method="POST">
 
-      <!-- EMAIL -->
-      <div class="form-group <?= !empty($errors["email"])
-        ? "has-error"
-        : "" ?>">
+      {!! csrf_field() !!}
+
+      {{-- EMAIL --}}
+      <div class="form-group {{ !empty($errors['email']) ? 'has-error' : '' }}">
         <label>Email Address</label>
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter registered email" value="<?= old("email") ?>">
 
-        <?php if (!empty($errors["email"])): ?>
-  <div class="error-text"><?= $errors["email"] ?></div>
-<?php endif; ?>
+        <input type="email"
+               name="email"
+               placeholder="Enter registered email"
+               value="{{ old('email') }}">
 
-        
+        @if(!empty($errors['email']))
+          <div class="error-text">{{ $errors['email'] }}</div>
+        @endif
       </div>
 
       <button type="submit" class="btn-primary">
         Send Reset Link
       </button>
 
-      <a href="/login" class="btn-link">
+      <a href="{{ route('user.login') }}" class="btn-link">
         Back to Login
       </a>
+
     </form>
 
   </div>
 </div>
 
-<?php includes("layouts.footer"); ?>
+@endsection

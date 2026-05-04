@@ -29,6 +29,7 @@ class MakeModel
         $template = "<?php
 
 namespace App\Models;
+use App\Core\Model;
 
 class $name extends Model
 {

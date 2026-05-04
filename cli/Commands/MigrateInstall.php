@@ -1,7 +1,7 @@
 <?php
+
 namespace CLI\Commands;
 
-use App\Core\Env;
 use App\Core\Console\CLI;
 use PDO;
 
@@ -9,80 +9,69 @@ class MigrateInstall
 {
     public function handle($args)
     {
-        // ENV se settings lo
         $driver = env("DB_CONNECTION");
-        $host = env("DB_HOST");
-        $port = env("DB_PORT");
-        $user = env("DB_USERNAME");
-        $pass = env("DB_PASSWORD");
+        $host   = env("DB_HOST");
+        $port   = env("DB_PORT");
+        $user   = env("DB_USERNAME");
+        $pass   = env("DB_PASSWORD");
         $dbname = env("DB_NAME");
 
         try {
-            // 1️⃣ Connect to MySQL without database first
+            // 1️⃣ Connect without DB
             $pdo = new PDO("$driver:host=$host;port=$port", $user, $pass);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            // 2️⃣ Check if database exists
+            // 2️⃣ Create DB
             $check = $pdo->query("SHOW DATABASES LIKE '$dbname'");
             if ($check->rowCount() == 0) {
-                // Create database if not exists
-                $pdo->exec("CREATE DATABASE `$dbname`");
-                CLI::success("✅ Database '$dbname' created successfully!\n");
+                $pdo->exec("CREATE DATABASE `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                CLI::success("✅ Database created\n");
             } else {
-                CLI::warning("Database '$dbname' already exists!\n");
+                CLI::warning("Database exists\n");
             }
 
-            // 3️⃣ Now connect to the actual database
+            // 3️⃣ Connect DB
             $pdo = new PDO("$driver:host=$host;port=$port;dbname=$dbname", $user, $pass);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            // ----------------------------
-            // Tables creation logic
-            // ----------------------------
+            // 4️⃣ Tables
             $tables = [
-                'migrations' => "
-                    CREATE TABLE migrations (
+
+                'docs' => "
+                    CREATE TABLE IF NOT EXISTS docs (
                         id INT AUTO_INCREMENT PRIMARY KEY,
-                        migration VARCHAR(255),
-                        batch INT,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )
-                ",
-                'users' => "
-                    CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    avtar VARCHAR(255) DEFAULT '/storage/default_avtar/default_avtar.png',
- refresh_token VARCHAR(255) NULL,
-refresh_token_expiry DATETIME NULL ,
-    role_as TINYINT DEFAULT 0,
-    account_status TINYINT DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)
-                ",
-                'password_resets' => "
-                    CREATE TABLE password_resets (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        email VARCHAR(100) NOT NULL,
-                        token VARCHAR(255) NOT NULL,
-                        expires_at TIMESTAMP NOT NULL,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        title VARCHAR(255),
+                        slug VARCHAR(255) UNIQUE,
+                        content LONGTEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
                     )
                 "
             ];
 
             foreach ($tables as $name => $sql) {
-                $check = $pdo->query("SHOW TABLES LIKE '$name'");
-                if ($check->rowCount() > 0) {
-                    CLI::warning("Table '$name' already exists!\n");
-                } else {
-                    $pdo->exec($sql);
-                    CLI::info("✅ Table '$name' created successfully!\n");
-                }
+                $pdo->exec($sql);
+                CLI::info("✔ Table: $name\n");
             }
+
+            // 🔥 5. LOAD SEED FILE
+            $docs = require __DIR__ . '/../Seeders/docs_data.php';
+
+            // 🔥 6. UPSERT
+            $stmt = $pdo->prepare("
+                INSERT INTO docs (title, slug, content)
+                VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    title = VALUES(title),
+                    content = VALUES(content)
+            ");
+
+            foreach ($docs as $doc) {
+                $stmt->execute($doc);
+                CLI::info("✔ Synced: " . $doc[1] . "\n");
+            }
+
+            CLI::success("📚 Docs seeded successfully!\n");
 
         } catch (\PDOException $e) {
             CLI::error("Error: " . $e->getMessage() . "\n");

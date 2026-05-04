@@ -186,6 +186,7 @@ body {
   }
 }
 
+
 /* 🔥 COPY BUTTON INSIDE CODE BLOCK */
 #doc-container pre {
   position: relative;
@@ -279,6 +280,7 @@ function loadDoc(slug) {
 
 }
 </script>
+
 <script>
 
 // 🔥 COPY BUTTON AUTO ADD
@@ -319,7 +321,5 @@ document.addEventListener("click", function(e) {
 });
 
 </script>
-
-
 
 @endsection

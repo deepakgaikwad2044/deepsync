@@ -133,7 +133,6 @@ h1 {
 
 <a href="{{ route('home') }}" class="back-btn">← Back</a>
 
-
 <div id="docs-container"></div>
 
 </div>

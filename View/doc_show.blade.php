@@ -219,14 +219,14 @@ body {
 
 <div class="doc-single">
 
-<a href="{{ route('deep.docs')}}" class="back-btn top-back">← Back</a>
-
+<a href="javascript:void(0)" onclick="goBack()" class="back-btn">← Back</a>
+ 
 <div id="doc-container">
   <p>Loading... ⏳</p>
 </div>
 
-<a href="{{ route('deep.docs')}}" class="back-btn bottom-back">← Back</a>
-
+<a href="javascript:void(0)" onclick="goBack()" class="back-btn">← Back</a>
+ 
 </div>
 
 <script>
@@ -320,6 +320,15 @@ document.addEventListener("click", function(e) {
   }
 });
 
+</script>
+
+
+<script>
+function goBack() {
+  if (document.referrer) {
+    window.history.back();
+  }
+}
 </script>
 
 @endsection

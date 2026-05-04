@@ -21,10 +21,10 @@ DB_USER=root
 DB_PASS=
 </pre>
 
-<h3>📌 Step 4</h3>
+<h3>📌 Step 3</h3>
 <pre> php deep migrate:install </pre> 
 
-<h3>📌 Step 5</h3>
+<h3>📌 Step 4</h3>
 <p>Run the local server:</p>
 
 <pre>

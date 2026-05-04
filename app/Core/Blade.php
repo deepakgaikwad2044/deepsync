@@ -10,7 +10,7 @@ class Blade
     public function __construct()
     {
         $this->viewPath = rtrim(base_path("view/"), '/') . '/';
-        $this->cachePath = base_path("cache/");
+        $this->cachePath = base_path("/bootstrap/cache/");
 
         if (!is_dir($this->cachePath)) {
             mkdir($this->cachePath, 0777, true);

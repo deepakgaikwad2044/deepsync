@@ -1,5 +1,5 @@
 dump.rdb
 /app/WebSockets/Realtime/storage/
 /vendor/
-/cache/
+/bootstrap/cache/
 /public/storage/

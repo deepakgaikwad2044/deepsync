@@ -213,11 +213,10 @@ button,
         <label>Email</label>
         <input type="email" name="email" placeholder="Enter email" value="{{ old('email') }}">
 
-        @if(!empty($errors['email']))
-          <div class="error-text">
-            {{ $errors['email'] }}
-          </div>
-        @endif
+                       @error('email')
+          <div class="error-text">{{ $message }}</div>
+@enderror
+
       </div>
 
       <!-- PASSWORD -->
@@ -225,11 +224,9 @@ button,
         <label>Password</label>
         <input type="password" name="password" placeholder="Enter password">
 
-        @if(!empty($errors['password']))
-          <div class="error-text">
-            {{ $errors['password'] }}
-          </div>
-        @endif
+          @error('password')
+          <div class="error-text">{{ $message }}</div>
+@enderror
       </div>
 
       <div style="text-align:right; margin-top:-8px; margin-bottom:16px;">

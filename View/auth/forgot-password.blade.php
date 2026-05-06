@@ -193,7 +193,7 @@ button,a{
 
     <form action="{{ route('users.forgot.password') }}" method="POST">
 
-      {!! csrf_field() !!}
+ @csrf
 
       {{-- EMAIL --}}
       <div class="form-group {{ !empty($errors['email']) ? 'has-error' : '' }}">
@@ -204,9 +204,9 @@ button,a{
                placeholder="Enter registered email"
                value="{{ old('email') }}">
 
-        @if(!empty($errors['email']))
-          <div class="error-text">{{ $errors['email'] }}</div>
-        @endif
+                 @error('email')
+          <div class="error-text">{{ $message }}</div>
+@enderror
       </div>
 
       <button type="submit" class="btn-primary">

@@ -200,9 +200,10 @@ button,
           placeholder="Deepak Gaikwad"
           value="{{ old('name') }}"
         >
-        @if(!empty($errors["name"]))
-          <div class="error-text">{{ $errors["name"] }}</div>
-        @endif
+
+               @error('name')
+          <div class="error-text">{{ $message }}</div>
+@enderror
       </div>
 
       {{-- EMAIL --}}
@@ -214,9 +215,11 @@ button,
           placeholder="deepak@gmail.com"
           value="{{ old('email') }}"
         >
-        @if(!empty($errors["email"]))
-          <div class="error-text">{{ $errors["email"] }}</div>
-        @endif
+
+        
+         @error('email')
+          <div class="error-text">{{ $message }}</div>
+@enderror
       </div>
 
       {{-- PASSWORD --}}
@@ -227,9 +230,10 @@ button,
           name="password"
           placeholder="Minimum 6 characters"
         >
-        @if(!empty($errors["password"]))
-          <div class="error-text">{{ $errors["password"] }}</div>
-        @endif
+    
+         @error('password')
+          <div class="error-text">{{ $message }}</div>
+@enderror
       </div>
 
       {{-- CONFIRM PASSWORD --}}
@@ -240,9 +244,10 @@ button,
           name="confirm_password"
           placeholder="Confirm password"
         >
-        @if(!empty($errors["confirm_password"]))
-          <div class="error-text">{{ $errors["confirm_password"] }}</div>
-        @endif
+
+       @error('confirm_password')
+          <div class="error-text">{{ $message }}</div>
+@enderror
       </div>
 
       <div class="btn-group">

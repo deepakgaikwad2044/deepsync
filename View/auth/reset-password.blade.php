@@ -205,7 +205,7 @@ button,a{
 
     <form action="{{ route('user.reset.password.verify') }}" method="post">
       
-      {!! csrf_field() !!}
+@csrf
 
       <input type="hidden" name="token" value="{{ $token }}">
 
@@ -214,9 +214,9 @@ button,a{
         <label>New Password</label>
         <input type="password" name="password" placeholder="Enter new password">
 
-        @if(!empty($errors['password']))
-          <div class="error-text">{{ $errors['password'] }}</div>
-        @endif
+                 @error('password')
+          <div class="error-text">{{ $message }}</div>
+@enderror
       </div>
 
       {{-- CONFIRM PASSWORD --}}
@@ -224,9 +224,9 @@ button,a{
         <label>Confirm Password</label>
         <input type="password" name="confirm_password" placeholder="Confirm password">
 
-        @if(!empty($errors['confirm_password']))
-          <div class="error-text">{{ $errors['confirm_password'] }}</div>
-        @endif
+                 @error('confirm_password')
+          <div class="error-text">{{ $message }}</div>
+@enderror
       </div>
 
       <div class="btn-group">

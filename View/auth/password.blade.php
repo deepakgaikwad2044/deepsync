@@ -181,9 +181,9 @@ input:focus {
         <label>Current Password</label>
         <input type="password" name="cpass" class="form-control">
 
-        @if(!empty($errors['cpass']))
-          <div class="error-text">{{ $errors['cpass'] }}</div>
-        @endif
+               @error('cpass')
+    <div class="error-text">{{ $message }}</div>
+@enderror
 
         <button class="btn-primary">Verify</button>
       </form>
@@ -197,9 +197,9 @@ input:focus {
         <label>New Password</label>
         <input type="password" name="npass" class="form-control">
 
-        @if(!empty($errors['npass']))
-          <div class="error-text">{{ $errors['npass'] }}</div>
-        @endif
+               @error('npass')
+    <div class="error-text">{{ $message }}</div>
+@enderror
 
         <button class="btn-success">Update Password</button>
       </form>

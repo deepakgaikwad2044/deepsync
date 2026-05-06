@@ -169,9 +169,9 @@ input[type="file"]{
             class="form-control {{ !empty($errors['name']) ? 'is-invalid' : '' }}"
             value="{{ $old['name'] ?? $user['name'] ?? '' }}">
 
-          @if(!empty($errors['name']))
-            <div class="invalid-feedback">{{ $errors['name'] }}</div>
-          @endif
+       @error('name')
+    <div class="invalid-feedback">{{ $message }}</div>
+@enderror
         </div>
 
         <!-- EMAIL -->
@@ -181,9 +181,9 @@ input[type="file"]{
             class="form-control {{ !empty($errors['email']) ? 'is-invalid' : '' }}"
             value="{{ $old['email'] ?? $user['email'] ?? '' }}">
 
-          @if(!empty($errors['email']))
-            <div class="invalid-feedback">{{ $errors['email'] }}</div>
-          @endif
+                 @error('email')
+    <div class="invalid-feedback">{{ $message }}</div>
+@enderror
         </div>
 
         <!-- IMAGE -->
@@ -193,9 +193,10 @@ input[type="file"]{
             class="form-control {{ !empty($errors['image']) ? 'is-invalid' : '' }}"
             accept="image/*">
 
-          @if(!empty($errors['image']))
-            <div class="invalid-feedback">{{ $errors['image'] }}</div>
-          @endif
+
+       @error('image')
+    <div class="invalid-feedback">{{ $message }}</div>
+@enderror
         </div>
 
         <!-- PREVIEW -->

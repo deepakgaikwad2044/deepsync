@@ -17,54 +17,74 @@ body{
  margin:0;
 }
 
+/* MAIN */
 main{
- max-width:750px;
+ max-width:800px;
  margin:4rem auto;
- text-align:center;
+ padding:0 15px;
 }
 
+/* CARD */
 .user-card{
- background:white;
+ background:rgba(255,255,255,0.85);
+ backdrop-filter:blur(12px);
  padding:3rem 2rem;
- border-radius:1.8rem;
- box-shadow:0 25px 50px rgba(142,68,173,0.15);
+ border-radius:2rem;
+ box-shadow:0 25px 60px rgba(0,0,0,0.08);
+ text-align:center;
+ transition:0.3s ease;
 }
 
+.user-card:hover{
+ transform: translateY(-6px);
+}
+
+/* TITLE */
 .user-title{
- font-size:1.5rem;
- color:var(--brand-dark);
+ font-size:1.4rem;
+ color:#444;
  margin-bottom:2rem;
  font-weight:600;
+ letter-spacing:.3px;
 }
 
+/* BIG NUMBER */
 .big-number{
- font-size:4.5rem;
+ font-size:4.8rem;
  font-weight:800;
  background:var(--brand-gradient);
  -webkit-background-clip:text;
  -webkit-text-fill-color:transparent;
+ transition:0.3s ease;
 }
 
+/* DETAILS GRID */
 .user-details{
  margin-top:1rem;
  font-size:1.1rem;
  color:#555;
 }
 
+.user-details strong{
+ color:#222;
+}
+
+/* RATIO */
 .user-ratio{
- margin-top:0.5rem;
+ margin-top:0.6rem;
  font-size:1rem;
  color:#777;
 }
 
+/* PROGRESS */
 .progress-wrapper{
- margin-top:2rem;
+ margin-top:2.2rem;
 }
 
 .progress-bar{
  width:100%;
- height:16px;
- background:#eee;
+ height:18px;
+ background:rgba(0,0,0,0.05);
  border-radius:30px;
  overflow:hidden;
 }
@@ -74,13 +94,46 @@ main{
  width:0%;
  background:var(--brand-gradient);
  border-radius:30px;
- transition:width .8s ease;
+ transition:width .8s cubic-bezier(.25,1,.5,1);
+ box-shadow:0 5px 15px rgba(142,68,173,.3);
 }
 
+/* UPDATE TIME */
 .update-time{
- margin-top:1.2rem;
- font-size:.8rem;
+ margin-top:1.4rem;
+ font-size:.85rem;
  color:#999;
+}
+
+/* LIVE DOT */
+.update-time::before{
+ content:"●";
+ color:#28a745;
+ margin-right:6px;
+ animation:blink 1s infinite;
+}
+
+@keyframes blink{
+ 0%{opacity:1}
+ 50%{opacity:0.3}
+ 100%{opacity:1}
+}
+
+/* SMALL STATS STYLE */
+.user-details{
+ display:flex;
+ justify-content:space-between;
+ margin-top:1rem;
+ padding:10px 15px;
+ background:rgba(142,68,173,0.05);
+ border-radius:12px;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+ .big-number{
+  font-size:3.2rem;
+ }
 }
 
 </style>

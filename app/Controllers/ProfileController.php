@@ -11,7 +11,8 @@ class ProfileController extends BaseController
 {
   // Function to display the profile edit form
   public function edit()
-  {
+  { 
+     
     unset($_SESSION["verified"]);
     $authUser = Auth::user(); // Retrieve the currently authenticated user's data.
     view("profiles.edit", ["user" => $authUser]); // Pass user data to the profile edit view.
@@ -19,6 +20,7 @@ class ProfileController extends BaseController
 
   public function update()
   {
+    
     $data = $_POST;
 
     $validator = new Validator();

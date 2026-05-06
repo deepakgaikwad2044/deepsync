@@ -19,7 +19,7 @@ use App\Controllers\AppController;
 
 
 // Web
-Router::group("web", function () {
+Router::group("web",  function () {
   Router::get("/", [BaseController::class, "home"])->name("home");
   
   

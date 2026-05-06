@@ -4,9 +4,7 @@ namespace App\Core;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
 use App\Middleware\AdminMiddleware;
-use App\Middleware\VoterGuestMiddleware;
 use App\Middleware\JWTMiddleware;
-use App\Middleware\VoterMiddleware;
 use App\Middleware\VerifyCsrfToken;
 
 class Middleware

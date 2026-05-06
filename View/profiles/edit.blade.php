@@ -19,24 +19,62 @@
   --brand-dark:#6c3483;
 }
 
+/* PAGE BG */
+body{
+  background: linear-gradient(135deg,#f5f6fa,#eef1f5);
+}
+
+/* CONTAINER */
 .container{
-  max-width:720px;
+  max-width:760px;
   min-height:100vh;
 }
 
+/* CARD */
 .profile-card{
-  background:#fff;
-  border-radius:18px;
-  padding:28px;
-  box-shadow:0 15px 40px rgba(0,0,0,.08);
-  border-top:5px solid var(--brand);
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  border-radius:20px;
+  padding:32px;
+  box-shadow:0 20px 50px rgba(0,0,0,.08);
+  border:1px solid rgba(0,0,0,0.05);
+  transition:0.3s ease;
 }
 
-.form-label{ font-weight:600; }
+.profile-card:hover{
+  transform: translateY(-4px);
+}
 
+/* TITLE */
+.profile-card h4{
+  font-weight:600;
+}
+
+/* BACK BUTTON */
+.back-link{
+  font-size:18px;
+  color:#333;
+  padding:8px;
+  border-radius:10px;
+  transition:0.2s ease;
+}
+
+.back-link:hover{
+  background: rgba(0,0,0,0.06);
+}
+
+/* LABEL */
+.form-label{
+  font-weight:600;
+  margin-bottom:6px;
+}
+
+/* INPUT */
 .form-control{
-  border-radius:12px;
-  padding:12px;
+  border-radius:14px;
+  padding:12px 14px;
+  border:1px solid rgba(0,0,0,0.1);
+  transition:0.25s ease;
 }
 
 .form-control:focus{
@@ -44,15 +82,27 @@
   box-shadow:0 0 0 3px rgba(142,68,173,.2);
 }
 
+/* FILE INPUT SPECIAL */
+input[type="file"]{
+  padding:10px;
+}
+
+/* BUTTON */
 .btn-primary{
   background:linear-gradient(135deg,var(--brand),var(--brand-dark));
   border:none;
-  border-radius:12px;
-  padding:10px 22px;
+  border-radius:14px;
+  padding:12px 24px;
+  font-weight:500;
+  transition:0.25s ease;
 }
 
-.btn-primary:hover{ opacity:.95; }
+.btn-primary:hover{
+  transform: translateY(-2px);
+  box-shadow:0 8px 20px rgba(142,68,173,.3);
+}
 
+/* CHANGE PASSWORD LINK */
 .change_password_text{
   font-size:.9rem;
   font-weight:600;
@@ -62,14 +112,38 @@
 
 .change_password_text:hover{
   color:var(--brand-dark);
+  text-decoration: underline;
 }
 
+/* PROFILE IMAGE */
 .profile-preview{
-  width:150px;
-  height:150px;
-  border-radius:14px;
+  width:140px;
+  height:140px;
+  border-radius:16px;
   object-fit:cover;
-  border:3px solid rgba(142,68,173,.2);
+  border:3px solid rgba(142,68,173,.25);
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  transition:0.3s ease;
+}
+
+.profile-preview:hover{
+  transform: scale(1.05);
+}
+
+/* CENTER IMAGE */
+.mb-4{
+  display:flex;
+  justify-content:center;
+}
+
+/* ERROR */
+.invalid-feedback{
+  font-size:13px;
+}
+
+/* SMALL ANIMATION */
+.form-control, .btn, .profile-preview{
+  will-change: transform;
 }
 </style>
 

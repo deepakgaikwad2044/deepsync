@@ -3,7 +3,10 @@
 
 <style>
 
-
+body {
+  height:100vh;
+     background: linear-gradient(180deg, #ffffff, #f5f6fa);
+}
 
 /* ===== TOP NAVBAR ===== */
 .top_navbar {
@@ -123,6 +126,8 @@
     </div>
 
 </div>
+
+
 
 @endsection
 

@@ -1,8 +1,6 @@
 @extends("layouts.layouts")
 @section('content')
-@php
-$errors = errors();
-@endphp
+
 
 
 <style>
@@ -182,9 +180,8 @@ button,
 
     <form action="{{ route('user.register.verify') }}" method="post" novalidate>
 
-      {!! csrf_field() !!}
+     @csrf
 
-     
       @if(!empty($errors["form"]))
         <div class="form-error">
           {{ $errors["form"] }}

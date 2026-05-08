@@ -2,17 +2,6 @@
 
 @section('content')
 
-@php
-    $errors = $_SESSION["errors"] ?? [];
-    $old = $_SESSION["old"] ?? [];
-    $token = $token ?? request("token");
-
-    $success = get_flash("success");
-    $error = get_flash("error");
-
-    unset($_SESSION["errors"], $_SESSION["old"]);
-@endphp
-
 <style>
 :root{
   --brand:#8e44ad;
@@ -194,14 +183,8 @@ button,a{
       <p>Create a new secure password</p>
     </div>
 
-    {{-- FLASH MESSAGES --}}
-    @if($success)
-      <div class="alert alert-success">{{ $success }}</div>
-    @endif
-
-    @if($error)
-      <div class="alert alert-error">{{ $error }}</div>
-    @endif
+@flashError
+@flashSuccess
 
     <form action="{{ route('user.reset.password.verify') }}" method="post">
       

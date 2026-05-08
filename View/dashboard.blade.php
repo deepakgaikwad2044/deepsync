@@ -128,19 +128,4 @@ body {
 </div>
 
 
-
-@endsection
-
-@section("scripts")
-
-  {{--- TOAST SUCCESS  ---}}
-@if(isset($_SESSION['success']))
-<script>
-$(document).ready(function(){
-    toastr.success('{{ $_SESSION["success"] }}', 'Success');
-});
-</script>
-<?php unset($_SESSION['success']); ?>
-@endif
-
 @endsection

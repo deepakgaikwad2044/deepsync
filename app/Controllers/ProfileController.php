@@ -33,6 +33,7 @@ class ProfileController extends BaseController
     if (!$result["status"]) {
       $_SESSION["errors"] = $result["errors"];
       $_SESSION["old"] = $data;
+    
       redirect(route("user.profile.edit"));
       return;
     }
@@ -70,12 +71,16 @@ class ProfileController extends BaseController
 
     // ✅ 5. Update DB
     if (User::update($authUserId, $updateData)) {
-      setFlash("success", "Profile updated");
+      
+     
+      
+      setFlash("flash_success", "Profile updated");
+      
       return redirect(route("user.dashboard"));
 
       exit();
     } else {
-      setFlash("errors", [
+      setFlash("flash_error", [
         "form" => "Profile didn't update",
       ]);
       redirect(route("user.profile.edit"));

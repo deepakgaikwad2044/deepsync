@@ -1,12 +1,6 @@
 @extends("layouts.layouts")
 @section("content")
 
-@php
-    $errors = errors();
-    $flash_success = get_flash("success");
-    $flash_error = get_flash("error");
-@endphp
-
 <style>
 :root{
   --brand:#8e44ad;
@@ -178,18 +172,9 @@ button,a{
       <p>We’ll send a reset link to your email</p>
     </div>
 
-    {{-- FLASH MESSAGES --}}
-    @if(!empty($flash_success))
-      <div class="alert alert-success">
-        {{ $flash_success }}
-      </div>
-    @endif
+@flashError
 
-    @if(!empty($flash_error))
-      <div class="alert alert-error">
-        {{ $flash_error }}
-      </div>
-    @endif
+@flashSuccess
 
     <form action="{{ route('users.forgot.password') }}" method="POST">
 

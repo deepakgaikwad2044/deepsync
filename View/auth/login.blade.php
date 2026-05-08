@@ -1,9 +1,7 @@
 @extends("layouts.layouts")
 
 @section('content')
-@php
-$errors = errors();
-@endphp
+
 
 <style>
 :root{
@@ -196,17 +194,11 @@ button,
 
     <form action="{{ route('user.login.verify') }}" method="post">
 
-    @if(get_flash('success'))
-    {{ get_flash('success') }}
-@endif
+@flashError
 
-      @if(get_flash('error'))
-        <div class="error-alert">
-          {{ get_flash('error') }}
-        </div>
-      @endif
+@flashSuccess
 
-      {!! csrf_field() !!}
+    @csrf
 
       <!-- EMAIL -->
       <div class="form-group {{ !empty($errors['email']) ? 'has-error' : '' }}">

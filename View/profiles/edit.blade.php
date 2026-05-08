@@ -2,13 +2,6 @@
 
 @section("content")
 @php
-    $errors = errors();
-    $success = success();
-    $old = old();
-
-    if (isset($_SESSION["pass_match"])) {
-        unset($_SESSION["pass_match"]);
-    }
 
     $profileImg = $user["avtar"] ?? "/public/images/default.png";
 @endphp
@@ -231,4 +224,6 @@ document.getElementById('profile').addEventListener('change', function(e){
 });
 </script>
 @endsection
+
+
 

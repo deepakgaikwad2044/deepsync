@@ -1,10 +1,6 @@
 @extends("layouts.layouts")
 @section("content")
-@php
-    $errors = errors();
-    $success = success();
-    $verified = $_SESSION['verified'] ?? false;
-@endphp
+
 
 <style>
 :root {
@@ -162,15 +158,9 @@ input:focus {
       <h4>Change Password</h4>
     </div>
 
-    <!-- SUCCESS -->
-    @if(!empty($success))
-      <div class="success-text">{{ $success }}</div>
-    @endif
+@flashError
 
-    <!-- FORM ERROR -->
-    @if(!empty($errors['form']))
-      <div class="error-text">{{ $errors['form'] }}</div>
-    @endif
+@flashSuccess
 
     <!-- VERIFY PASSWORD -->
     @if(!$verified)

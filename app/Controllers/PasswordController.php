@@ -83,7 +83,7 @@ class PasswordController
             return;
         }
 
-        // 🔥 SAME PASSWORD CHECK FIX (MAIN BUG WAS HERE)
+
         if (password_verify($new_pass, $user["password"])) {
             $_SESSION["errors"]["npass"] = "New password cannot be same as old password";
             redirect(route("user.password.edit"));
@@ -97,11 +97,11 @@ class PasswordController
         ]);
 
         if ($res) {
-            $_SESSION["success"] = "Password updated successfully";
+            $_SESSION["flash_success"] = "Password updated successfully";
             unset($_SESSION["verified"]);
             unset($_SESSION["errors"]);
         } else {
-            $_SESSION["errors"]["form"] = "Password update failed";
+     $_SESSION["flash_error"] = "Password update failed";
         }
 
         redirect(route("user.dashboard"));

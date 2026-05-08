@@ -1,9 +1,9 @@
 @extends("layouts.layouts")
 
 @section("content")
-@php
 
-    $profileImg = $user["avtar"] ?? "/public/images/default.png";
+@php
+    $profileImg = $user["avtar"] ?? asset("images/default.png");
 @endphp
 
 <style>
@@ -12,131 +12,126 @@
   --brand-dark:#6c3483;
 }
 
-/* PAGE BG */
+/* FULL BACKGROUND */
 body{
-  background: linear-gradient(135deg,#f5f6fa,#eef1f5);
+  background: radial-gradient(circle at top, #f3eaff, #eef1f5);
 }
 
-/* CONTAINER */
+/* CENTER WRAPPER */
 .container{
-  max-width:760px;
+  max-width:780px;
   min-height:100vh;
 }
 
-/* CARD */
+/* CARD - NEW PREMIUM LOOK */
 .profile-card{
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(12px);
-  border-radius:20px;
-  padding:32px;
-  box-shadow:0 20px 50px rgba(0,0,0,.08);
-  border:1px solid rgba(0,0,0,0.05);
-  transition:0.3s ease;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 36px;
+  box-shadow: 0 25px 60px rgba(0,0,0,.10);
+  border: 1px solid rgba(0,0,0,0.06);
+  position: relative;
 }
 
-.profile-card:hover{
-  transform: translateY(-4px);
+/* HEADER */
+.profile-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:25px;
 }
 
-/* TITLE */
-.profile-card h4{
-  font-weight:600;
+.profile-header h4{
+  font-weight:700;
+  letter-spacing:.5px;
 }
 
 /* BACK BUTTON */
 .back-link{
-  font-size:18px;
-  color:#333;
-  padding:8px;
-  border-radius:10px;
-  transition:0.2s ease;
-}
-
-.back-link:hover{
-  background: rgba(0,0,0,0.06);
-}
-
-/* LABEL */
-.form-label{
-  font-weight:600;
-  margin-bottom:6px;
-}
-
-/* INPUT */
-.form-control{
-  border-radius:14px;
-  padding:12px 14px;
-  border:1px solid rgba(0,0,0,0.1);
-  transition:0.25s ease;
-}
-
-.form-control:focus{
-  border-color:var(--brand);
-  box-shadow:0 0 0 3px rgba(142,68,173,.2);
-}
-
-/* FILE INPUT SPECIAL */
-input[type="file"]{
-  padding:10px;
-}
-
-/* BUTTON */
-.btn-primary{
-  background:linear-gradient(135deg,var(--brand),var(--brand-dark));
-  border:none;
-  border-radius:14px;
-  padding:12px 24px;
-  font-weight:500;
-  transition:0.25s ease;
-}
-
-.btn-primary:hover{
-  transform: translateY(-2px);
-  box-shadow:0 8px 20px rgba(142,68,173,.3);
-}
-
-/* CHANGE PASSWORD LINK */
-.change_password_text{
-  font-size:.9rem;
-  font-weight:600;
-  color:var(--brand);
+  width:42px;
+  height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:12px;
+  background:#f3f3f3;
   text-decoration:none;
+  color:#333;
 }
 
-.change_password_text:hover{
-  color:var(--brand-dark);
-  text-decoration: underline;
-}
-
-/* PROFILE IMAGE */
+/* IMAGE */
 .profile-preview{
-  width:140px;
-  height:140px;
-  border-radius:16px;
+  width:130px;
+  height:130px;
+  border-radius:50%;
   object-fit:cover;
-  border:3px solid rgba(142,68,173,.25);
+  border:4px solid rgba(142,68,173,.25);
   box-shadow:0 10px 25px rgba(0,0,0,.08);
   transition:0.3s ease;
 }
 
 .profile-preview:hover{
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 /* CENTER IMAGE */
-.mb-4{
+.preview-wrapper{
   display:flex;
   justify-content:center;
+  margin-bottom:25px;
+}
+
+/* LABEL */
+.form-label{
+  font-weight:600;
+  font-size:14px;
+  margin-bottom:6px;
+}
+
+/* INPUT */
+.form-control{
+  border-radius:12px;
+  padding:12px 14px;
+  border:1px solid #ddd;
+  transition:0.25s;
+}
+
+.form-control:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 3px rgba(142,68,173,.15);
+}
+
+/* BUTTONS */
+.btn-primary{
+  background:linear-gradient(135deg,var(--brand),var(--brand-dark));
+  border:none;
+  border-radius:14px;
+  padding:12px;
+  font-weight:600;
+  width:100%;
+}
+
+/* PASSWORD LINK */
+.change_password_text{
+  font-size:13px;
+  color:var(--brand);
+  font-weight:600;
+  text-decoration:none;
+}
+
+.change_password_text:hover{
+  text-decoration:underline;
 }
 
 /* ERROR */
 .invalid-feedback{
-  font-size:13px;
+  font-size:12px;
+  color:#e74c3c;
 }
 
-/* SMALL ANIMATION */
-.form-control, .btn, .profile-preview{
-  will-change: transform;
+/* FORM GROUP SPACING */
+.mb-3{
+  margin-bottom:18px !important;
 }
 </style>
 
@@ -145,70 +140,83 @@ input[type="file"]{
 
     <div class="profile-card">
 
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <!-- HEADER -->
+      <div class="profile-header">
         <a href="{{ route('user.dashboard') }}" class="back-link">
           <i class="fas fa-arrow-left"></i>
         </a>
-        <h4>Edit User Profile</h4>
+
+        <h4>Edit Profile</h4>
+
+        <div style="width:42px"></div>
       </div>
 
+      <!-- IMAGE -->
+      <div class="preview-wrapper">
+        <img id="profilePreview" src="{{ $profileImg }}" class="profile-preview">
+      </div>
+
+      <!-- FORM -->
       <form action="{{ route('user.profile.update') }}" method="post" enctype="multipart/form-data">
         @csrf
 
         <!-- NAME -->
         <div class="mb-3">
-          <label class="form-label">Name</label>
-          <input type="text" name="name"
-            class="form-control {{ !empty($errors['name']) ? 'is-invalid' : '' }}"
-            value="{{ $old['name'] ?? $user['name'] ?? '' }}">
+          <label class="form-label">Full Name</label>
 
-       @error('name')
-    <div class="invalid-feedback">{{ $message }}</div>
-@enderror
+          <input type="text" name="name"
+            class="form-control @error('name') is-invalid @enderror"
+            value="{{ old('name', $user['name'] ?? '') }}"
+            placeholder="Enter your name">
+
+          @error('name')
+            <div class="invalid-feedback">{{ $message }}</div>
+          @enderror
         </div>
 
         <!-- EMAIL -->
         <div class="mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" name="email"
-            class="form-control {{ !empty($errors['email']) ? 'is-invalid' : '' }}"
-            value="{{ $old['email'] ?? $user['email'] ?? '' }}">
+          <label class="form-label">Email Address</label>
 
-                 @error('email')
-    <div class="invalid-feedback">{{ $message }}</div>
-@enderror
+          <input type="email" name="email"
+            class="form-control @error('email') is-invalid @enderror"
+            value="{{ old('email', $user['email'] ?? '') }}"
+            placeholder="Enter your email">
+
+          @error('email')
+            <div class="invalid-feedback">{{ $message }}</div>
+          @enderror
         </div>
 
         <!-- IMAGE -->
         <div class="mb-3">
           <label class="form-label">Profile Image</label>
-          <input type="file" name="profile" id="profile"
-            class="form-control {{ !empty($errors['image']) ? 'is-invalid' : '' }}"
+
+          <input type="file" name="profile" id="image"
+            class="form-control @error('profile') is-invalid @enderror"
             accept="image/*">
 
-
-       @error('image')
-    <div class="invalid-feedback">{{ $message }}</div>
-@enderror
-        </div>
-
-        <!-- PREVIEW -->
-        <div class="mb-4">
-          <img id="profilePreview" src="{{ $profileImg }}" class="profile-preview">
+          @error('profile')
+            <div class="invalid-feedback">{{ $message }}</div>
+          @enderror
         </div>
 
         <!-- PASSWORD -->
-        <div class="text-end mb-4">
+        <div class="text-end mb-3">
           <a href="{{ route('user.password.edit') }}" class="change_password_text">
             Change Password
           </a>
         </div>
 
-        <button class="btn btn-primary">Update Profile</button>
+        <!-- BUTTON -->
+        <button class="btn btn-primary">
+          Update Profile
+        </button>
 
       </form>
 
     </div>
+
   </div>
 </div>
 
@@ -224,6 +232,3 @@ document.getElementById('profile').addEventListener('change', function(e){
 });
 </script>
 @endsection
-
-
-

@@ -9,7 +9,7 @@ class DemoDatatableController
 {
   public function index()
   {
-    view("datatable.all");
+    view("auth.datatable.all");
   }
 
   public function getData()

@@ -34,29 +34,16 @@ function get_flash($key) {
 }
 
 
-// Function to get the public image URL
-function public_path($filepath)
-{
-    $file = APP_ROOT . "/public/" . $filepath;
+/* ================= VIEW HELPER ================= */
 
-    if (file_exists($file)) {
-        // Return the URL path instead of the file path
-        $publicUrl = "/public/" . $filepath;
-        return $publicUrl;
-    } else {
-        throw new Exception("404: file not found " . $file);
-    }
-}
-
-// Function to handle view folder
 function view($file_path, $data = [])
 {
-    $blade = new \App\Core\Blade();
+    $pranchi = new \App\Core\Pranchi();
 
-    // dot notation support (test.home → test/home)
+    // dot notation support
     $path = str_replace(".", DIRECTORY_SEPARATOR, $file_path);
 
-    echo $blade->render($path, $data);
+    echo $pranchi->render($path, $data);
 }
 
 //handle includes file
@@ -66,7 +53,7 @@ function includes($file_path)
 
   $path = str_replace(".", DIRECTORY_SEPARATOR, $path);
 
-  $file = APP_ROOT . DIRECTORY_SEPARATOR . "view/" . $path . ".php";
+  $file = APP_ROOT . DIRECTORY_SEPARATOR . "views/" . $path . ".php";
 
   if (file_exists($file)) {
     return require $file;

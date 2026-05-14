@@ -162,6 +162,52 @@ button,a{
   text-decoration:underline;
 }
 
+/* BUTTON */
+.btn-primary{
+  background:linear-gradient(135deg,var(--brand),var(--brand-dark));
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+}
+
+/* LOADING */
+.btn-loading{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+.btn-primary.loading .btn-text{
+  display:none;
+}
+
+.btn-primary.loading .btn-loading{
+  display:flex;
+}
+
+/* SPINNER */
+.spinner{
+  width:18px;
+  height:18px;
+  border:2px solid rgba(255,255,255,.4);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+/* DISABLED */
+.btn-primary:disabled{
+  opacity:.85;
+  cursor:not-allowed;
+}
+
 </style>
 
 <div class="container">
@@ -194,9 +240,14 @@ button,a{
 @enderror
       </div>
 
-      <button type="submit" class="btn-primary">
-        Send Reset Link
-      </button>
+      <button type="submit" class="btn-primary" id="submitBtn">
+    <span class="btn-text">Send Reset Link</span>
+
+    <span class="btn-loading">
+        <span class="spinner"></span>
+        Sending...
+    </span>
+</button>
 
       <a href="{{ route('user.login') }}" class="btn-link">
         Back to Login
@@ -207,4 +258,21 @@ button,a{
   </div>
 </div>
 
+@endsection
+
+@section("scripts")
+<script>
+$(document).ready(function () {
+
+    $("form").on("submit", function () {
+
+        const btn = $("#submitBtn");
+
+        btn.addClass("loading");
+        btn.prop("disabled", true);
+
+    });
+
+});
+</script>
 @endsection

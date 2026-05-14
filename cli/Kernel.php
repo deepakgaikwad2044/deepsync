@@ -25,6 +25,7 @@ class Kernel
         'socket:serve'            => Commands\WSSocket::class,
         'redis:serve'            => Commands\Redis::class,
         'serve:status' => \CLI\Commands\ServeStatus::class,
+        'cache:clear' => \CLI\Commands\CacheClear::class,
     ];
 
     protected array $config = [];

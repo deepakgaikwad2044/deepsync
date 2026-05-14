@@ -19,7 +19,7 @@ class DocsController
         }
 
         // 👉 Normal page
-        return view("docs");
+        return view("apps.docs");
     }
 
     public function show($slug)
@@ -38,7 +38,7 @@ class DocsController
         
             
   
-        return view("doc_show", [
+        return view("apps.doc_show", [
             "doc" => $doc
         ]);
     }

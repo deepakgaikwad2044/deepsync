@@ -6,7 +6,7 @@ class DemoWebsocketController
 {
   public function index()
   {
-    view("websocket.all");
+    view("auth.websocket.all");
   }
 
   public function countedusers()

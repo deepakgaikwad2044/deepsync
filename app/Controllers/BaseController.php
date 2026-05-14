@@ -31,19 +31,13 @@ class BaseController
 
   public function home()
   {
-    view("home");
+    view("apps.home");
   }
   
    public function about()
   {
-    view("about");
+    view("apps.about");
   }
-  
-    public function docs()
-  {
-    view("docs");
-  }
-  
   
   public function pageNotFound()
   {
@@ -53,14 +47,6 @@ class BaseController
 ]);
   }
   
-  public function b() {
- 
-return view("test", [
-    "name" => "<script> alert('work') </script>",
-    "user" => "Admin",
-    "users" => ["A", "B", "C"]
-]);
 
-  }
 }
 ?>

@@ -15,7 +15,7 @@ class ProfileController extends BaseController
      
     unset($_SESSION["verified"]);
     $authUser = Auth::user(); // Retrieve the currently authenticated user's data.
-    view("profiles.edit", ["user" => $authUser]); // Pass user data to the profile edit view.
+    view("auth.profiles.edit", ["user" => $authUser]); // Pass user data to the profile edit view.
   }
 
 public function update()

@@ -13,7 +13,7 @@ class DashboardController extends BaseController {
     $user = Auth::user();
 
     // Pass the user data to the "dashboard" view
-    view("dashboard", ["user" => $user]);
+    view("auth.dashboard", ["user" => $user]);
   }
 
 public function logout()

@@ -1,6 +1,8 @@
 @extends("layouts.homel")
 
 @section("content")
+
+
 <header class="header">
   <div class="container nav">
     <div class="logo">
@@ -113,5 +115,4 @@
   </div>
 </footer>
 @endsection
-
 

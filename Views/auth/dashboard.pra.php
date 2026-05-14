@@ -6,6 +6,9 @@
 :root{
   --brand:#8e44ad;
   --brand-dark:#6c3483;
+
+  --brand-gradient: linear-gradient(135deg, #6f42c1, #8e44ad);
+
   --glass:rgba(255,255,255,0.72);
 }
 
@@ -33,14 +36,33 @@ body{
   }
 }
 
-/* ===== MAIN CONTENT ===== */
+/* ===== MAIN WRAPPER ===== */
+
+
+.top_navbar{
+  background:var(--glass);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+
+  box-shadow:0 5px 25px rgba(0,0,0,0.06);
+
+  padding:12px 16px;
+
+  position:sticky;
+  top:0;
+  z-index:1000;
+
+  border-bottom:1px solid rgba(255,255,255,0.4);
+}
+
+
 
 .main_wrapper{
   position:relative;
   z-index:2;
 }
 
-/* ===== PRANCHI INTRO ===== */
+/* ===== INTRO ===== */
 
 .pranchi_intro{
   position:fixed;
@@ -66,15 +88,14 @@ body{
   }
 }
 
-/* GLOW */
+/* ===== GLOW ===== */
 
 .pranchi_glow{
   position:absolute;
   width:420px;
   height:420px;
 
-  background:
-  radial-gradient(circle,var(--brand),transparent 70%);
+  background: radial-gradient(circle,var(--brand),transparent 70%);
 
   filter:blur(80px);
   opacity:.35;
@@ -83,24 +104,18 @@ body{
 }
 
 @keyframes pulseGlow{
-  from{
-    transform:scale(1);
-  }
-  to{
-    transform:scale(1.4);
-  }
+  from{ transform:scale(1); }
+  to{ transform:scale(1.4); }
 }
 
-/* LOGO */
+/* ===== LOGO ===== */
 
 .pranchi_logo{
   width:120px;
   height:120px;
-
   border-radius:30px;
 
-  background:
-  linear-gradient(135deg,var(--brand),#c56cf0);
+  background: var(--brand-gradient);
 
   display:flex;
   align-items:center;
@@ -131,31 +146,29 @@ body{
 }
 
 @keyframes logoFloat{
-  from{
-    transform:translateY(-5px);
-  }
-  to{
-    transform:translateY(12px);
-  }
+  from{ transform:translateY(-5px); }
+  to{ transform:translateY(12px); }
 }
 
-/* TITLE */
+/* ===== TITLE ===== */
 
 .pranchi_title{
   margin-top:25px;
-
   font-size:45px;
   font-weight:800;
   letter-spacing:4px;
-
   color:#222;
 
   animation:textReveal 1.5s ease;
 }
 
 .pranchi_title span{
-  color:var(--brand);
-  text-shadow:0 0 25px rgba(142,68,173,.35);
+  background: linear-gradient(90deg,#8e44ad,#c56cf0,#6c3483);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  text-shadow: 0 0 20px rgba(142,68,173,.25);
 }
 
 @keyframes textReveal{
@@ -171,11 +184,10 @@ body{
   }
 }
 
-/* SUBTITLE */
+/* ===== SUBTITLE ===== */
 
 .pranchi_subtitle{
   margin-top:12px;
-
   color:#666;
   font-size:15px;
   letter-spacing:2px;
@@ -194,15 +206,13 @@ body{
   }
 }
 
-/* LOADING BAR */
+/* ===== LOADING ===== */
 
 .loading_line{
   width:240px;
   height:5px;
-
   background:#eee;
   border-radius:50px;
-
   margin-top:35px;
   overflow:hidden;
 }
@@ -211,64 +221,40 @@ body{
   display:block;
   height:100%;
   width:0%;
-
   border-radius:50px;
 
-  background:
-  linear-gradient(90deg,var(--brand),#d980fa);
+  background: var(--brand-gradient);
 
   animation:loading 4s ease forwards;
 }
 
 @keyframes loading{
-  to{
-    width:100%;
-  }
+  to{ width:100%; }
 }
 
-/* FLOATING PARTICLES */
+/* ===== PARTICLES ===== */
 
 .particle{
   position:absolute;
   border-radius:50%;
   background:rgba(142,68,173,.15);
-
   animation:floatParticle linear infinite;
 }
 
 .particle:nth-child(1){
-  width:12px;
-  height:12px;
-  left:10%;
-  animation-duration:12s;
+  width:12px;height:12px;left:10%;animation-duration:12s;
 }
-
 .particle:nth-child(2){
-  width:18px;
-  height:18px;
-  left:25%;
-  animation-duration:9s;
+  width:18px;height:18px;left:25%;animation-duration:9s;
 }
-
 .particle:nth-child(3){
-  width:10px;
-  height:10px;
-  left:45%;
-  animation-duration:13s;
+  width:10px;height:10px;left:45%;animation-duration:13s;
 }
-
 .particle:nth-child(4){
-  width:15px;
-  height:15px;
-  left:70%;
-  animation-duration:10s;
+  width:15px;height:15px;left:70%;animation-duration:10s;
 }
-
 .particle:nth-child(5){
-  width:22px;
-  height:22px;
-  left:85%;
-  animation-duration:14s;
+  width:22px;height:22px;left:85%;animation-duration:14s;
 }
 
 @keyframes floatParticle{
@@ -276,18 +262,14 @@ body{
     transform:translateY(100vh) scale(0);
     opacity:0;
   }
-
-  20%{
-    opacity:1;
-  }
-
+  20%{ opacity:1; }
   to{
     transform:translateY(-120px) scale(1.5);
     opacity:0;
   }
 }
 
-/* ===== PRANCHI MEANING ===== */
+/* ===== MEANING CARD ===== */
 
 .pranchi_meaning{
   display:flex;
@@ -313,12 +295,10 @@ body{
   max-width:850px;
 
   background:rgba(255,255,255,0.7);
-
   backdrop-filter:blur(12px);
   -webkit-backdrop-filter:blur(12px);
 
   border:1px solid rgba(255,255,255,0.4);
-
   border-radius:30px;
 
   padding:40px;
@@ -328,60 +308,24 @@ body{
   0 0 50px rgba(142,68,173,0.08);
 }
 
-.meaning_title{
-  text-align:center;
-
-  font-size:50px;
-  font-weight:800;
-
-  letter-spacing:4px;
-
-  margin-bottom:10px;
-
-  color:#222;
-}
-
-.meaning_title span{
-  color:var(--brand);
-}
-
-.meaning_subtitle{
-  text-align:center;
-
-  color:#777;
-
-  margin-bottom:40px;
-
-  letter-spacing:2px;
-}
-
-.meaning_list{
-  display:flex;
-  flex-direction:column;
-  gap:18px;
-}
+/* ===== MEANING ITEMS ===== */
 
 .meaning_item{
   display:flex;
-  align-items:flex-start;
   gap:18px;
-
   padding:18px 20px;
 
   border-radius:20px;
 
   background:rgba(142,68,173,0.04);
+  border:1px solid rgba(142,68,173,0.08);
 
   transition:.35s ease;
-
-  border:1px solid rgba(142,68,173,0.08);
 }
 
 .meaning_item:hover{
   transform:translateX(8px) scale(1.01);
-
   background:rgba(142,68,173,0.08);
-
   box-shadow:0 10px 25px rgba(142,68,173,0.08);
 }
 
@@ -395,9 +339,7 @@ body{
   align-items:center;
   justify-content:center;
 
-  background:
-  linear-gradient(135deg,var(--brand),#c56cf0);
-
+  background: var(--brand-gradient);
   color:#fff;
 
   font-size:24px;
@@ -406,138 +348,213 @@ body{
   box-shadow:0 8px 20px rgba(142,68,173,.25);
 }
 
-.meaning_item h4{
-  margin:0;
-  font-size:20px;
-  font-weight:700;
-  color:#222;
-}
-
-.meaning_item p{
-  margin-top:5px;
-  margin-bottom:0;
-
-  color:#666;
-  line-height:1.6;
-}
-
 /* ===== NAVBAR ===== */
 
 .top_navbar{
   background:var(--glass);
-
   backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-
   box-shadow:0 5px 25px rgba(0,0,0,0.06);
-
-  padding:12px 16px;
-
-  position:sticky;
-  top:0;
-  z-index:1000;
-
-  border-bottom:1px solid rgba(255,255,255,.4);
 }
 
-/* LOGO */
+/* BRAND */
 
 .brand_logo{
   border:2px solid rgba(142,68,173,.18);
-
-  padding:2px;
-
-  transition:.4s ease;
-
   box-shadow:0 0 20px rgba(142,68,173,.12);
 }
 
 .brand_logo:hover{
-  transform:rotate(10deg) scale(1.08);
-
   border-color:var(--brand);
-
   box-shadow:0 0 35px rgba(142,68,173,.35);
 }
 
 /* USER */
 
 .user_profile{
-  width:42px;
-  height:42px;
-
-  object-fit:cover;
-
   border:2px solid var(--brand);
-
-  transition:.3s ease;
 }
 
-.user_profile:hover{
-  transform:scale(1.08);
-}
-
-.username{
-  font-size:14px;
-  font-weight:700;
-  color:#222;
-}
-
-/* USER BOX */
-
-.top_navbar .d-flex.align-items-center.mr-4{
-  padding:8px 12px;
-  border-radius:16px;
-
-  transition:.3s ease;
-}
-
-.top_navbar .d-flex.align-items-center.mr-4:hover{
-  background:rgba(142,68,173,.08);
-
-  transform:translateY(-2px);
-}
-
-/* MENU ICON */
-
-.bars_icon{
-  font-size:22px;
-  cursor:pointer;
-
-  padding:10px 12px;
-  border-radius:14px;
-
-  transition:.3s ease;
-
-  color:#333;
-}
+/* MENU */
 
 .bars_icon:hover{
   background:rgba(142,68,173,.12);
-
-  transform:rotate(90deg) scale(1.08);
-
   color:var(--brand);
 }
 
 /* MOBILE */
 
-@media(max-width:768px){
+@media (max-width: 768px){
+
+  /* ===== INTRO SCALE FIX ===== */
+  .pranchi_logo{
+    width:90px;
+    height:90px;
+    font-size:40px;
+  }
+
+  .pranchi_title{
+    font-size:32px;
+    letter-spacing:2px;
+    text-align:center;
+  }
+
+  .pranchi_subtitle{
+    font-size:13px;
+    text-align:center;
+    padding:0 15px;
+  }
+
+  .loading_line{
+    width:180px;
+  }
+
+  /* ===== PARTICLES STOP OVERFLOW ===== */
+  .particle{
+    display:none; /* mobile smoothness ke liye */
+  }
+
+  /* ===== MEANING CARD FIX ===== */
+  .pranchi_meaning{
+    padding:25px 12px;
+  }
 
   .meaning_card{
-    padding:25px;
+    padding:20px;
+    border-radius:20px;
   }
 
   .meaning_title{
-    font-size:36px;
+    font-size:28px;
   }
 
   .meaning_item{
     flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+    padding:14px;
   }
 
+  .meaning_item span{
+    width:45px;
+    height:45px;
+    font-size:18px;
+  }
+
+  .meaning_item h4{
+    font-size:16px;
+  }
+
+  .meaning_item p{
+    font-size:13px;
+  }
+
+  /* ===== NAVBAR FIX ===== */
+  .username{
+    font-size:12px;
+  }
+
+  .user_profile{
+    width:35px;
+    height:35px;
+  }
+
+  .bars_icon{
+    font-size:18px;
+    padding:8px 10px;
+  }
 }
 
+
+@media(max-width:768px){
+  .meaning_card{padding:25px;}
+  .pranchi_title{font-size:36px;}
+  .meaning_item{flex-direction:column;}
+}
+
+</style>
+<style>
+
+body {
+  height:100vh;
+     background: linear-gradient(180deg, #ffffff, #f5f6fa);
+}
+
+/* ===== TOP NAVBAR ===== */
+.top_navbar {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+
+  padding: 10px 15px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* BRAND LOGO */
+.brand_logo {
+  border: 2px solid rgba(142, 68, 173, 0.2);
+  padding: 2px;
+  transition: 0.3s ease;
+}
+
+.brand_logo:hover {
+  transform: rotate(5deg) scale(1.05);
+  border-color: #8e44ad;
+}
+
+/* USER SECTION */
+.user_profile {
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  border: 2px solid #8e44ad;
+}
+
+.username {
+  font-size: 14px;
+  font-weight: 500;
+  color: #222;
+}
+
+/* USER BOX */
+.top_navbar .d-flex.align-items-center.mr-4 {
+  padding: 6px 10px;
+  border-radius: 12px;
+  transition: 0.25s ease;
+}
+
+.top_navbar .d-flex.align-items-center.mr-4:hover {
+  background: rgba(142, 68, 173, 0.08);
+}
+
+/* HAMBURGER ICON */
+.bars_icon {
+  font-size: 22px;
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: 0.25s ease;
+  color: #333;
+}
+
+.bars_icon:hover {
+  background: rgba(0,0,0,0.08);
+  transform: scale(1.1);
+}
+
+
+.user_profile{
+  width:40px;
+  height:40px;
+  object-fit:cover;
+}
+
+.username{
+  font-weight:600;
+}
 </style>
 
 <!-- ===== PRANCHI INTRO ===== -->

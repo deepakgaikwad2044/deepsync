@@ -570,7 +570,7 @@ body {
   <div class="pranchi_glow"></div>
 
   <div class="pranchi_logo">
-    P
+    <img class="img-fluid" src="/brands/pranchi.png">
   </div>
 
   <div class="pranchi_title">
@@ -644,7 +644,7 @@ body {
       <div class="meaning_card">
 
         <h1 class="meaning_title">
-          PRAN<span>CHI</span>
+       <img class="img-fluid" src="/brands/pra2.png">
         </h1>
 
         <p class="meaning_subtitle">

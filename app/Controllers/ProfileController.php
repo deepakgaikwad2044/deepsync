@@ -11,74 +11,73 @@ class ProfileController extends BaseController
 {
   // Function to display the profile edit form
   public function edit()
-  {
+  { 
+     
     unset($_SESSION["verified"]);
     $authUser = Auth::user(); // Retrieve the currently authenticated user's data.
     view("profiles.edit", ["user" => $authUser]); // Pass user data to the profile edit view.
   }
 
-  public function update()
-  {
-    $data = $_POST;
+public function update()
+{
+  $data = $_POST;
+  $data["profile"] = $_FILES["profile"] ?? null;
 
-    $validator = new Validator();
+  $rules = [
+    "name" => "required|len:3",
+    "email" => "required|email",
+  ];
 
-    $result = $validator->validate($data, [
-      "name" => "required|len:3",
-      "email" => "required|email",
-    ]);
+  if (!empty($data["profile"]["name"])) {
+    $rules["profile"] = "image|max:2MB|mimes:jpg,png";
+  }
 
-    if (!$result["status"]) {
-      $_SESSION["errors"] = $result["errors"];
-      $_SESSION["old"] = $data;
-      redirect(route("user.profile.edit"));
-      return;
-    }
+  $validator = new Validator();
+  $result = $validator->validate($data, $rules);
 
-    // ✅ 2. Auth info
-    $authUserId = Auth::id();
-    $avatar = Auth::avatar();
+  if (!$result["status"]) {
+    $_SESSION["errors"] = $result["errors"];
+    $_SESSION["old"] = $data;
 
-    $name = trim($_POST["name"]);
-    $email = trim($_POST["email"]);
-    $file = $_FILES["profile"] ?? null;
+    redirect(route("user.profile.edit"));
+    return;
+  }
 
-    // ✅ 3. Prepare update data
-    $updateData = [
-      "name" => $name,
-      "email" => $email,
-    ];
+  $authUserId = Auth::id();
+  $avatar = Auth::avatar();
 
-    // ✅ 4. Image upload
-    if ($file && $file["name"] !== "") {
-      try {
-        $newAvatar = File::upload($file, "profiles");
+  $updateData = [
+    "name" => trim($data["name"]),
+    "email" => trim($data["email"]),
+  ];
 
-        if ($avatar && File::exists($avatar)) {
-          File::delete($avatar);
-        }
+  // IMAGE UPLOAD ONLY IF FILE EXISTS
+  $file = $data["profile"];
 
-        $updateData["avtar"] = $newAvatar;
-      } catch (\Exception $e) {
-        $_SESSION["errors"]["image"] = $e->getMessage();
-        redirect(route("user.profile.edit"));
-        exit();
+  if (!empty($file["name"])) {
+    try {
+      $newAvatar = File::upload($file, "profiles");
+
+      if ($avatar && File::exists($avatar)) {
+        File::delete($avatar);
       }
-    }
 
-    // ✅ 5. Update DB
-    if (User::update($authUserId, $updateData)) {
-      setFlash("success", "Profile updated");
-      return redirect(route("user.dashboard"));
+      $updateData["avtar"] = $newAvatar;
 
-      exit();
-    } else {
-      setFlash("errors", [
-        "form" => "Profile didn't update",
-      ]);
+    } catch (\Exception $e) {
+      $_SESSION["errors"]["profile"] = $e->getMessage();
       redirect(route("user.profile.edit"));
       return;
     }
   }
+
+  if (User::update($authUserId, $updateData)) {
+    setFlash("flash_success", "Profile updated");
+    redirect(route("user.dashboard"));
+    return;
+  }
+
+  redirect(route("user.profile.edit"));
+}
 }
 ?>

@@ -161,3 +161,28 @@ function route($name, $params = [])
     return \App\Core\Router::route($name, $params);
 }
 
+function dd(...$vars)
+{
+    echo "<style>
+        body { background:#0f172a; color:#e2e8f0; font-family: monospace; }
+        .dd-box {
+            background:#020617;
+            border:1px solid #334155;
+            padding:20px;
+            margin:20px;
+            border-radius:10px;
+            overflow:auto;
+        }
+    </style>";
+
+    foreach ($vars as $var) {
+        echo "<div class='dd-box'>";
+        echo "<pre>";
+        var_dump($var);
+        echo "</pre>";
+        echo "</div>";
+    }
+
+    die();
+}
+

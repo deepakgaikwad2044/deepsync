@@ -3,90 +3,129 @@
 @section('content')
 
 <style>
+
 :root {
   --brand: #8e44ad;
   --brand-dark: #6c3483;
-  --bg: #f1f1fe;
+  --bg: linear-gradient(135deg,#f3eaff,#f9f6ff);
   --text: #2d2d2d;
-  --muted: #6c757d;
-  --brand-gradient: linear-gradient(355deg, #8e44ad, #6f42c1);
+  --brand-gradient: linear-gradient(135deg,#8e44ad,#6f42c1);
 }
 
 body {
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, sans-serif;
-  margin: 0;
-  padding: 0 1rem;
 }
 
+/* MAIN */
 main {
-  max-width: 900px;
+  max-width: 950px;
   margin: 2rem auto;
 }
 
+/* HEADER */
 h2 {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   color: var(--brand-dark);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  font-weight: 600;
 }
 
+/* BACK BUTTON */
 .back-btn {
   background: var(--brand-gradient);
   color: white;
-  border: none;
-  padding: 0.4rem 1rem;
-  border-radius: 0.3rem;
-  cursor: pointer;
-  font-weight: 600;
-  box-shadow: 0 3px 6px rgb(142 68 173 / 0.4);
+  padding: 6px 14px;
+  border-radius: 10px;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.25s ease;
 }
 
+.back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(142,68,173,.4);
+}
+
+/* ADD BUTTON */
+#openCreateModalBtn {
+  border-radius: 12px;
+  padding: 8px 14px;
+  transition: 0.25s ease;
+}
+
+#openCreateModalBtn:hover {
+  transform: scale(1.1);
+}
+
+/* TABLE WRAPPER */
 .table-responsive {
-  margin-top: 1rem;
-  overflow-x: auto;
-  border-radius: 0.4rem;
-  box-shadow: 0 0 10px rgb(0 0 0 / 0.05);
-  background: white;
+  margin-top: 1.5rem;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,.08);
 }
 
+/* TABLE */
 table {
   width: 100%;
   border-collapse: collapse;
 }
 
+/* HEADER */
 thead {
   background: var(--brand-gradient);
   color: white;
 }
 
+th {
+  font-weight: 500;
+}
+
+/* CELLS */
 th, td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #eee;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
-tr:hover {
-  background: #f9f2ff;
+/* ROW HOVER */
+tbody tr {
+  transition: 0.2s ease;
 }
 
+tbody tr:hover {
+  background: rgba(142,68,173,0.08);
+}
+
+/* ACTION ICONS */
 .action-btn {
-  margin: 0 0.25rem;
-  font-size: 1.1rem;
+  margin: 0 6px;
+  font-size: 16px;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
-#openCreateModalBtn:active {
+.action-btn:hover {
   transform: scale(1.2);
+}
+
+/* BADGES */
+.badge {
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
 }
 
 /* MODAL */
 .modal-overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.4);
+  background:rgba(0,0,0,.5);
+  backdrop-filter: blur(4px);
   display:none;
   align-items:center;
   justify-content:center;
@@ -94,13 +133,51 @@ tr:hover {
 }
 
 .modal-box{
-  background:#fff;
-  padding:1.2rem;
-  border-radius:.5rem;
+  background:rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  padding:1.5rem;
+  border-radius:16px;
   width:100%;
-  max-width:400px;
-  box-shadow:0 10px 30px rgba(0,0,0,.2);
+  max-width:420px;
+  box-shadow:0 20px 50px rgba(0,0,0,.2);
+  animation: scaleIn .25s ease;
 }
+
+/* MODAL ANIMATION */
+@keyframes scaleIn{
+  from{
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to{
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* INPUT */
+.form-control{
+  border-radius:12px;
+  padding:10px;
+  border:1px solid rgba(0,0,0,0.1);
+}
+
+.form-control:focus{
+  border-color: var(--brand);
+  box-shadow:0 0 0 3px rgba(142,68,173,.2);
+}
+
+/* BUTTONS */
+.btn-primary{
+  background: var(--brand-gradient);
+  border:none;
+  border-radius:12px;
+}
+
+.btn-secondary{
+  border-radius:12px;
+}
+
 </style>
 
 <main>

@@ -34,58 +34,6 @@ body{
   animation:bgMove 10s ease infinite alternate;
 }
 
-body::before,
-body::after{
-  content:"";
-  position:fixed;
-  border-radius:50%;
-  z-index:0;
-  pointer-events:none;
-  filter:blur(90px);
-}
-
-body::before{
-  width:300px;
-  height:300px;
-
-  top:-100px;
-  left:-100px;
-
-  background:rgba(142,68,173,.18);
-
-  animation:orbMove1 12s ease infinite alternate;
-}
-
-body::after{
-  width:260px;
-  height:260px;
-
-  bottom:-80px;
-  right:-80px;
-
-  background:rgba(111,66,193,.18);
-
-  animation:orbMove2 14s ease infinite alternate;
-}
-
-@keyframes orbMove1{
-  from{
-    transform:translate(0,0);
-  }
-  to{
-    transform:translate(80px,60px);
-  }
-}
-
-@keyframes orbMove2{
-  from{
-    transform:translate(0,0);
-  }
-  to{
-    transform:translate(-60px,-50px);
-  }
-}
-
 @keyframes bgMove{
   from{
     background-position:left top,right bottom;
@@ -105,12 +53,101 @@ body::after{
 }
 
 /* ================================
+   TOP NAVBAR
+================================ */
+
+.top_navbar{
+  background:var(--glass);
+
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+
+  box-shadow:0 5px 25px rgba(0,0,0,0.06);
+
+  padding:12px 16px;
+
+  position:sticky;
+  top:0;
+  z-index:1000;
+
+  border-bottom:1px solid rgba(255,255,255,0.4);
+}
+
+/* BRAND */
+
+.brand_logo{
+  border:2px solid rgba(142,68,173,.18);
+  box-shadow:0 0 20px rgba(142,68,173,.12);
+
+  transition:.3s ease;
+}
+
+.brand_logo:hover{
+  transform:rotate(5deg) scale(1.05);
+
+  border-color:var(--brand);
+
+  box-shadow:0 0 35px rgba(142,68,173,.35);
+}
+
+/* USER */
+
+.user_profile{
+  width:40px;
+  height:40px;
+
+  object-fit:cover;
+
+  border:2px solid var(--brand);
+}
+
+.username{
+  font-size:14px;
+  font-weight:600;
+  color:#222;
+}
+
+/* USER BOX */
+
+.top_navbar .d-flex.align-items-center.mr-4{
+  padding:6px 10px;
+  border-radius:12px;
+
+  transition:.25s ease;
+}
+
+.top_navbar .d-flex.align-items-center.mr-4:hover{
+  background:rgba(142,68,173,.08);
+}
+
+/* MENU */
+
+.bars_icon{
+  font-size:22px;
+  cursor:pointer;
+
+  padding:8px 10px;
+  border-radius:10px;
+
+  transition:.25s ease;
+  color:#333;
+}
+
+.bars_icon:hover{
+  background:rgba(142,68,173,.12);
+  color:var(--brand);
+
+  transform:scale(1.1);
+}
+
+/* ================================
    INTRO SCREEN
 ================================ */
 
 .pranchi_intro{
   position:fixed;
   inset:0;
+
   z-index:99999;
 
   background:#fff;
@@ -133,9 +170,7 @@ body::after{
   }
 }
 
-/* ================================
-   GLOW
-================================ */
+/* GLOW */
 
 .pranchi_glow{
   position:absolute;
@@ -161,9 +196,7 @@ body::after{
   }
 }
 
-/* ================================
-   LOGO
-================================ */
+/* LOGO */
 
 .pranchi_logo{
   width:120px;
@@ -208,9 +241,7 @@ body::after{
   }
 }
 
-/* ================================
-   LOADING BAR
-================================ */
+/* LOADING */
 
 .loading_line{
   width:240px;
@@ -221,6 +252,7 @@ body::after{
   border-radius:50px;
 
   margin-top:35px;
+
   overflow:hidden;
 }
 
@@ -243,9 +275,7 @@ body::after{
   }
 }
 
-/* ================================
-   PARTICLES
-================================ */
+/* PARTICLES */
 
 .particle{
   position:absolute;
@@ -308,131 +338,14 @@ body::after{
 }
 
 /* ================================
-   TOP NAVBAR
-================================ */
-
-.top_navbar{
-  background:rgba(255,255,255,0.85);
-
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-
-  box-shadow:0 5px 25px rgba(0,0,0,0.06);
-
-  padding:12px 16px;
-
-  position:sticky;
-  top:0;
-  z-index:1000;
-
-  border-bottom:1px solid rgba(255,255,255,0.4);
-
-  animation:navDrop .8s ease;
-}
-
-@keyframes navDrop{
-  from{
-    opacity:0;
-    transform:translateY(-40px);
-  }
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
-
-/* ================================
-   BRAND LOGO
-================================ */
-
-.brand_logo{
-  border:2px solid rgba(142,68,173,.18);
-
-  box-shadow:
-  0 0 20px rgba(142,68,173,.12);
-
-  transition:.3s ease;
-}
-
-.brand_logo:hover{
-  transform:rotate(5deg) scale(1.05);
-
-  border-color:var(--brand);
-
-  box-shadow:
-  0 0 35px rgba(142,68,173,.35);
-}
-
-/* ================================
-   USER PROFILE
-================================ */
-
-.user_profile{
-  width:40px;
-  height:40px;
-
-  object-fit:cover;
-
-  border:2px solid var(--brand);
-}
-
-.username{
-  font-size:14px;
-  font-weight:600;
-  color:#222;
-}
-
-/* ================================
-   USER BOX
-================================ */
-
-.top_navbar .d-flex.align-items-center.mr-4{
-  padding:6px 10px;
-
-  border-radius:12px;
-
-  transition:.25s ease;
-}
-
-.top_navbar .d-flex.align-items-center.mr-4:hover{
-  background:rgba(142,68,173,.08);
-}
-
-/* ================================
-   HAMBURGER ICON
-================================ */
-
-.bars_icon{
-  font-size:22px;
-
-  cursor:pointer;
-
-  padding:8px 10px;
-
-  border-radius:10px;
-
-  transition:.25s ease;
-
-  color:#333;
-}
-
-.bars_icon:hover{
-  background:rgba(142,68,173,.12);
-
-  color:var(--brand);
-
-  transform:scale(1.1);
-}
-
-/* ================================
-   PRANCHI MEANING SECTION
+   MEANING SECTION
 ================================ */
 
 .pranchi_meaning{
   display:flex;
   justify-content:center;
 
-  padding:60px 20px;
+  padding:50px 20px;
 
   animation:meaningFade 1.2s ease;
 }
@@ -448,36 +361,31 @@ body::after{
   }
 }
 
-/* ================================
-   CARD
-================================ */
+/* CARD */
 
 .meaning_card{
   width:100%;
-  max-width:900px;
-
-  position:relative;
-  overflow:hidden;
+  max-width:850px;
 
   background:rgba(255,255,255,0.72);
 
   backdrop-filter:blur(14px);
   -webkit-backdrop-filter:blur(14px);
 
-  border:1px solid rgba(255,255,255,0.45);
-
+  border:1px solid rgba(255,255,255,0.5);
   border-radius:32px;
 
-  padding:50px 45px;
+  padding:50px;
 
   box-shadow:
-  0 10px 40px rgba(0,0,0,0.08),
-  0 0 50px rgba(142,68,173,0.08);
+  0 15px 45px rgba(0,0,0,0.08),
+  0 0 60px rgba(142,68,173,0.08);
 
-  animation:
-  cardFloat 5s ease-in-out infinite,
-  meaningFade 1.2s ease;
+  position:relative;
+  overflow:hidden;
 }
+
+/* LIGHT EFFECT */
 
 .meaning_card::before{
   content:"";
@@ -489,55 +397,26 @@ body::after{
   width:260px;
   height:260px;
 
+  border-radius:50%;
+
   background:
   radial-gradient(circle,
   rgba(142,68,173,.15),
   transparent 70%);
 }
 
-@keyframes cardFloat{
-  0%{
-    transform:translateY(0px);
-  }
-
-  50%{
-    transform:translateY(-8px);
-  }
-
-  100%{
-    transform:translateY(0px);
-  }
-}
-
-/* ================================
-   TITLE
-================================ */
+/* TITLE */
 
 .meaning_title{
   text-align:center;
-  margin-bottom:12px;
+  margin-bottom:10px;
 }
 
 .meaning_title img{
-  max-width:320px;
-  width:100%;
-
-  animation:titleGlow 4s ease infinite alternate;
+  max-width:240px;
 }
 
-@keyframes titleGlow{
-  from{
-    filter:drop-shadow(0 0 0 rgba(142,68,173,.1));
-  }
-
-  to{
-    filter:drop-shadow(0 0 18px rgba(142,68,173,.25));
-  }
-}
-
-/* ================================
-   SUBTITLE
-================================ */
+/* SUBTITLE */
 
 .meaning_subtitle{
   text-align:center;
@@ -545,7 +424,7 @@ body::after{
   font-size:15px;
   color:#666;
 
-  margin-bottom:40px;
+  margin-bottom:45px;
 
   letter-spacing:2px;
   text-transform:uppercase;
@@ -581,26 +460,24 @@ body::after{
   }
 }
 
-/* ================================
-   LIST
-================================ */
+/* LIST */
 
 .meaning_list{
   display:flex;
   flex-direction:column;
+
   gap:20px;
 }
 
-/* ================================
-   ITEM
-================================ */
+/* ITEM */
 
 .meaning_item{
   display:flex;
   align-items:flex-start;
-  gap:20px;
 
-  padding:22px 24px;
+  gap:18px;
+
+  padding:22px;
 
   border-radius:24px;
 
@@ -610,25 +487,30 @@ body::after{
 
   transition:.35s ease;
 
-  opacity:0;
-  transform:translateY(30px);
-
-  animation:itemReveal .8s ease forwards;
+  position:relative;
+  overflow:hidden;
 }
 
-.meaning_item:nth-child(1){ animation-delay:.1s; }
-.meaning_item:nth-child(2){ animation-delay:.2s; }
-.meaning_item:nth-child(3){ animation-delay:.3s; }
-.meaning_item:nth-child(4){ animation-delay:.4s; }
-.meaning_item:nth-child(5){ animation-delay:.5s; }
-.meaning_item:nth-child(6){ animation-delay:.6s; }
-.meaning_item:nth-child(7){ animation-delay:.7s; }
+.meaning_item::before{
+  content:"";
 
-@keyframes itemReveal{
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
+  position:absolute;
+  inset:0;
+
+  background:
+  linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,.5),
+    transparent
+  );
+
+  transform:translateX(-100%);
+  transition:.6s ease;
+}
+
+.meaning_item:hover::before{
+  transform:translateX(100%);
 }
 
 .meaning_item:hover{
@@ -640,9 +522,7 @@ body::after{
   0 12px 30px rgba(142,68,173,0.10);
 }
 
-/* ================================
-   ICON
-================================ */
+/* LETTER */
 
 .meaning_item span{
   min-width:58px;
@@ -662,45 +542,13 @@ body::after{
   font-weight:800;
 
   box-shadow:
-  0 8px 20px rgba(142,68,173,.25);
-
-  animation:iconPulse 3s ease infinite;
-
-  transition:.3s ease;
+  0 10px 25px rgba(142,68,173,.25);
 }
 
-.meaning_item:hover span{
-  transform:rotate(-8deg) scale(1.08);
-}
-
-@keyframes iconPulse{
-
-  0%{
-    box-shadow:
-    0 0 0 rgba(142,68,173,.3),
-    0 8px 20px rgba(142,68,173,.25);
-  }
-
-  50%{
-    box-shadow:
-    0 0 25px rgba(142,68,173,.35),
-    0 8px 20px rgba(142,68,173,.25);
-  }
-
-  100%{
-    box-shadow:
-    0 0 0 rgba(142,68,173,.3),
-    0 8px 20px rgba(142,68,173,.25);
-  }
-
-}
-
-/* ================================
-   TEXT
-================================ */
+/* TEXT */
 
 .meaning_item h4{
-  margin-bottom:6px;
+  margin:0;
 
   font-size:20px;
   font-weight:700;
@@ -709,12 +557,11 @@ body::after{
 }
 
 .meaning_item p{
-  margin-bottom:0;
+  margin:6px 0 0;
 
   color:#666;
 
   line-height:1.7;
-
   font-size:15px;
 }
 
@@ -738,22 +585,23 @@ body::after{
   }
 
   .pranchi_meaning{
-    padding:30px 12px;
+    padding:25px 12px;
   }
 
   .meaning_card{
-    padding:28px 20px;
+    padding:24px;
     border-radius:24px;
   }
 
   .meaning_title img{
-    max-width:220px;
+    max-width:190px;
   }
 
   .meaning_subtitle{
     font-size:12px;
-    margin-bottom:25px;
-    letter-spacing:1px;
+    letter-spacing:1.5px;
+
+    margin-bottom:30px;
   }
 
   .meaning_list{
@@ -762,9 +610,10 @@ body::after{
 
   .meaning_item{
     flex-direction:column;
-    gap:14px;
 
-    padding:18px;
+    gap:12px;
+
+    padding:16px;
 
     border-radius:18px;
   }
@@ -772,12 +621,11 @@ body::after{
   .meaning_item span{
     width:48px;
     height:48px;
-
     min-width:48px;
 
     font-size:18px;
 
-    border-radius:16px;
+    border-radius:14px;
   }
 
   .meaning_item h4{
@@ -809,7 +657,7 @@ body::after{
 
 <!-- ===== PRANCHI INTRO ===== -->
 
-<div class="pranchi_intro">
+<div id="pranchiIntro" class="pranchi_intro">
 
   <div class="particle"></div>
   <div class="particle"></div>
@@ -961,4 +809,34 @@ body::after{
 
 </div>
 
+
+<script>
+
+$(document).ready(function(){
+
+    const intro = $("#pranchiIntro");
+
+    if(localStorage.getItem("pranchi_intro_seen")){
+
+        intro.hide();
+
+    }else{
+      
+        localStorage.setItem("pranchi_intro_seen", "true");
+    }
+
+});
+</script>
+
+<script>
+$(document).ready(function(){
+
+    $(".logout_btn").on("click", function(){
+
+        localStorage.removeItem("pranchi_intro_seen");
+
+    });
+
+});
+</script>
 @endsection

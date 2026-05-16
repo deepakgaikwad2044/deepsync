@@ -34,6 +34,58 @@ body{
   animation:bgMove 10s ease infinite alternate;
 }
 
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  border-radius:50%;
+  z-index:0;
+  pointer-events:none;
+  filter:blur(90px);
+}
+
+body::before{
+  width:300px;
+  height:300px;
+
+  top:-100px;
+  left:-100px;
+
+  background:rgba(142,68,173,.18);
+
+  animation:orbMove1 12s ease infinite alternate;
+}
+
+body::after{
+  width:260px;
+  height:260px;
+
+  bottom:-80px;
+  right:-80px;
+
+  background:rgba(111,66,193,.18);
+
+  animation:orbMove2 14s ease infinite alternate;
+}
+
+@keyframes orbMove1{
+  from{
+    transform:translate(0,0);
+  }
+  to{
+    transform:translate(80px,60px);
+  }
+}
+
+@keyframes orbMove2{
+  from{
+    transform:translate(0,0);
+  }
+  to{
+    transform:translate(-60px,-50px);
+  }
+}
+
 @keyframes bgMove{
   from{
     background-position:left top,right bottom;
@@ -157,32 +209,6 @@ body{
 }
 
 /* ================================
-   SUBTITLE
-================================ */
-
-.pranchi_subtitle{
-  margin-top:14px;
-
-  color:#666;
-
-  font-size:15px;
-  letter-spacing:2px;
-
-  animation:fadeUp 2s ease;
-}
-
-@keyframes fadeUp{
-  from{
-    opacity:0;
-    transform:translateY(30px);
-  }
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
-
-/* ================================
    LOADING BAR
 ================================ */
 
@@ -300,6 +326,19 @@ body{
   z-index:1000;
 
   border-bottom:1px solid rgba(255,255,255,0.4);
+
+  animation:navDrop .8s ease;
+}
+
+@keyframes navDrop{
+  from{
+    opacity:0;
+    transform:translateY(-40px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
 }
 
 /* ================================
@@ -434,6 +473,10 @@ body{
   box-shadow:
   0 10px 40px rgba(0,0,0,0.08),
   0 0 50px rgba(142,68,173,0.08);
+
+  animation:
+  cardFloat 5s ease-in-out infinite,
+  meaningFade 1.2s ease;
 }
 
 .meaning_card::before{
@@ -452,6 +495,20 @@ body{
   transparent 70%);
 }
 
+@keyframes cardFloat{
+  0%{
+    transform:translateY(0px);
+  }
+
+  50%{
+    transform:translateY(-8px);
+  }
+
+  100%{
+    transform:translateY(0px);
+  }
+}
+
 /* ================================
    TITLE
 ================================ */
@@ -464,6 +521,18 @@ body{
 .meaning_title img{
   max-width:320px;
   width:100%;
+
+  animation:titleGlow 4s ease infinite alternate;
+}
+
+@keyframes titleGlow{
+  from{
+    filter:drop-shadow(0 0 0 rgba(142,68,173,.1));
+  }
+
+  to{
+    filter:drop-shadow(0 0 18px rgba(142,68,173,.25));
+  }
 }
 
 /* ================================
@@ -480,6 +549,36 @@ body{
 
   letter-spacing:2px;
   text-transform:uppercase;
+
+  position:relative;
+  overflow:hidden;
+}
+
+.meaning_subtitle::after{
+  content:"";
+
+  position:absolute;
+  top:0;
+  left:-120%;
+
+  width:100%;
+  height:100%;
+
+  background:
+  linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,.8),
+    transparent
+  );
+
+  animation:shine 4s linear infinite;
+}
+
+@keyframes shine{
+  to{
+    left:120%;
+  }
 }
 
 /* ================================
@@ -510,6 +609,26 @@ body{
   border:1px solid rgba(142,68,173,0.08);
 
   transition:.35s ease;
+
+  opacity:0;
+  transform:translateY(30px);
+
+  animation:itemReveal .8s ease forwards;
+}
+
+.meaning_item:nth-child(1){ animation-delay:.1s; }
+.meaning_item:nth-child(2){ animation-delay:.2s; }
+.meaning_item:nth-child(3){ animation-delay:.3s; }
+.meaning_item:nth-child(4){ animation-delay:.4s; }
+.meaning_item:nth-child(5){ animation-delay:.5s; }
+.meaning_item:nth-child(6){ animation-delay:.6s; }
+.meaning_item:nth-child(7){ animation-delay:.7s; }
+
+@keyframes itemReveal{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
 }
 
 .meaning_item:hover{
@@ -544,6 +663,36 @@ body{
 
   box-shadow:
   0 8px 20px rgba(142,68,173,.25);
+
+  animation:iconPulse 3s ease infinite;
+
+  transition:.3s ease;
+}
+
+.meaning_item:hover span{
+  transform:rotate(-8deg) scale(1.08);
+}
+
+@keyframes iconPulse{
+
+  0%{
+    box-shadow:
+    0 0 0 rgba(142,68,173,.3),
+    0 8px 20px rgba(142,68,173,.25);
+  }
+
+  50%{
+    box-shadow:
+    0 0 25px rgba(142,68,173,.35),
+    0 8px 20px rgba(142,68,173,.25);
+  }
+
+  100%{
+    box-shadow:
+    0 0 0 rgba(142,68,173,.3),
+    0 8px 20px rgba(142,68,173,.25);
+  }
+
 }
 
 /* ================================
@@ -578,12 +727,6 @@ body{
   .pranchi_logo{
     width:90px;
     height:90px;
-  }
-
-  .pranchi_subtitle{
-    font-size:13px;
-    text-align:center;
-    padding:0 15px;
   }
 
   .loading_line{
@@ -678,11 +821,6 @@ body{
 
   <div class="pranchi_logo">
     <img class="img-fluid" src="/brands/pra.jpg">
-  </div>
-
-
-  <div class="pranchi_subtitle">
-    NEXT GENERATION BLADE ENGINE
   </div>
 
   <div class="loading_line">

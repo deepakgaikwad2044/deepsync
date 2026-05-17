@@ -56,29 +56,116 @@ Router::post('/login', [AuthController::class, 'login']);
 </ul>"
 ],
 
-["🎨 Blade Engine", "blade-engine",
-"<h2>🎨 Blade Engine</h2>
+ [
+    "🎨 PRANCHI Blade Engine",
+    "blade-engine",
 
-<p>Deep Sync includes a custom Blade engine inspired by Laravel.</p>
+<<<HTML
+<div class='blade_engine_box'>
 
-<h3>Syntax:</h3>
+    <div class='blade_engine_header'>
+        <img style='width:300px; height:300px;' src='/brands/pra2.png' alt='PRANCHI Blade Engine' />
 
-<pre>
+        <div>
+            <h2>🎨 PRANCHI Blade Engine</h2>
+            <p>
+                Deep Sync includes a custom Blade-style engine inspired by Laravel,
+                designed for speed, simplicity, and extensibility.
+            </p>
+        </div>
+    </div>
+
+    <h3>Syntax:</h3>
+
+    <pre>
 @extends('layouts.app')
 
 @section('content')
     Hello {{ \$name }}
 @endsection
-</pre>
+    </pre>
 
-<h3>Supported Features:</h3>
-<ul>
-<li>@extends layout inheritance</li>
-<li>@section / @yield system</li>
-<li>@include partials</li>
-<li>{{ safe output }}</li>
-<li>{!! raw HTML !!}</li>
-</ul>"
+    <h3>Core Features:</h3>
+    <ul>
+        <li>@extends layout inheritance system</li>
+        <li>@section / @yield template blocks</li>
+        <li>@include reusable components</li>
+        <li>{{ safe output escaping }}</li>
+        <li>{!! raw HTML rendering !!}</li>
+        <li>Lightweight parsing engine</li>
+        <li>Optimized caching support</li>
+    </ul>
+
+    <div class="meaning_card">
+
+        <p class="meaning_subtitle">
+            Next Generation Blade Engine
+        </p>
+
+        <div class="meaning_list">
+
+            <div class="meaning_item">
+                <span>P</span>
+                <div>
+                    <h4>Powerful</h4>
+                    <p>High-speed rendering with robust template capabilities.</p>
+                </div>
+            </div>
+
+            <div class="meaning_item">
+                <span>R</span>
+                <div>
+                    <h4>Reactive</h4>
+                    <p>Dynamic UI handling with a modern development workflow.</p>
+                </div>
+            </div>
+
+            <div class="meaning_item">
+                <span>A</span>
+                <div>
+                    <h4>Advanced</h4>
+                    <p>Advanced directives, layouts, and reusable components.</p>
+                </div>
+            </div>
+
+            <div class="meaning_item">
+                <span>N</span>
+                <div>
+                    <h4>Native</h4>
+                    <p>Seamless integration with core PHP architecture.</p>
+                </div>
+            </div>
+
+            <div class="meaning_item">
+                <span>C</span>
+                <div>
+                    <h4>Clean</h4>
+                    <p>Readable syntax with a clean and maintainable structure.</p>
+                </div>
+            </div>
+
+            <div class="meaning_item">
+                <span>H</span>
+                <div>
+                    <h4>Hybrid</h4>
+                    <p>A perfect blend of traditional and modern templating.</p>
+                </div>
+            </div>
+
+            <div class="meaning_item">
+                <span>I</span>
+                <div>
+                    <h4>Intelligent</h4>
+                    <p>Smart caching and optimized rendering performance.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+HTML
 ],
 
 ["🗄️ Database ORM", "database-orm",

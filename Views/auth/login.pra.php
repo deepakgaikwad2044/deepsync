@@ -396,13 +396,25 @@ button,
         <a href="/register" class="btn-link btn-outline">
           Register
         </a>
+        
+   
+               <x-button type="success">
+    Save Data
+</x-button>   
+
+
+               <x-button type="danger">
+    remove Data
+</x-button>     
 
       </div>
 
     </form>
+    
 
   </div>
 
 </div>
+
 
 @endsection

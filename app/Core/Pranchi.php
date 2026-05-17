@@ -11,6 +11,7 @@ class Pranchi
 
     protected array $sections = [];
     protected ?string $layout = null;
+protected ?\App\Core\Components\ComponentCompiler $componentCompiler = null;
 
     public function __construct()
     {
@@ -49,9 +50,15 @@ class Pranchi
             filemtime($cacheFile) < filemtime($filePath)
         ) {
 
-            $compiled = $this->compile(
-                file_get_contents($filePath)
-            );
+   $content = file_get_contents($filePath);
+
+// 👇 FIRST compile components BEFORE anything
+if ($this->componentCompiler) {
+    $content = $this->componentCompiler->compile($content);
+}
+
+// then blade compile
+$compiled = $this->compile($content);
 
             $compiled =
                 "<?php /* PRANCHI compiled template */ ?>\n" .
@@ -394,24 +401,20 @@ PHP;
             "<?= csrf_field() ?>",
             $template
         );
+        
+        
+        if ($this->componentCompiler) {
+    $template = $this->componentCompiler->compile($template);
+}
 
         return $template;
     }
-}
-
-/* =========================================================
- | VIEW HELPER
- * ========================================================= */
-
-function view(string $file_path, array $data = []): void
+    
+    
+public function setComponentCompiler($compiler): void
 {
-    $pranchi = new \App\Core\Pranchi();
-
-    $path = str_replace(
-        ".",
-        DIRECTORY_SEPARATOR,
-        $file_path
-    );
-
-    echo $pranchi->render($path, $data);
+    $this->componentCompiler = $compiler;
 }
+}
+
+

@@ -374,6 +374,34 @@ body {
   position: relative;
 }
 
+
+.component_btn {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.component_btn_success { background: #28a745; color: #fff; }
+.component_btn_danger { background: #dc3545; color: #fff; }
+
+.component_alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.component_alert_success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.component_alert_danger {
+    background: #f8d7da;
+    color: #721c24;
+}
+
 </style>
 
 <script src="/js/ds-datatable.js"></script>

@@ -239,6 +239,25 @@ $compiled = $this->compile($content);
             },
             $template
         );
+        
+        
+        /* ========= @props ========= */
+
+$template = preg_replace_callback(
+    '/@props\((.*?)\)/s',
+    function ($m) {
+        return "<?php\n"
+            . '$__defaults = ' . $m[1] . ";\n"
+            . "foreach ((array) \$__defaults as \$__key => \$__default) {\n"
+            . "    if (!isset(\$__props[\$__key])) {\n"
+            . "        \$__props[\$__key] = \$__default;\n"
+            . "    }\n"
+            . "    \${\$__key} = \$__props[\$__key];\n"
+            . "}\n"
+            . "?>";
+    },
+    $template
+);
 
         /* ========= SAFE OUTPUT ========= */
 
@@ -415,6 +434,13 @@ public function setComponentCompiler($compiler): void
 {
     $this->componentCompiler = $compiler;
 }
+
+
+public function getComponentCompiler(): ?\App\Core\Components\ComponentCompiler
+{
+    return $this->componentCompiler;
 }
+}
+
 
 

@@ -47,6 +47,9 @@ class BaseController
 ]);
   }
   
-
+  public function components(){
+     view("apps.components");
+  }
+  
 }
 ?>

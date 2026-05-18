@@ -1,48 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
+/* =========================
+   SESSION
+========================= */
 session_start();
 
-date_default_timezone_set("Asia/kolkata");
+/* =========================
+   TIMEZONE
+========================= */
+date_default_timezone_set("Asia/Kolkata");
 
+/* =========================
+   ROOT PATH
+========================= */
 define("APP_ROOT", dirname(__DIR__));
 
+/* =========================
+   COMPOSER AUTOLOADER
+========================= */
 require_once APP_ROOT . "/vendor/autoload.php";
 
+/* =========================
+   CORE FILES
+========================= */
 require_once APP_ROOT . "/App/Core/Env.php";
 require_once APP_ROOT . "/App/Core/helpers.php";
 
 use App\Core\Env;
 
-Env::load(base_path(".env"));
-
-spl_autoload_register(function ($class) {
-    $classFile = str_replace("\\", DIRECTORY_SEPARATOR, $class . ".php");
-    $classpath = APP_ROOT . "/" . $classFile;
-
-    if (file_exists($classpath)) {
-        require_once $classpath;
-    }
-});
+/* =========================
+   ENV LOAD (EARLY)
+========================= */
+Env::load(APP_ROOT . "/.env");
 
 /* =========================
-   CREATE PRANCHI FIRST
+   PRANCHI CORE INIT
 ========================= */
 $GLOBALS['pranchi'] = new \App\Core\Pranchi();
 
 /* =========================
-   THEN LOAD COMPONENTS
+   BOOTSTRAP COMPONENT SYSTEM
 ========================= */
 require_once APP_ROOT . "/bootstrap/components.php";
 
+/* =========================
+   ROUTER
+========================= */
 use App\Core\Router;
 
-/* =========================
-   ROUTES
-========================= */
-require_once APP_ROOT . "/Routes/web.php";
-require_once APP_ROOT . "/Routes/api.php";
+/* safer route loading */
+$routes = [
+    APP_ROOT . "/Routes/web.php",
+    APP_ROOT . "/Routes/api.php",
+];
+
+foreach ($routes as $routeFile) {
+    if (file_exists($routeFile)) {
+        require_once $routeFile;
+    } else {
+        throw new RuntimeException("Route file missing: {$routeFile}");
+    }
+}
 
 /* =========================
-   DISPATCH
+   DISPATCH WITH SAFETY
 ========================= */
-Router::dispatch();
+try {
+    Router::dispatch();
+} catch (\Throwable $e) {
+    http_response_code(500);
+    echo "Application Error: " . $e->getMessage();
+}

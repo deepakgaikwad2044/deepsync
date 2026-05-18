@@ -116,6 +116,13 @@
           <a href="<?= route('websocket.all') ?>" class="nav-link">websocket</a>
         </div>
       </li>
+    
+      <li class="nav-item">
+        <div class="d-flex align-items-center">
+          <span class="material-symbols-outlined">plug_connect</span>
+          <a href="<?= route('components') ?>" class="nav-link">components</a>
+        </div>
+      </li>
 
       <li class="nav-item logout">
         <div class="d-flex align-items-center">

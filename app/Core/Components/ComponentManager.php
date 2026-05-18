@@ -6,7 +6,7 @@ class ComponentManager
 {
     protected array $components = [];
 
-    public function register(string $name, string $viewPath)
+    public function register(string $name, string $viewPath): void
     {
         $this->components[$name] = $viewPath;
     }

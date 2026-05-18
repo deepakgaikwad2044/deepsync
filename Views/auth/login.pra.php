@@ -398,17 +398,6 @@ button,
         </a>
         
    
-               <x-button type="success">
-    Save Data
-</x-button>   
-
-
-               <x-button type="danger">
-    remove Data
-</x-button>     
-
-      </div>
-
     </form>
     
 
@@ -418,3 +407,5 @@ button,
 
 
 @endsection
+
+

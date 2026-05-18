@@ -657,7 +657,7 @@ body{
 
 <!-- ===== PRANCHI INTRO ===== -->
 
-<div id="pranchiIntro" class="pranchi_intro">
+@if($user['intro_seen'] == 0 )  <div id="pranchiIntro" class="pranchi_intro">
 
   <div class="particle"></div>
   <div class="particle"></div>
@@ -676,6 +676,7 @@ body{
   </div>
 
 </div>
+@endif 
 
 <!-- ===== MAIN WRAPPER ===== -->
 
@@ -811,32 +812,46 @@ body{
 
 
 <script>
-
-$(document).ready(function(){
+$(document).ready(function () {
 
     const intro = $("#pranchiIntro");
 
-    if(localStorage.getItem("pranchi_intro_seen")){
+    if (!intro.length) return;
 
-        intro.hide();
+    // auto mark after 5 sec
+    setTimeout(function () {
 
-    }else{
-      
-        localStorage.setItem("pranchi_intro_seen", "true");
+        $.ajax({
+    url: "{{ route('intro.seen.update') }}",
+    type: "POST",
+    data: {
+        _token: "{{ csrf_token() }}"
+    },
+    success: function(res){
+        console.log(res);
     }
-
 });
-</script>
 
-<script>
-$(document).ready(function(){
+    }, 5000);
 
-    $(".logout_btn").on("click", function(){
+    // optional skip
+    $(".close_intro").on("click", function () {
 
-        localStorage.removeItem("pranchi_intro_seen");
+        intro.fadeOut();
 
+       $.ajax({
+    url: "{{ route('intro.seen.update') }}",
+    type: "POST",
+    data: {
+        _token: "{{ csrf_token() }}"
+    },
+    success: function(res){
+        console.log(res);
+    }
+});
     });
 
 });
 </script>
+
 @endsection

@@ -253,7 +253,7 @@ User::query()->where('id', 1)->first();
 <pre>
 public function profile()
 {
-    return $this->hasOne(Profile::class, 'user_id');
+    return \$this->hasOne(Profile::class, 'user_id');
 }
 </pre>
 
@@ -262,7 +262,7 @@ public function profile()
 <pre>
 public function posts()
 {
-    return $this->hasMany(Post::class, 'user_id');
+    return \$this->hasMany(Post::class, 'user_id');
 }
 </pre>
 
@@ -271,7 +271,7 @@ public function posts()
 <pre>
 public function user()
 {
-    return $this->belongsTo(User::class, 'user_id');
+    return \$this->belongsTo(User::class, 'user_id');
 }
 </pre>
 

@@ -2,14 +2,15 @@
 
 @php
     $users = [
-        ['name' => 'Rahul'],
-        ['name' => 'Priya'],
-        ['name' => 'Amit'],
+        ['name' => 'Shweta'],
+        ['name' => 'Sayali'],
+        ['name' => 'Payal'],
     ];
 
     $loggedIn = true;
 @endphp
 
+<x-card title="Directive Demo" footer="Pranchi Blade Directives">
 <x-card title="Directive Demo" footer="Pranchi Blade Directives">
 
     @if($loggedIn)

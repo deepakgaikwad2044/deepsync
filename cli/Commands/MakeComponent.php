@@ -6,56 +6,80 @@ use App\Core\Console\CLI;
 
 class MakeComponent
 {
-    public function handle(array $argv): void
+    public function handle($argv)
     {
-        $name = $argv[2] ?? null;
+        $input = $argv[2] ?? null;
 
-        if (!$name) {
-            CLI::error("⚠ ❌ Component name required\n");
+        if (!$input) {
+            CLI::error("Component name required\n");
             return;
         }
 
-        // Support dot notation:
-        // card
-        // admin.user-card
-        $relativePath = str_replace('.', '/', $name) . '.pra.php';
+        /**
+         * Support:
+         * button
+         * forms/input
+         * ui/cards/stat
+         */
+        $input = trim($input, '/');
 
-        // Absolute project root
-        $rootDir = realpath(__DIR__ . '/../../');
+        $parts = explode('/', $input);
 
-        // views/components path
-        $componentsDir = $rootDir . '/views/components';
+        $name = array_pop($parts);
+        $folders = $parts;
 
-        // Full file path
-        $filePath = $componentsDir . '/' . $relativePath;
+        $className = ucfirst($name);
+        $fileName  = $name . '.pra.php';
 
-        // Create directory if not exists
-        $dir = dirname($filePath);
+        $basePath = __DIR__ . '/../../views/components';
 
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-            CLI::info("📁 Folder created: $dir\n");
+        // build directory path
+        $dirPath = $basePath;
+
+        if (!empty($folders)) {
+            $dirPath .= '/' . implode('/', $folders);
         }
 
-        // Check if component already exists
+        if (!is_dir($dirPath)) {
+            mkdir($dirPath, 0777, true);
+        }
+
+        $filePath = $dirPath . '/' . $fileName;
+
         if (file_exists($filePath)) {
-            CLI::error("⚠ ❌ Component already exists: $filePath\n");
+            CLI::warning("Component already exists: $input\n");
             return;
         }
 
-        // Component stub
-        $componentName = basename($name);
+        /**
+         * Convert folder/name → x-folder-name
+         */
+        $xName = strtolower(str_replace('/', '-', $input));
 
-        $stub = <<<PHP
-@props([])
+        $template = <<<PHP
+<div class="component component-{$xName}">
 
-<div class="component_{$componentName}">
-    {!! \$__slot ?? '' !!}
+    <!-- {$className} Component -->
+    <div class="component-box">
+
+        <!-- Props -->
+        @php
+            \$props = \$props ?? [];
+        @endphp
+
+        <h3>{$className} Component</h3>
+
+        <p>This is {$className} component</p>
+
+        <!-- Slot support -->
+        {{ \$slot ?? '' }}
+
+    </div>
+
 </div>
-
 PHP;
 
-        file_put_contents($filePath, $stub);
+        file_put_contents($filePath, $template);
 
         CLI::info("✅ Component created: $filePath\n");
         CLI::info("🧩 Usage: <x-{$name}></x-{$name}>\n");

@@ -127,7 +127,10 @@
 
         <div class="box">
             <h2>🧭 Navbar</h2>
-            <x-navbar />
+         <x-navbar brand="MyApp">
+    <a href="#">Dashboard</a>
+    <a href="#">Profile</a>
+</x-navbar>
         </div>
 
         <div class="box">
@@ -143,7 +146,7 @@
         <div class="box">
             <div class="section-title">⚫ Card with Props</div>
 
-            <x-card title="Notification" footer="Pranchi Framework">
+            <x-card title="Notification" footer="Pranchi blade">
 
                 <x-alert type="success">
                     Data saved successfully.
@@ -157,7 +160,8 @@
         </div>
 
     </div>
-
+    
+    
 </div>
 
 @endsection

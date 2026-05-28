@@ -3,7 +3,9 @@
 @section("content")
 
 @php
-    $profileImg = $user["avtar"] ?? asset("images/default.png");
+    $profileImg = $user["avtar"] ?? base_path("/assets/logo.png");
+  
+    
 @endphp
 
 <style>
@@ -151,14 +153,62 @@ body{
         <div style="width:42px"></div>
       </div>
 
-      <!-- IMAGE -->
-      <div class="preview-wrapper">
-        <img id="profilePreview" src="{{ $profileImg }}" class="profile-preview">
-      </div>
 
       <!-- FORM -->
       <form action="{{ route('user.profile.update') }}" method="post" enctype="multipart/form-data">
         @csrf
+
+      <!-- IMAGE -->
+ <div class="text-center mb-4">
+
+  <div style="position:relative; width:130px; margin:auto;">
+
+    <img
+      id="profilePreview"
+      src="{{ $profileImg }}"
+      class="profile-preview"
+    >
+
+    <input
+      type="file"
+      name="profile"
+      id="image"
+      hidden
+      accept="image/*"
+    >
+
+    <label for="image"
+      style="
+        position:absolute;
+        bottom:5px;
+        right:5px;
+        width:38px;
+        height:38px;
+        border-radius:50%;
+        background:#8e44ad;
+        color:white;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        cursor:pointer;
+        box-shadow:0 5px 15px rgba(0,0,0,.2);
+      ">
+      <i class="fas fa-plus"></i>
+    </label>
+    
+  </div>
+  @error('profile')
+  <div
+    class="text-danger mt-2"
+    style="font-size:13px; text-align:center;"
+  >
+    {{ $message }}
+  </div>
+@enderror
+
+
+</div>
+   
 
         <!-- NAME -->
         <div class="mb-3">
@@ -188,19 +238,6 @@ body{
           @enderror
         </div>
 
-        <!-- IMAGE -->
-        <div class="mb-3">
-          <label class="form-label">Profile Image</label>
-
-          <input type="file" name="profile" id="image"
-            class="form-control @error('profile') is-invalid @enderror"
-            accept="image/*">
-
-          @error('profile')
-            <div class="invalid-feedback">{{ $message }}</div>
-          @enderror
-        </div>
-
         <!-- PASSWORD -->
         <div class="text-end mb-3">
           <a href="{{ route('user.password.edit') }}" class="change_password_text">
@@ -224,11 +261,15 @@ body{
 
 @section("scripts")
 <script>
-document.getElementById('profile').addEventListener('change', function(e){
+document.getElementById('image').addEventListener('change', function(e){
+
   const file = e.target.files[0];
+
   if(file){
-    document.getElementById('profilePreview').src = URL.createObjectURL(file);
+    document.getElementById('profilePreview').src =
+      URL.createObjectURL(file);
   }
+
 });
 </script>
 @endsection

@@ -1,44 +1,75 @@
 <?php
+
+declare(strict_types=1);
+
+/* =========================
+   SESSION
+========================= */
 session_start();
 
-//Function to set Timezone
-date_default_timezone_set("Asia/kolkata");
+/* =========================
+   TIMEZONE
+========================= */
+date_default_timezone_set("Asia/Kolkata");
 
-//Function to set Root Directory
+/* =========================
+   ROOT PATH
+========================= */
 define("APP_ROOT", dirname(__DIR__));
 
-//load to autoload file
+/* =========================
+   COMPOSER AUTOLOADER
+========================= */
 require_once APP_ROOT . "/vendor/autoload.php";
 
-use App\Core\Env;
-
+/* =========================
+   CORE FILES
+========================= */
 require_once APP_ROOT . "/App/Core/Env.php";
 require_once APP_ROOT . "/App/Core/helpers.php";
 
-Env::load(base_path(".env"));
+use App\Core\Env;
 
-//Function to get file name with namespace
-spl_autoload_register(function ($class) {
-  $classFile = str_replace("\\", DIRECTORY_SEPARATOR, $class . ".php");
+/* =========================
+   ENV LOAD (EARLY)
+========================= */
+Env::load(APP_ROOT . "/.env");
 
-  $classpath = APP_ROOT . "/" . $classFile;
+/* =========================
+   PRANCHI CORE INIT
+========================= */
+$GLOBALS['pranchi'] = new \App\Core\Pranchi();
 
-  if (file_exists($classpath)) {
-    require_once $classpath;
-    // echo $classpath;
-  }
-});
+/* =========================
+   BOOTSTRAP COMPONENT SYSTEM
+========================= */
+require_once APP_ROOT . "/bootstrap/components.php";
 
+/* =========================
+   ROUTER
+========================= */
 use App\Core\Router;
 
-// 📌 Load routes
-require_once APP_ROOT . "/Routes/web.php";
+/* safer route loading */
+$routes = [
+    APP_ROOT . "/Routes/web.php",
+    APP_ROOT . "/Routes/api.php",
+];
 
-require_once APP_ROOT . "/Routes/api.php";
+foreach ($routes as $routeFile) {
+    if (file_exists($routeFile)) {
+        require_once $routeFile;
+    } else {
+        throw new RuntimeException("Route file missing: {$routeFile}");
+    }
+}
 
-// 🚀 Dispatch route
-Router::dispatch();
-
-
-?>
-
+/* =========================
+   DISPATCH WITH SAFETY
+========================= */
+try {
+    Router::dispatch();
+} catch (\Throwable $e) {
+    http_response_code(500);
+    echo "Application Error: " . $e->getMessage();
+}

@@ -10,6 +10,9 @@ class Kernel
         'make:controller'  => Commands\MakeController::class,
         
         'make:model'       => Commands\MakeModel::class,
+       
+        'make:component'       => Commands\MakeComponent::class,
+        
         'make:middleware'  => Commands\MakeMiddleware::class,
         'migrate:install'  => Commands\MigrateInstall::class,
         'seed:update' => \CLI\Commands\SeedUpdate::class,

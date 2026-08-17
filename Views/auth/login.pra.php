@@ -396,13 +396,16 @@ button,
         <a href="/register" class="btn-link btn-outline">
           Register
         </a>
-
-      </div>
-
+        
+   
     </form>
+    
 
   </div>
 
 </div>
 
+
 @endsection
+
+

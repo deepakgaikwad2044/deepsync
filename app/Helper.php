@@ -36,14 +36,12 @@ function get_flash($key) {
 
 /* ================= VIEW HELPER ================= */
 
-function view($file_path, $data = [])
+function view(string $file_path, array $data = []): void
 {
-    $pranchi = new \App\Core\Pranchi();
-
-    // dot notation support
-    $path = str_replace(".", DIRECTORY_SEPARATOR, $file_path);
-
-    echo $pranchi->render($path, $data);
+    echo $GLOBALS['pranchi']->render(
+        str_replace(".", "/", $file_path),
+        $data
+    );
 }
 
 //handle includes file

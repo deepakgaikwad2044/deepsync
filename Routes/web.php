@@ -53,8 +53,13 @@ Router::get("/docs/{slug}", [DocsController::class, "show"])->name("docs.slug");
       Router::post("/login", [LoginController::class, "login"])->name(
         "user.login.verify"
       );
+      
     }
   );
+  
+       Router::get("/components", [BaseController::class, "components"])->name(
+        "components"
+      );
 
   // USER AUTH ROUTES
   Router::group(

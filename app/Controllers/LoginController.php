@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Models\User;
+use App\Config\Auth;
 use App\Core\Validator;
 
 class LoginController
@@ -51,6 +52,11 @@ class LoginController
     // 🔥 SUCCESS LOGIN
     $_SESSION["user_id"] = $user['id'];
 
+
+    User::update(Auth::id(), [
+        'intro_seen' => 0
+    ]);
+    
     unset($_SESSION["errors"], $_SESSION["old"]);
 
     redirect(route("user.dashboard"));

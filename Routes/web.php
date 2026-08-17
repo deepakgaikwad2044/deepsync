@@ -76,6 +76,9 @@ Router::get("/docs/{slug}", [DocsController::class, "show"])->name("docs.slug");
       Router::get("/password/edit", [PasswordController::class, "index"])->name(
         "user.password.edit"
       );
+      
+   Router::post("/intro/seen/update" , [
+     DashboardController::class , "markIntroSeen"])->name("intro.seen.update");
 
       Router::post("/password/verify", [
         PasswordController::class,

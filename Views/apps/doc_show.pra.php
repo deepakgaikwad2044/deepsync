@@ -3,6 +3,17 @@
 @section('content')
 
 <style>
+
+:root{
+  --brand:#8e44ad;
+  --brand-dark:#6c3483;
+
+  --brand-gradient:
+  linear-gradient(135deg,#6f42c1,#8e44ad);
+
+  --glass:rgba(255,255,255,0.72);
+}
+
 body {
   background: #f5f6fa;
   font-family: 'Segoe UI', sans-serif;
@@ -212,6 +223,161 @@ body {
 
 .copy-btn.copied {
   background: #27ae60;
+}
+
+
+.meaning_list{
+  display:flex;
+  flex-direction:column;
+
+  gap:20px;
+}
+
+/* ITEM */
+
+.meaning_item{
+  display:flex;
+  align-items:flex-start;
+
+  gap:18px;
+
+  padding:22px;
+
+  border-radius:24px;
+
+  background:rgba(142,68,173,0.04);
+
+  border:1px solid rgba(142,68,173,0.08);
+
+  transition:.35s ease;
+
+  position:relative;
+  overflow:hidden;
+}
+
+.meaning_item::before{
+  content:"";
+
+  position:absolute;
+  inset:0;
+
+  background:
+  linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,.5),
+    transparent
+  );
+
+  transform:translateX(-100%);
+  transition:.6s ease;
+}
+
+.meaning_item:hover::before{
+  transform:translateX(100%);
+}
+
+.meaning_item:hover{
+  transform:translateY(-4px) scale(1.01);
+
+  background:rgba(142,68,173,0.08);
+
+  box-shadow:
+  0 12px 30px rgba(142,68,173,0.10);
+}
+
+
+.meaning_item span{
+  min-width:58px;
+  height:58px;
+
+  border-radius:20px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:var(--brand-gradient);
+
+  color:#fff;
+
+  font-size:24px;
+  font-weight:800;
+
+  box-shadow:
+  0 10px 25px rgba(142,68,173,.25);
+}
+
+/* TEXT */
+
+.meaning_item h4{
+  margin:0;
+
+  font-size:20px;
+  font-weight:700;
+
+  color:#222;
+}
+
+.meaning_item p{
+  margin:6px 0 0;
+
+  color:#666;
+
+  line-height:1.7;
+  font-size:15px;
+}
+
+.meaning_title{
+  text-align:center;
+  margin-bottom:10px;
+}
+
+
+@media(max-width:768px){
+
+ 
+
+  .meaning_subtitle{
+    font-size:12px;
+    letter-spacing:1.5px;
+
+    margin-bottom:30px;
+  }
+
+  .meaning_list{
+    gap:14px;
+  }
+
+  .meaning_item{
+    flex-direction:column;
+
+    gap:12px;
+
+    padding:16px;
+
+    border-radius:18px;
+  }
+
+  .meaning_item span{
+    width:48px;
+    height:48px;
+    min-width:48px;
+
+    font-size:18px;
+
+    border-radius:14px;
+  }
+
+  .meaning_item h4{
+    font-size:17px;
+  }
+
+  .meaning_item p{
+    font-size:13px;
+    line-height:1.6;
+  }
+
 }
 </style>
 

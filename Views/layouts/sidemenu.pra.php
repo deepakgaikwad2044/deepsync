@@ -119,7 +119,7 @@
     
       <li class="nav-item">
         <div class="d-flex align-items-center">
-          <span class="material-symbols-outlined">plug_connect</span>
+          <span class="material-symbols-outlined">widgets</span>
           <a href="<?= route('components') ?>" class="nav-link">components</a>
         </div>
       </li>

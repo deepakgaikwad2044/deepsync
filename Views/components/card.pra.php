@@ -1,8 +1,8 @@
-@php
+<?php
 $title = $__props['title'] ?? '';
 $footer = $__props['footer'] ?? '';
 $slot = $__slot ?? '';
-@endphp
+?>
 
 <div class="component_card">
 

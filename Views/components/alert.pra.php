@@ -1,8 +1,13 @@
-@php
-$type = $__props['type'] ?? 'info';
-$text = $__slot ?: ($__props['message'] ?? '');
-@endphp
+<?php
 
-<div class="component_alert component_alert_{{ $type }}">
-    {!! trim($text) !!}
+$type = $__props['type'] ?? 'info';
+$slot = $__slot ?? '';
+$text = $slot !== ''
+    ? $slot
+    : ($__props['message'] ?? '');
+
+?>
+
+<div class="component_alert component_alert_<?= htmlspecialchars($type) ?>">
+    <?= $text ?>
 </div>

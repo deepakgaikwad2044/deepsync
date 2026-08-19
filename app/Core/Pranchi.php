@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Core\Components\ComponentCompiler;
+use Throwable;
+
 class Pranchi
 {
     protected string $viewPath;
@@ -11,96 +14,310 @@ class Pranchi
 
     protected array $sections = [];
     protected ?string $layout = null;
-protected ?\App\Core\Components\ComponentCompiler $componentCompiler = null;
+
+    protected ?ComponentCompiler $componentCompiler = null;
+  
+
+    /*
+    |--------------------------------------------------------------------------
+    | Security settings
+    |--------------------------------------------------------------------------
+    */
+
+    protected bool $allowRawOutput = true;
+    protected bool $allowPhpBlocks = false;
+
 
     public function __construct()
     {
-        $this->viewPath  = rtrim(base_path("views/"), "/") . "/";
-        $this->cachePath = rtrim(base_path("bootstrap/cache/"), "/") . "/";
+        $this->viewPath = rtrim(
+            base_path("views"),
+            DIRECTORY_SEPARATOR
+        ) . DIRECTORY_SEPARATOR;
+
+        $this->cachePath = rtrim(
+            base_path("bootstrap/cache"),
+            DIRECTORY_SEPARATOR
+        ) . DIRECTORY_SEPARATOR;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate view directory
+        |--------------------------------------------------------------------------
+        */
+
+        if (!is_dir($this->viewPath)) {
+            throw new \RuntimeException(
+                "PRANCHI view directory does not exist."
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create cache directory
+        |--------------------------------------------------------------------------
+        */
 
         if (!is_dir($this->cachePath)) {
-            mkdir($this->cachePath, 0777, true);
+
+            if (!mkdir($this->cachePath, 0775, true)) {
+                throw new \RuntimeException(
+                    "Unable to create PRANCHI cache directory."
+                );
+            }
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate cache directory
+        |--------------------------------------------------------------------------
+        */
+
+        if (!is_writable($this->cachePath)) {
+            throw new \RuntimeException(
+                "PRANCHI cache directory is not writable."
+            );
         }
     }
 
+
     /* =========================================================
      | RENDER
-     * ========================================================= */
+     ========================================================= */
 
-    public function render(string $view, array $data = []): string
-    {
-        $filePath = $this->viewPath .
+    public function render(
+        string $view,
+        array $data = []
+    ): string {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate view name
+        |--------------------------------------------------------------------------
+        */
+
+        $this->validateViewName($view);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resolve view file
+        |--------------------------------------------------------------------------
+        */
+
+        $filePath =
+            $this->viewPath .
             str_replace(".", "/", $view) .
             ".pra.php";
 
-        if (!file_exists($filePath)) {
-            throw new \Exception("View not found: {$view}");
+
+        $realViewPath = realpath($filePath);
+        $realBasePath = realpath($this->viewPath);
+
+
+        if (
+            $realViewPath === false ||
+            $realBasePath === false ||
+            !$this->isPathInside(
+                $realViewPath,
+                $realBasePath
+            )
+        ) {
+            throw new \RuntimeException(
+                "Invalid view path."
+            );
         }
 
-        /* ========= CACHE FILE ========= */
 
-        $cacheFile = $this->cachePath .
-            md5($filePath) .
+        if (!is_file($realViewPath)) {
+            throw new \RuntimeException(
+                "View not found: {$view}"
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cache file
+        |--------------------------------------------------------------------------
+        */
+
+        $cacheFile =
+            $this->cachePath .
+            hash(
+                "sha256",
+                $realViewPath
+            ) .
             ".php";
 
-        /* ========= AUTO RECOMPILE ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Compile if necessary
+        |--------------------------------------------------------------------------
+        */
 
         if (
             !file_exists($cacheFile) ||
-            filemtime($cacheFile) < filemtime($filePath)
+            filemtime($cacheFile) < filemtime($realViewPath)
         ) {
 
-   $content = file_get_contents($filePath);
+            $content =
+                file_get_contents($realViewPath);
 
-// 👇 FIRST compile components BEFORE anything
-if ($this->componentCompiler) {
-    $content = $this->componentCompiler->compile($content);
-}
 
-// then blade compile
-$compiled = $this->compile($content);
+            if ($content === false) {
+                throw new \RuntimeException(
+                    "Unable to read view: {$view}"
+                );
+            }
+
 
             $compiled =
-                "<?php /* PRANCHI compiled template */ ?>\n" .
+                $this->compile($content);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | PHP cache header
+            |--------------------------------------------------------------------------
+            */
+
+            $compiled =
+                "<?php\n" .
+                "/* PRANCHI compiled template */\n" .
+                "/* DO NOT EDIT THIS FILE */\n" .
+                "?>\n" .
                 $compiled;
 
-            file_put_contents($cacheFile, $compiled);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Atomic cache write
+            |--------------------------------------------------------------------------
+            */
+
+            $temporaryFile =
+                $cacheFile .
+                "." .
+                bin2hex(random_bytes(6)) .
+                ".tmp";
+
+
+       $result = file_put_contents(
+    $temporaryFile,
+    $compiled
+);
+
+if ($result === false) {
+    throw new \RuntimeException(
+        "Unable to write PRANCHI cache."
+    );
+}
+
+
+            if (!rename(
+                $temporaryFile,
+                $cacheFile
+            )) {
+
+                @unlink($temporaryFile);
+
+                throw new \RuntimeException(
+                    "Unable to finalize PRANCHI cache."
+                );
+            }
         }
 
-        /* ========= SHARED DATA ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Shared data
+        |--------------------------------------------------------------------------
+        */
 
         $shared = [
 
-            /* ========= VALIDATION ========= */
+            "errors" =>
+                function_exists("errors")
+                    ? errors()
+                    : [],
 
-            "errors" => function_exists("errors")
-                ? errors()
-                : [],
+            "old" =>
+                function_exists("old")
+                    ? old()
+                    : [],
 
-            "old" => function_exists("old")
-                ? old()
-                : [],
+            "success" =>
+                function_exists("success")
+                    ? success()
+                    : null,
 
-            /* ========= FLASH ========= */
+            "error" =>
+                function_exists("error")
+                    ? error()
+                    : null,
 
-            "success" => function_exists("success")
-                ? success()
-                : null,
-
-            "error" => function_exists("error")
-                ? error()
-                : null,
-
-            /* ========= SESSION ========= */
-
-            "verified" => $_SESSION["verified"] ?? false,
+            "verified" =>
+                $_SESSION["verified"] ?? false,
         ];
 
-        unset($_SESSION["errors"], $_SESSION["old"]);
 
-        $data = array_merge($shared, $data);
+        /*
+        |--------------------------------------------------------------------------
+        | Clear consumed validation data
+        |--------------------------------------------------------------------------
+        */
 
-        extract($data, EXTR_SKIP);
+        if (isset($_SESSION["errors"])) {
+            unset($_SESSION["errors"]);
+        }
+
+        if (isset($_SESSION["old"])) {
+            unset($_SESSION["old"]);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Merge data
+        |--------------------------------------------------------------------------
+        */
+
+        $data =
+            array_merge(
+                $shared,
+                $data
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Extract safely
+        |--------------------------------------------------------------------------
+        */
+
+
+$__componentRenderer =
+    $this->componentCompiler?->getRenderer();
+
+$data['__componentRenderer'] =
+    $this->componentCompiler?->getRenderer();
+    
+        extract(
+            $data,
+            EXTR_SKIP
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Execute compiled view
+        |--------------------------------------------------------------------------
+        */
 
         ob_start();
 
@@ -108,186 +325,450 @@ $compiled = $this->compile($content);
 
             include $cacheFile;
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
 
             ob_end_clean();
 
             throw $e;
         }
 
+
         return ob_get_clean();
     }
 
+
     /* =========================================================
      | COMPILER
-     * ========================================================= */
+     ========================================================= */
 
-    protected function compile(string $template): string
-    {
+    protected function compile(
+        string $template
+    ): string {
+
         $this->sections = [];
-        $this->layout   = null;
+        $this->layout = null;
 
-        /* ========= COMMENTS ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRANCHI comments
+        |
+        | {{-- comment --}}
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace(
-            "/\{\{\s*--.*?--\s*\}\}/s",
+            "/\{\{\-\-(.*?)\-\-\}\}/s",
             "",
             $template
         );
 
-        /* ========= @extends ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | @extends
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace_callback(
-            '/@extends\([\'"](.+?)["\']\)/',
-            function ($m) {
+            '/@extends\([\'"](.+?)[\'"]\)/',
+            function ($match) {
 
-                $this->layout = str_replace(".", "/", $m[1]);
+                $layout =
+                    trim($match[1]);
+
+
+                $this->validateViewName(
+                    $layout
+                );
+
+
+                $this->layout =
+                    str_replace(
+                        ".",
+                        "/",
+                        $layout
+                    );
+
 
                 return "";
             },
             $template
         );
 
-        /* ========= @section ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | @section
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace_callback(
-            '/@section\([\'"](.+?)["\']\)(.*?)@endsection/s',
-            function ($m) {
+            '/@section\([\'"](.+?)[\'"]\)(.*?)@endsection/s',
+            function ($match) {
 
-                $this->sections[$m[1]] = $m[2];
+                $name =
+                    trim($match[1]);
 
-                return "";
-            },
-            $template
-        );
 
-        /* ========= LAYOUT ========= */
-
-        if ($this->layout) {
-
-            $layoutFile = $this->viewPath .
-                $this->layout .
-                ".pra.php";
-
-            if (file_exists($layoutFile)) {
-
-                $layoutContent = file_get_contents($layoutFile);
-
-                foreach ($this->sections as $key => $value) {
-
-                    $layoutContent = preg_replace(
-                        '/@yield\([\'"]' . $key . '[\'"]\)/',
-                        $value,
-                        $layoutContent
+                if ($name === "") {
+                    throw new \RuntimeException(
+                        "PRANCHI section name cannot be empty."
                     );
                 }
 
-                $layoutContent = preg_replace(
+
+                $this->sections[$name] =
+                    $match[2];
+
+
+                return "";
+            },
+            $template
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Layout
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->layout !== null) {
+
+            $layoutFile =
+                $this->viewPath .
+                $this->layout .
+                ".pra.php";
+
+
+            $realLayout =
+                realpath($layoutFile);
+
+
+            $realBase =
+                realpath($this->viewPath);
+
+
+            if (
+                $realLayout === false ||
+                $realBase === false ||
+                !$this->isPathInside(
+                    $realLayout,
+                    $realBase
+                )
+            ) {
+
+                throw new \RuntimeException(
+                    "Invalid layout path."
+                );
+            }
+
+
+            if (!is_file($realLayout)) {
+
+                throw new \RuntimeException(
+                    "Layout not found: {$this->layout}"
+                );
+            }
+
+
+            $layoutContent =
+                file_get_contents($realLayout);
+
+
+            if ($layoutContent === false) {
+                throw new \RuntimeException(
+                    "Unable to read layout."
+                );
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Insert sections
+            |--------------------------------------------------------------------------
+            */
+
+            foreach (
+                $this->sections
+                as $key => $value
+            ) {
+
+                $pattern =
+                    '/@yield\([\'"]' .
+                    preg_quote(
+                        $key,
+                        "/"
+                    ) .
+                    '[\'"]\)/';
+
+
+                $layoutContent =
+                    preg_replace(
+                        $pattern,
+                        $value,
+                        $layoutContent
+                    );
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Remove unused yields
+            |--------------------------------------------------------------------------
+            */
+
+            $layoutContent =
+                preg_replace(
                     "/@yield\([^)]+\)/",
                     "",
                     $layoutContent
                 );
 
-                $template = $layoutContent;
-            }
+
+            $template =
+                $layoutContent;
         }
 
-        /* ========= @include ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | @include
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace_callback(
-            '/@include\([\'"](.+?)["\']\)/',
-            function ($m) {
+            '/@include\([\'"](.+?)[\'"]\)/',
+            function ($match) {
 
-                $file = $this->viewPath .
-                    str_replace(".", "/", $m[1]) .
+                $include =
+                    trim($match[1]);
+
+
+                $this->validateViewName(
+                    $include
+                );
+
+
+                $file =
+                    $this->viewPath .
+                    str_replace(
+                        ".",
+                        "/",
+                        $include
+                    ) .
                     ".pra.php";
 
-                $real = realpath($file);
+
+                $real =
+                    realpath($file);
+
+
+                $base =
+                    realpath($this->viewPath);
+
 
                 if (
-                    !$real ||
-                    !str_starts_with(
+                    $real === false ||
+                    $base === false ||
+                    !$this->isPathInside(
                         $real,
-                        realpath($this->viewPath)
+                        $base
                     )
                 ) {
-                    throw new \Exception(
-                        "Invalid include path"
+
+                    throw new \RuntimeException(
+                        "Invalid include path."
                     );
                 }
 
-                if (!file_exists($real)) {
-                    return "<!-- include not found -->";
+
+                if (!is_file($real)) {
+
+                    throw new \RuntimeException(
+                        "Included view not found: {$include}"
+                    );
                 }
 
+
+                $includedContent =
+                    file_get_contents($real);
+
+
+                if ($includedContent === false) {
+                    throw new \RuntimeException(
+                        "Unable to read included view."
+                    );
+                }
+
+
                 return $this->compile(
-                    file_get_contents($real)
+                    $includedContent
                 );
             },
             $template
         );
 
-        /* ========= @php ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | @php
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->allowPhpBlocks) {
+
+            $template = preg_replace_callback(
+                "/@php(.*?)@endphp/s",
+                function ($match) {
+
+                    return
+                        "<?php " .
+                        trim($match[1]) .
+                        " ?>";
+                },
+                $template
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | @props
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace_callback(
-            "/@php(.*?)@endphp/s",
-            function ($m) {
+            '/@props\((.*?)\)/s',
+            function ($match) {
 
-                return "<?php " .
-                    trim($m[1]) .
-                    " ?>";
+                return
+                    "<?php\n" .
+
+                    '$__defaults = ' .
+                    $match[1] .
+                    ";\n" .
+
+                    "foreach ((array) \$__defaults as \$__key => \$__default) {\n" .
+
+                    "    if (!isset(\$__props[\$__key])) {\n" .
+
+                    "        \$__props[\$__key] = \$__default;\n" .
+
+                    "    }\n" .
+
+                    "    \${\$__key} = \$__props[\$__key];\n" .
+
+                    "}\n" .
+
+                    "?>";
             },
             $template
         );
-        
-        
-        /* ========= @props ========= */
 
-$template = preg_replace_callback(
-    '/@props\((.*?)\)/s',
-    function ($m) {
-        return "<?php\n"
-            . '$__defaults = ' . $m[1] . ";\n"
-            . "foreach ((array) \$__defaults as \$__key => \$__default) {\n"
-            . "    if (!isset(\$__props[\$__key])) {\n"
-            . "        \$__props[\$__key] = \$__default;\n"
-            . "    }\n"
-            . "    \${\$__key} = \$__props[\$__key];\n"
-            . "}\n"
-            . "?>";
-    },
-    $template
-);
 
-        /* ========= SAFE OUTPUT ========= */
+        /*
+        |--------------------------------------------------------------------------
+        | RAW OUTPUT
+        |
+        | {!! $html !!}
+        |--------------------------------------------------------------------------
+        */
 
-        $template = preg_replace(
-            "/\{\{\s*(.*?)\s*\}\}/",
-            '<?php echo e($1); ?>',
+        if ($this->allowRawOutput) {
+
+            $template = preg_replace(
+                "/\{!!\s*(.*?)\s*!!\}/s",
+                '<?php echo $1; ?>',
+                $template
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SAFE OUTPUT
+        |
+        | {{ $value }}
+        |--------------------------------------------------------------------------
+        */
+
+        $template = preg_replace_callback(
+            "/\{\{\s*(.*?)\s*\}\}/s",
+            function ($match) {
+
+                $expression =
+                    trim($match[1]);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Ignore comment-like expression
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    str_starts_with(
+                        $expression,
+                        "--"
+                    )
+                ) {
+                    return "";
+                }
+
+
+                if ($expression === "") {
+                    return "";
+                }
+
+
+                return
+                    "<?php echo e(" .
+                    $expression .
+                    "); ?>";
+            },
             $template
         );
 
-        /* ========= RAW OUTPUT ========= */
 
-        $template = preg_replace(
-            "/\{!!\s*(.*?)\s*!!\}/s",
-            '<?php echo $1; ?>',
-            $template
-        );
-
-        /* ========= CONDITIONS ========= */
+        /*
+        |--------------------------------------------------------------------------
+        | @if
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace_callback(
             "/@if\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)/",
-            fn($m) => "<?php if(" . $m[1] . "): ?>",
+            fn($match) =>
+                "<?php if(" .
+                $match[1] .
+                "): ?>",
             $template
         );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | @elseif
+        |--------------------------------------------------------------------------
+        */
+
         $template = preg_replace_callback(
             "/@elseif\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)/",
-            fn($m) => "<?php elseif(" . $m[1] . "): ?>",
+            fn($match) =>
+                "<?php elseif(" .
+                $match[1] .
+                "): ?>",
             $template
         );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | @else
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace(
             "/@else\b/",
@@ -295,24 +776,50 @@ $template = preg_replace_callback(
             $template
         );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | @endif
+        |--------------------------------------------------------------------------
+        */
+
         $template = preg_replace(
             "/@endif\b/",
             "<?php endif; ?>",
             $template
         );
 
-        /* ========= @error ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | @error
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace_callback(
             '/@error\([\'"](.+?)[\'"]\)/',
-            function ($m) {
+            function ($match) {
 
-                $field = $m[1];
+                $field =
+                    addslashes(
+                        $match[1]
+                    );
 
-                return "<?php if(!empty(\$errors['{$field}'])): \$message = \$errors['{$field}']; ?>";
+
+                return
+                    "<?php " .
+                    "if(!empty(\$errors['{$field}'])): " .
+                    "\$message = \$errors['{$field}']; ?>";
             },
             $template
         );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | @enderror
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace(
             "/@enderror/",
@@ -320,7 +827,12 @@ $template = preg_replace_callback(
             $template
         );
 
-        /* ========= LOOPS ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | @foreach
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace(
             "/@foreach\s*\((.*?)\)/",
@@ -328,13 +840,25 @@ $template = preg_replace_callback(
             $template
         );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | @endforeach
+        |--------------------------------------------------------------------------
+        */
+
         $template = preg_replace(
             "/@endforeach/",
             "<?php endforeach; ?>",
             $template
         );
 
-        /* ========= FLASH SUCCESS ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | @flashSuccess
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace_callback(
             "/@flashSuccess\b/",
@@ -353,7 +877,12 @@ PHP;
             $template
         );
 
-        /* ========= FLASH ERROR ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | @flashError
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace_callback(
             "/@flashError\b/",
@@ -372,7 +901,12 @@ PHP;
             $template
         );
 
-        /* ========= TOSTER ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | @toster
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace_callback(
             "/@toster\b/",
@@ -381,30 +915,43 @@ PHP;
                 return <<<PHP
 <?php
 
-if(isset(\$_SESSION['flash_success'])) {
+if (isset(\$_SESSION['flash_success'])) {
 
     \$msg = json_encode(
-        \$_SESSION['flash_success']
+        \$_SESSION['flash_success'],
+        JSON_HEX_TAG |
+        JSON_HEX_APOS |
+        JSON_HEX_QUOT |
+        JSON_HEX_AMP
     );
 
     echo "<script>
         toastr.success(\$msg, 'Success');
     </script>";
 
-    unset(\$_SESSION['flash_success']);
+    unset(
+        \$_SESSION['flash_success']
+    );
 }
 
-if(isset(\$_SESSION['flash_error'])) {
+
+if (isset(\$_SESSION['flash_error'])) {
 
     \$msg = json_encode(
-        \$_SESSION['flash_error']
+        \$_SESSION['flash_error'],
+        JSON_HEX_TAG |
+        JSON_HEX_APOS |
+        JSON_HEX_QUOT |
+        JSON_HEX_AMP
     );
 
     echo "<script>
         toastr.error(\$msg, 'Error');
     </script>";
 
-    unset(\$_SESSION['flash_error']);
+    unset(
+        \$_SESSION['flash_error']
+    );
 }
 
 ?>
@@ -413,34 +960,370 @@ PHP;
             $template
         );
 
-        /* ========= CSRF ========= */
+
+        /*
+        |--------------------------------------------------------------------------
+        | @csrf
+        |--------------------------------------------------------------------------
+        */
 
         $template = preg_replace(
             "/@csrf\b/",
             "<?= csrf_field() ?>",
             $template
         );
-        
-        
-        if ($this->componentCompiler) {
-    $template = $this->componentCompiler->compile($template);
-}
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | COMPONENT COMPILER
+        |
+        | Compile exactly once.
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->componentCompiler !== null) {
+
+            $template =
+                $this->componentCompiler
+                    ->compile($template);
+        }
+
 
         return $template;
     }
     
     
-public function setComponentCompiler($compiler): void
-{
+    public function compileComponent(
+    string $template
+): string {
+
+    /*
+     * Components themselves must not recursively
+     * invoke the component compiler again.
+     */
+
+    /*
+     * PRANCHI comments
+     */
+    $template = preg_replace(
+        "/\{\{\-\-(.*?)\-\-\}\}/s",
+        "",
+        $template
+    );
+
+    /*
+     * @php
+     */
+    if ($this->allowPhpBlocks) {
+
+        $template = preg_replace_callback(
+            "/@php(.*?)@endphp/s",
+            function ($match) {
+
+                return "<?php " .
+                    trim($match[1]) .
+                    " ?>";
+            },
+            $template
+        );
+    }
+
+    /*
+     * @props
+     */
+    $template = preg_replace_callback(
+        '/@props\((.*?)\)/s',
+        function ($match) {
+
+            return
+                "<?php\n" .
+                '$__defaults = ' .
+                $match[1] .
+                ";\n" .
+
+                "foreach ((array) \$__defaults as \$__key => \$__default) {\n" .
+
+                "    if (!isset(\$__props[\$__key])) {\n" .
+
+                "        \$__props[\$__key] = \$__default;\n" .
+
+                "    }\n" .
+
+                "    \${\$__key} = \$__props[\$__key];\n" .
+
+                "}\n" .
+
+                "?>";
+        },
+        $template
+    );
+
+    /*
+     * RAW
+     */
+    if ($this->allowRawOutput) {
+
+        $template = preg_replace(
+            "/\{!!\s*(.*?)\s*!!\}/s",
+            '<?php echo $1; ?>',
+            $template
+        );
+    }
+
+    /*
+     * SAFE OUTPUT
+     */
+    $template = preg_replace_callback(
+        "/\{\{\s*(.*?)\s*\}\}/s",
+        function ($match) {
+
+            $expression = trim(
+                $match[1]
+            );
+
+            if ($expression === '') {
+                return '';
+            }
+
+            return
+                "<?php echo e(" .
+                $expression .
+                "); ?>";
+        },
+        $template
+    );
+
+    /*
+     * IF
+     */
+    $template = preg_replace_callback(
+        "/@if\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)/",
+        fn($m) =>
+            "<?php if(" .
+            $m[1] .
+            "): ?>",
+        $template
+    );
+
+    /*
+     * ELSEIF
+     */
+    $template = preg_replace_callback(
+        "/@elseif\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)/",
+        fn($m) =>
+            "<?php elseif(" .
+            $m[1] .
+            "): ?>",
+        $template
+    );
+
+    /*
+     * ELSE
+     */
+    $template = preg_replace(
+        "/@else\b/",
+        "<?php else: ?>",
+        $template
+    );
+
+    /*
+     * ENDIF
+     */
+    $template = preg_replace(
+        "/@endif\b/",
+        "<?php endif; ?>",
+        $template
+    );
+
+    /*
+     * FOREACH
+     */
+    $template = preg_replace(
+        "/@foreach\s*\((.*?)\)/",
+        "<?php foreach($1): ?>",
+        $template
+    );
+
+    /*
+     * ENDFOREACH
+     */
+    $template = preg_replace(
+        "/@endforeach/",
+        "<?php endforeach; ?>",
+        $template
+    );
+
+    /*
+     * CSRF
+     */
+    $template = preg_replace(
+        "/@csrf\b/",
+        "<?= csrf_field() ?>",
+        $template
+    );
+
+    return $template;
+}
+
+
+    /* =========================================================
+     | SECURITY HELPERS
+     ========================================================= */
+
+    protected function validateViewName(
+        string $view
+    ): void {
+
+        if ($view === "") {
+            throw new \InvalidArgumentException(
+                "View name cannot be empty."
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Block absolute paths
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            str_contains(
+                $view,
+                "/"
+            ) &&
+            str_starts_with(
+                $view,
+                "/"
+            )
+        ) {
+
+            throw new \InvalidArgumentException(
+                "Absolute view paths are not allowed."
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Block Windows absolute paths
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            preg_match(
+                '/^[A-Za-z]:[\\\\\/]/',
+                $view
+            )
+        ) {
+
+            throw new \InvalidArgumentException(
+                "Absolute view paths are not allowed."
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Block traversal
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            str_contains(
+                $view,
+                ".."
+            )
+        ) {
+
+            throw new \InvalidArgumentException(
+                "Path traversal is not allowed."
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Only safe characters
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !preg_match(
+                '/^[A-Za-z0-9_.\/-]+$/',
+                $view
+            )
+        ) {
+
+            throw new \InvalidArgumentException(
+                "Invalid view name."
+            );
+        }
+    }
+
+
+    protected function isPathInside(
+        string $path,
+        string $base
+    ): bool {
+
+        $path =
+            rtrim(
+                str_replace(
+                    "\\",
+                    "/",
+                    $path
+                ),
+                "/"
+            );
+
+
+        $base =
+            rtrim(
+                str_replace(
+                    "\\",
+                    "/",
+                    $base
+                ),
+                "/"
+            );
+
+
+        return
+            $path === $base ||
+            str_starts_with(
+                $path,
+                $base . "/"
+            );
+    }
+
+
+    /* =========================================================
+     | COMPONENT COMPILER
+     ========================================================= */
+
+ public function setComponentCompiler(
+    ComponentCompiler $compiler
+): void {
+
     $this->componentCompiler = $compiler;
+
+    /*
+     * Give the renderer access to the current
+     * PRANCHI instance so component templates
+     * can use the same compiler pipeline.
+     */
+    $compiler
+        ->getRenderer()
+        ->setPranchi($this);
 }
 
 
-public function getComponentCompiler(): ?\App\Core\Components\ComponentCompiler
-{
-    return $this->componentCompiler;
+    public function getComponentCompiler():
+        ?ComponentCompiler
+    {
+
+        return $this->componentCompiler;
+    }
 }
-}
-
-
-

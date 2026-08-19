@@ -11,7 +11,6 @@
 @endphp
 
 <x-card title="Directive Demo" footer="Pranchi Blade Directives">
-<x-card title="Directive Demo" footer="Pranchi Blade Directives">
 
     @if($loggedIn)
         <x-alert type="success">

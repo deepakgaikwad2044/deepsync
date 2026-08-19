@@ -143,6 +143,7 @@ class ComponentRenderer
          */
         $__props = $props;
         $__slot  = $slot;
+        $__componentRenderer = $this;
 
         ob_start();
 

@@ -25,7 +25,7 @@ class Pranchi
     */
 
     protected bool $allowRawOutput = true;
-    protected bool $allowPhpBlocks = false;
+    protected bool $allowPhpBlocks = true;
 
 
     public function __construct()

@@ -22,14 +22,51 @@ class ComponentCompiler
         $this->renderer = $renderer;
     }
 
-    public function compile(
-        string $content
-    ): string {
+public function compile(
+    string $content
+): string {
 
-        return $this->compileComponents(
-            $content
-        );
-    }
+    $content = $this->compileComponents($content);
+
+    $content = $this->compileBlade($content);
+
+    return $content;
+}
+
+
+protected function compileBlade(
+    string $content
+): string {
+
+    // @php ... @endphp
+    $content = preg_replace(
+        '/@php\s*(.*?)\s*@endphp/s',
+        '<?php $1 ?>',
+        $content
+    );
+
+    // {!! expression !!}
+    $content = preg_replace(
+        '/\{!!\s*(.*?)\s*!!\}/s',
+        '<?= $1 ?>',
+        $content
+    );
+
+    // {{ expression }}
+    $content = preg_replace_callback(
+        '/\{\{\s*(.*?)\s*\}\}/s',
+        function ($match) {
+
+            return
+                '<?= htmlspecialchars(' .
+                $match[1] .
+                ', ENT_QUOTES, "UTF-8") ?>';
+        },
+        $content
+    );
+
+    return $content;
+}
 
     protected function compileComponents(
         string $content
@@ -125,14 +162,18 @@ class ComponentCompiler
              * Generate a normal PHP call.
              * No eval().
              */
-            return
-                '<?= $__componentRenderer->render(' .
-                var_export($view, true) .
-                ', ' .
-                var_export($props, true) .
-                ', ' .
-                var_export($slot, true) .
-                ') ?>';
+         return
+    '<?php ob_start(); ?>' .
+    $slot .
+    '<?php ' .
+    '$__compiledSlot = ob_get_clean();' .
+    'echo $__componentRenderer->render(' .
+    var_export($view, true) .
+    ', ' .
+    var_export($props, true) .
+    ', ' .
+    '$__compiledSlot' .
+    '); ?>';
 
         } finally {
 

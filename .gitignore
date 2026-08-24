@@ -1,6 +1,6 @@
+.env
 dump.rdb
 /app/WebSockets/Realtime/storage/
 /vendor/
 /bootstrap/cache/
 /public/storage/
-.env

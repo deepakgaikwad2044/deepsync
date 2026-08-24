@@ -7,7 +7,9 @@
   <div class="container nav">
     <div class="logo">
       <img src="/brands/logo.png" alt="Deep Sync Logo" class="brand-logo">
-      <span class="brand-name">Deep Sync</span>
+<a href="/login" class="nav-link" style="text-decoration: none; color:#fff;">
+    <span class="brand-name">Deep Sync</span>
+</a>
     </div>
 
     <a href="https://github.com/deepakgaikwad2044/deepsync"

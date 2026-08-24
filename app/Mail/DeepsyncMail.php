@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Mail;
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -13,33 +14,38 @@ class DeepsyncMail
         try {
             // Server settings
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPDebug = 0;
+            $mail->Host       = env('MAIL_HOST');
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'deepsyncframework@gmail.com';
-            $mail->Password  = 'ruwg baze rmsw rlis';
+            $mail->Username   = env('MAIL_USERNAME');
+            $mail->Password   = env('MAIL_PASSWORD');
+
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port  = '587';
+            $mail->Port       = (int) env('MAIL_PORT');
 
             // Sender
             $mail->setFrom(
-        'deepsyncframework@gmail.com',
-          'Deep Sync Framework v5'
+                env('MAIL_FROM_EMAIL'),
+                env('MAIL_FROM_NAME')
             );
 
             // Recipient
             $mail->addAddress($to);
 
             // Content
-            $mail->isHTML(true);
+            $mail->isHTML(false);
             $mail->Subject = $subject;
             $mail->Body    = $body;
-            $mail->AltBody = strip_tags($body);
+            $mail->AltBody = $body;
 
             $mail->send();
+
             return true;
 
         } catch (Exception $e) {
+
             error_log("Mail Error: " . $mail->ErrorInfo);
+
             return false;
         }
     }

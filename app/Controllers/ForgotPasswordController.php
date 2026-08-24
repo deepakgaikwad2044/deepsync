@@ -52,14 +52,21 @@ class ForgotPasswordController
 
     $resetLink = env("APP_URL") . "/users/reset/password/$token";
 
-    DeepsyncMail::send(
-      $email,
-      "Reset Your Password",
-      "Click the link below to reset your password:\n\n$resetLink\n\nThis link expires in 30 minutes."
-    );
+$sent = DeepsyncMail::send(
+    $email,
+    "Reset Your Password",
+    "Click the link below to reset your password:\n\n$resetLink\n\nThis link expires in 30 minutes."
+);
 
-    set_flash("success", "Password reset link sent to your email");
+if (!$sent) {
+    set_flash("error", "Unable to send reset email. Please try again.");
     redirect(route("user.forgot.password"));
+    return;
+}
+
+set_flash("success", "Password reset link sent to your email");
+redirect(route("user.forgot.password"));
+    
   }
 
   public function showResetForm($token)

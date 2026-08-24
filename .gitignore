@@ -3,3 +3,4 @@ dump.rdb
 /vendor/
 /bootstrap/cache/
 /public/storage/
+.env

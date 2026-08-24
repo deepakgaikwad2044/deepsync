@@ -109,6 +109,10 @@
 
         <div class="box">
             <h2>🟠 Card</h2>
+            
+            <x-card title="Hello">
+    Card Content
+</x-card>
             <x-card>
                 <x-alert type="success">Welcome!</x-alert>
                 <x-button type="primary">Continue</x-button>

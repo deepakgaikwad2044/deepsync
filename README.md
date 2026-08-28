@@ -84,18 +84,6 @@ Deep Sync includes a custom ORM designed for simple and expressive database oper
 * SQLite support
 * SQL query protection
 
-Example:
-
-```php
-$user = User::find(1);
-
-$posts = $user->posts();
-
-foreach ($posts as $post) {
-    echo $post->title;
-}
-```
-
 ---
 
 # 🎨 PRANCHI Template Engine

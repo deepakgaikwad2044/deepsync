@@ -165,6 +165,14 @@ class Model
     $stmt = static::db()->query($sql, $params);
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // HIDE SENSITIVE FIELDS
+    foreach ($results as &$row) {
+      foreach ($this->hidden as $field) {
+        unset($row[$field]);
+      }
+    }
+    unset($row);
+
     // ✅ RELATIONS SQL KE BAAD LOAD HONGI
     if (!empty($this->with) && !empty($results)) {
       foreach ($results as &$row) {

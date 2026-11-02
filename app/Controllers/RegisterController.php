@@ -1,5 +1,6 @@
 <?php
 namespace App\Controllers;
+
 use App\Models\User;
 use App\Core\Validator;
 use App\Core\Response;
@@ -13,76 +14,74 @@ class RegisterController
     }
 
     public function register()
-{
-    $data = $_POST;
+    {
+        $data = $_POST;
 
-    // 🔥 normalize input first
-    $data["name"] = trim($data["name"] ?? "");
-    $data["email"] = strtolower(trim($data["email"] ?? ""));
+        // Normalize input first
+        $data["name"] = trim($data["name"] ?? "");
+        $data["email"] = strtolower(trim($data["email"] ?? ""));
 
-    $validator = new Validator();
+        $validator = new Validator();
 
-    $result = $validator->validate($data, [
-        "name" => "required|len:3",
-        "email" => "required|email|unique:users,email",
-        "password" => "required|len:6|confirmed",
-        "confirm_password" => "required",
-    ]);
-
-    // ❌ validation failed
-    if (!$result["status"]) {
-
-        $_SESSION["errors"] = $result["errors"];
-        $_SESSION["old"] = $data;
-
-        redirect(route("user.register"));
-        return;
-    }
-
-    try {
-
-        // ✅ register only ONCE
-        $user = User::register([
-            "name" => $data["name"],
-            "email" => $data["email"],
-            "password" => $data["password"],
+        $result = $validator->validate($data, [
+            "name" => "required|len:3",
+            "email" => "required|email|unique:users,email",
+            "password" => "required|len:6|confirmed",
+            "confirm_password" => "required",
         ]);
 
-        if (!$user) {
+        // Validation failed
+        if (!$result["status"]) {
+            $_SESSION["errors"] = $result["errors"];
+            $_SESSION["old"] = $data;
 
-            Response::error("user did not register");
+            redirect(route("user.register"));
             return;
         }
 
-        // ✅ stats
-        $inactive_users = User::query()
-            ->where("account_status", 0)
-            ->count();
+        try {
+            // Register only once
+            $user = User::register([
+                "name" => $data["name"],
+                "email" => $data["email"],
+                "password" => $data["password"],
+            ]);
 
-        $total_user = User::query()->count();
+            if (!$user) {
+                Response::error("user did not register");
+                return;
+            }
 
-        // ✅ realtime channel
-        $UserChannel = new UserChannel();
+            // Stats
+            $inactive_users = User::query()
+                ->where("account_status", 0)
+                ->count();
 
-        $UserChannel->send("userupdated", [
-            "inactive_users" => $inactive_users,
-            "total_user" => $total_user,
-        ]);
+            $total_user = User::query()->count();
 
-        // ✅ login user
-        $_SESSION["user_id"] = $user["id"];
+            // Realtime channel
+            $UserChannel = new UserChannel();
 
-        redirect(route("user.dashboard"));
-      
+            $UserChannel->send("userupdated", [
+                "inactive_users" => $inactive_users,
+                "total_user" => $total_user,
+            ]);
 
-    } catch (\Exception $e) {
+            // Regenerate session before login
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_regenerate_id(true);
+            }
 
-        $_SESSION["errors"]["form"] = $e->getMessage();
-        $_SESSION["old"] = $data;
+            // Login user
+            $_SESSION["user_id"] = $user["id"];
 
-        redirect(route("user.register"));
-        return;
+            redirect(route("user.dashboard"));
+        } catch (\Exception $e) {
+            $_SESSION["errors"]["form"] = $e->getMessage();
+            $_SESSION["old"] = $data;
+
+            redirect(route("user.register"));
+            return;
+        }
     }
 }
-}
-?>

@@ -15,6 +15,7 @@ class Schema
     {
         try {
             $blueprint = new Blueprint($table);
+
             $callback($blueprint);
 
             $sql = "CREATE TABLE $table (";
@@ -24,7 +25,6 @@ class Schema
                 $sql .= ", " . implode(', ', $blueprint->indexes);
             }
 
-            // 👇 Use getters for protected properties
             $sql .= ") ENGINE=" . $blueprint->getEngine() . "
                      DEFAULT CHARSET=" . $blueprint->getCharset() . "
                      COLLATE=" . $blueprint->getCollation();
@@ -40,12 +40,18 @@ class Schema
             } else {
                 echo "❌ " . $e->getMessage() . "\n";
             }
+
+            // Prevent migration from being recorded as successful
+            throw $e;
         }
     }
 
     public static function hasTable($table)
     {
-        $stmt = self::$pdo->query("SHOW TABLES LIKE '$table'");
+        $stmt = self::$pdo->query(
+            "SHOW TABLES LIKE " . self::$pdo->quote($table)
+        );
+
         return $stmt->rowCount() > 0;
     }
 
@@ -56,13 +62,12 @@ class Schema
 
     public static function dropIfExists($table)
     {
-  
-    self::$pdo->exec("SET FOREIGN_KEY_CHECKS=0");  // ❌ ignore FK temporarily
-    self::$pdo->exec("DROP TABLE IF EXISTS $table");
-    self::$pdo->exec("SET FOREIGN_KEY_CHECKS=1");  // ✅ restore FK check
-    
-          self::$pdo->exec("DROP TABLE IF EXISTS $table");
-        
+        self::$pdo->exec("SET FOREIGN_KEY_CHECKS=0");
 
+        try {
+            self::$pdo->exec("DROP TABLE IF EXISTS $table");
+        } finally {
+            self::$pdo->exec("SET FOREIGN_KEY_CHECKS=1");
+        }
     }
 }

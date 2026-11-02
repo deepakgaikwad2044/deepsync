@@ -15,10 +15,10 @@ class MakeMigration
             return;
         }
 
-        // 🧠 Extract table name
+        // Extract table name
         $table = $this->extractTableName($name);
 
-        // ⚠ Reserved table names
+        // Reserved table names
         $reservedTables = ['users', 'password_resets', 'migrations'];
 
         if (in_array(strtolower($table), $reservedTables)) {
@@ -26,7 +26,7 @@ class MakeMigration
             return;
         }
 
-        // 🗂 Migration directory
+        // Migration directory
         $migrationDir = __DIR__ . "/../../database/migrations/";
 
         if (!is_dir($migrationDir)) {
@@ -34,22 +34,24 @@ class MakeMigration
             CLI::info("📁 'migrations' folder created.\n");
         }
 
-        // 🔍 Check existing migration
+        // Check existing migration
         $files = glob($migrationDir . "*.php");
+
         foreach ($files as $file) {
             $content = file_get_contents($file);
+
             if (strpos($content, "Schema::create('{$table}'") !== false) {
                 CLI::error("Migration for table '{$table}' already exists.\n");
                 return;
             }
         }
 
-        // 🕒 Timestamp & filename
+        // Timestamp and filename
         $timestamp = date('Y_m_d_His');
         $fileName = "{$timestamp}_{$name}.php";
         $path = $migrationDir . $fileName;
 
-        // 🔥 Migration template
+        // Migration template
         $template = <<<PHP
 <?php
 
@@ -77,22 +79,22 @@ PHP;
 
         CLI::info("✅ Migration created: {$fileName}\n");
 
-        // 🔥 Auto create Model
-        $modelName = ucfirst($this->singular($table));
+        // Auto create Model
+        $modelName = str_replace(' ', '', ucwords(str_replace('_', ' ', $this->singular($table))));
         $this->createModel($modelName);
     }
 
-    // 🔥 Extract table name
+    // Extract table name
     private function extractTableName($name)
     {
-        if (preg_match('/create_(.*?)_table/', $name, $matches)) {
+        if (preg_match('/create_(.*?)_table/i', $name, $matches)) {
             return $matches[1];
         }
 
         return strtolower($name);
     }
 
-    // 🔥 Singular (countries → country)
+    // Singular
     private function singular($word)
     {
         if (substr($word, -3) === 'ies') {
@@ -106,7 +108,7 @@ PHP;
         return $word;
     }
 
-    // 🔥 Plural (country → countries)
+    // Plural
     private function plural($word)
     {
         if (substr($word, -1) === 'y') {
@@ -116,7 +118,7 @@ PHP;
         return $word . 's';
     }
 
-    // 🔥 Create Model
+    // Create Model
     private function createModel($modelName)
     {
         $modelDir = __DIR__ . "/../../app/Models/";
@@ -127,7 +129,6 @@ PHP;
 
         $path = $modelDir . $modelName . ".php";
 
-        // ❌ Check if exists
         if (file_exists($path)) {
             CLI::warning("⚠ Model {$modelName} already exists.\n");
             return;
@@ -146,7 +147,7 @@ class {$modelName} extends Model
     protected static \$table = '{$table}';
     protected static \$primaryKey = 'id';
     protected array \$hidden = [];
-    
+
     protected static array \$searchable = [];
 }
 ";

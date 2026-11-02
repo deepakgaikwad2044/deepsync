@@ -28,7 +28,9 @@ class Rollback
             return;
         }
 
-        $stmt = $pdo->prepare("SELECT * FROM migrations WHERE batch = ?");
+        $stmt = $pdo->prepare(
+    "SELECT * FROM migrations WHERE batch = ? ORDER BY migration DESC"
+);
         $stmt->execute([$batch]);
 
         $migrations = $stmt->fetchAll();

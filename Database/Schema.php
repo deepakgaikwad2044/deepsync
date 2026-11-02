@@ -62,12 +62,18 @@ class Schema
 
     public static function dropIfExists($table)
     {
+        $previousState = self::$pdo
+            ->query("SELECT @@FOREIGN_KEY_CHECKS")
+            ->fetchColumn();
+
         self::$pdo->exec("SET FOREIGN_KEY_CHECKS=0");
 
         try {
             self::$pdo->exec("DROP TABLE IF EXISTS $table");
         } finally {
-            self::$pdo->exec("SET FOREIGN_KEY_CHECKS=1");
+            self::$pdo->exec(
+                "SET FOREIGN_KEY_CHECKS=" . (int) $previousState
+            );
         }
     }
 }

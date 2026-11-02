@@ -95,7 +95,11 @@ class Auth
       return false;
     }
 
-    // Login success: set session & cache user
+    // Login success: regenerate session & set user
+    if (session_status() === PHP_SESSION_ACTIVE) {
+      session_regenerate_id(true);
+    }
+
     $_SESSION["user_id"] = $user["id"];
     self::$user = $user;
 

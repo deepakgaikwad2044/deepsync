@@ -14,7 +14,7 @@ class LoginController
   }
 
   public function login()
-{
+  {
     $data = $_POST;
 
     $email = $data['email'];
@@ -23,42 +23,45 @@ class LoginController
     $validator = new Validator();
 
     $result = $validator->validate($data, [
-        "email" => "required|email|exists:users,email",
-        "password" => "required|len:6",
+      "email" => "required|email|exists:users,email",
+      "password" => "required|len:6",
     ]);
 
     if (!$result["status"]) {
-        $_SESSION["errors"] = $result["errors"];
-        $_SESSION["old"] = $data;
+      $_SESSION["errors"] = $result["errors"];
+      $_SESSION["old"] = $data;
 
-        redirect(route("user.login"));
-        return;
+      redirect(route("user.login"));
+      return;
     }
 
-    // 🔥 USER FETCH
+    // USER FETCH
     $user = User::query()
-        ->where('email', $email)
-        ->first();
+      ->where('email', $email)
+      ->firstRaw();
 
-    // 🔥 AUTH CHECK
+    // AUTH CHECK
     if (!$user || !password_verify($password, $user['password'])) {
-        $_SESSION["errors"]["password"] = "Invalid email or password";
-        $_SESSION["old"] = $data;
+      $_SESSION["errors"]["password"] = "Invalid email or password";
+      $_SESSION["old"] = $data;
 
-        redirect(route("user.login"));
-        return;
+      redirect(route("user.login"));
+      return;
     }
 
-    // 🔥 SUCCESS LOGIN
+    // SUCCESS LOGIN
+    if (session_status() === PHP_SESSION_ACTIVE) {
+      session_regenerate_id(true);
+    }
+
     $_SESSION["user_id"] = $user['id'];
 
-
     User::update(Auth::id(), [
-        'intro_seen' => 0
+      'intro_seen' => 0
     ]);
-    
+
     unset($_SESSION["errors"], $_SESSION["old"]);
 
     redirect(route("user.dashboard"));
-}
+  }
 }

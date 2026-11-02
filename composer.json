@@ -1,6 +1,11 @@
 {
     "name": "deepakgaikwad2044/deepsync",
     "description": "Deep Sync Framework is a lightweight, modern PHP framework inspired by Laravel.",
+    "extra": {
+    "framework-version": "5.0.3",
+    "current-version": "5.0.3",
+    "release-date": "01 November 2026"
+},
     "type": "project",
     "license": "MIT",
 

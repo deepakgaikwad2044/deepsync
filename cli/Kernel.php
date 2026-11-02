@@ -5,17 +5,14 @@ namespace CLI;
 class Kernel
 {
     protected array $commands = [
-         'make:command'  => Commands\MakeCommand::class,
-         'make:view'  => Commands\MakeView::class,
+        'make:command'     => Commands\MakeCommand::class,
+        'make:view'        => Commands\MakeView::class,
         'make:controller'  => Commands\MakeController::class,
-        
         'make:model'       => Commands\MakeModel::class,
-       
-        'make:component'       => Commands\MakeComponent::class,
-        
+        'make:component'   => Commands\MakeComponent::class,
         'make:middleware'  => Commands\MakeMiddleware::class,
         'migrate:install'  => Commands\MigrateInstall::class,
-        'seed:update' => \CLI\Commands\SeedUpdate::class,
+        'seed:update'      => Commands\SeedUpdate::class,
         'make:migration'   => Commands\MakeMigration::class,
         'migrate'          => Commands\Migrate::class,
         'migrate:rollback' => Commands\Rollback::class,
@@ -25,10 +22,10 @@ class Kernel
         'app:key'          => Commands\AppKeyGenerateCommand::class,
         'migrate:status'   => Commands\MigrateStatus::class,
         'serve'            => Commands\Serve::class,
-        'socket:serve'            => Commands\WSSocket::class,
-        'redis:serve'            => Commands\Redis::class,
-        'serve:status' => \CLI\Commands\ServeStatus::class,
-        'cache:clear' => \CLI\Commands\CacheClear::class,
+        'socket:serve'     => Commands\WSSocket::class,
+        'redis:serve'      => Commands\Redis::class,
+        'serve:status'     => Commands\ServeStatus::class,
+        'cache:clear'      => Commands\CacheClear::class,
     ];
 
     protected array $config = [];
@@ -42,9 +39,26 @@ class Kernel
     private function loadComposerConfig(): void
     {
         $path = __DIR__ . '/../composer.json';
+
         if (file_exists($path)) {
-            $this->config = json_decode(file_get_contents($path), true) ?? [];
+            $this->config = json_decode(
+                file_get_contents($path),
+                true
+            ) ?? [];
         }
+    }
+
+    // Get installed framework version
+    private function getFrameworkVersion(): string
+    {
+        return $this->config['extra']['framework-version'] ?? 'Unknown';
+    }
+
+    // Get current framework version
+    private function getCurrentVersion(): string
+    {
+        return $this->config['extra']['current-version']
+            ?? $this->getFrameworkVersion();
     }
 
     // Handle CLI input
@@ -52,7 +66,6 @@ class Kernel
     {
         $command = $argv[1] ?? null;
 
-        // Global commands
         if ($command === '-v' || $command === '--version') {
             $this->version();
             return;
@@ -63,20 +76,17 @@ class Kernel
             return;
         }
 
-        // No command
         if (!$command) {
             $this->help();
             return;
         }
 
-        // Command not found
         if (!isset($this->commands[$command])) {
             echo "❌ Command not found\n";
             $this->help();
             return;
         }
 
-        // Run command
         $class = $this->commands[$command];
         $instance = new $class();
         $instance->handle($argv);
@@ -85,35 +95,41 @@ class Kernel
     // Display version
     private function version(): void
     {
-        $version = $this->config['version'] ?? '5.0.0';
-       
-        $date    = $this->config['extra']['release-date'] ?? '';
-        echo "🚀 DeepSync Framework v$version" . ($date ? " ($date)" : "") . "\n";
+        $version = $this->getFrameworkVersion();
+        $date = $this->config['extra']['release-date'] ?? '';
+
+        echo "🚀 DeepSync Framework v{$version}"
+            . ($date ? " ({$date})" : "")
+            . "\n";
     }
 
     // Display full info
     private function info(): void
     {
         $author = $this->config['authors'][0]['name'] ?? 'Unknown';
-        $email  = $this->config['authors'][0]['email'] ?? '-';
+        $email = $this->config['authors'][0]['email'] ?? '-';
 
         echo "\n🔥 DeepSync Framework\n\n";
-        echo "📦 Name        : " . ($this->config['name'] ?? '-') . "\n";
-        echo "📝 Description : " . ($this->config['description'] ?? '-') . "\n";
-        echo "🚀 Version     : " . 
-        ( 
-      $this->config['version'] ??  '5.0.0') . "\n";
-        echo "📜 License     : " . ($this->config['license'] ?? '-') . "\n";
+
+        echo "📦 Name        : "
+            . ($this->config['name'] ?? '-') . "\n";
+
+        echo "📝 Description : "
+            . ($this->config['description'] ?? '-') . "\n";
+
+        echo "🚀 Version     : "
+            . $this->getFrameworkVersion() . "\n";
+
+        echo "📜 License     : "
+            . ($this->config['license'] ?? '-') . "\n";
 
         echo "\n👤 Author Info\n";
         echo "   Name  : $author\n";
         echo "   Email : $email\n";
 
-        if (!empty($this->config['extra'])) {
-            echo "\n⚙️ Framework Info\n";
-            echo "   Current Version : " . ($this->config['extra']['current-version'] ?? '-') . "\n";
-       
-        }
+        echo "\n⚙️ Framework Info\n";
+        echo "   Current Version : "
+            . $this->getCurrentVersion() . "\n";
 
         echo "\n";
     }
@@ -125,6 +141,7 @@ class Kernel
         echo "Usage:\n";
         echo "  php deep -v          Show version\n";
         echo "  php deep info        Show full info\n\n";
+
         echo "Available Commands:\n";
 
         foreach ($this->commands as $name => $class) {

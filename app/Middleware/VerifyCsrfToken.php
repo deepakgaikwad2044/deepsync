@@ -12,14 +12,13 @@ class VerifyCsrfToken
         '/webhook/*'
     ];
 
-   public function handle()
-{
-    if ($this->isReadRequest()) {
-        return;
+    public function handle()
+    {
+        if ($this->isReadRequest() || $this->inExceptArray()) {
+            return;
+        }
+        $this->verifyToken();
     }
-
-    $this->verifyToken();
-}
 
 
     protected function isReadRequest(): bool

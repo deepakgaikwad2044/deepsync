@@ -7,21 +7,24 @@ class User extends Model
 {
     protected static $table = "users";
     protected static $primaryKey = "id";
-    protected array $hidden = ['password'];
-    
-    
-     protected static array $searchable = [
-      "name" , "email"
+
+    protected array $hidden = [
+        'password',
+        'refresh_token',
+        'refresh_token_expiry'
     ];
 
+    protected static array $searchable = [
+        "name", "email"
+    ];
 
     /**
      * Register User (ORM)
      */
     public static function register(array $param)
     {
-        $name     = trim($param['name'] ?? '');
-        $email    = trim($param['email'] ?? '');
+        $name = trim($param['name'] ?? '');
+        $email = trim($param['email'] ?? '');
         $password = trim($param['password'] ?? '');
 
         if (!$name || !$email || !$password) {
@@ -35,8 +38,8 @@ class User extends Model
 
         // Create user
         self::create([
-            'name'     => $name,
-            'email'    => $email,
+            'name' => $name,
+            'email' => $email,
             'password' => password_hash($password, PASSWORD_BCRYPT),
         ]);
 
@@ -48,29 +51,28 @@ class User extends Model
      * Login User (ORM)
      */
     public static function login(array $param)
-{   
-    $email    = trim($param['email'] ?? '');
-    $password = trim($param['password'] ?? '');
+    {
+        $email = trim($param['email'] ?? '');
+        $password = trim($param['password'] ?? '');
 
-    if (!$email || !$password) {
-        throw new \Exception("Email and password required");
+        if (!$email || !$password) {
+            throw new \Exception("Email and password required");
+        }
+
+        // Use RAW fetch (password included)
+        $user = self::query()->where('email', $email)->firstRaw();
+
+        if (!$user) {
+            throw new \Exception("No such user found");
+        }
+
+        if (!password_verify($password, $user['password'])) {
+            throw new \Exception("Incorrect password");
+        }
+
+        // Remove password before returning
+        unset($user['password']);
+
+        return $user;
     }
-
-    // 👇 Use RAW fetch (password included)
-    $user = self::query()->where('email', $email)->firstRaw();
-    
-
-    if (!$user) {
-        throw new \Exception("No such user found");
-    }
-
-    if (!password_verify($password, $user['password'])) {
-        throw new \Exception("Incorrect password");
-    }
-
-    // 👇 Remove password before returning
-    unset($user['password']);
-
-    return $user;
-}
 }

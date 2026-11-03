@@ -12,6 +12,7 @@ Router::group(["prefix" => "api"], function () {
   // 🔓 Public Routes
   Router::post("login", [AuthApiController::class, "login"]);
   Router::post("refresh-token", [AuthApiController::class, "refreshToken"]);
+  Router::post("logout", [AuthApiController::class, "logout"]);
 
   // 🔒 Private Routes (JWT Required)
   Router::group(["middleware" => "JWT"], function () {

@@ -106,9 +106,8 @@ class AuthApiController
         ]);
     }
 
-    /* =========================
-       LOGOUT
-    ========================== */
+  /* ============ LOGOUT ===== */
+
     public function logout()
     {
         $refreshToken = $_POST["refresh_token"] ?? null;
@@ -122,21 +121,17 @@ class AuthApiController
         $user = User::query()
             ->where("refresh_token", $hashedToken)
             ->first();
-        
 
         if (!$user) {
             return Response::error("Invalid refresh token", 401);
         }
-         $id = $user["id"]; 
-        
 
-        // ❌ Remove token from DB
-         User::updateWhere("id", $id ,[
-    "refresh_token" => null,
-    "refresh_token_expiry" => null
-]);
+        $id = $user["id"];
 
-        Auth::logout();
+        User::updateWhere("id", $id, [
+            "refresh_token" => null,
+            "refresh_token_expiry" => null
+        ]);
 
         return Response::success("Logout successful");
     }

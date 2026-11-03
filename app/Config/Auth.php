@@ -68,37 +68,65 @@ class Auth
    */
   public static function logout()
   {
-    unset($_SESSION["user_id"]);
     self::$user = null;
+
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+      return;
+    }
+
+    $_SESSION = [];
+
+    if (ini_get("session.use_cookies")) {
+      $params = session_get_cookie_params();
+      if (!headers_sent()) {
+        $cookieOptions = [
+          "expires" => time() - 42000,
+          "path" => $params["path"],
+          "domain" => $params["domain"],
+          "secure" => $params["secure"],
+          "httponly" => $params["httponly"],
+        ];
+
+        if (!empty($params["samesite"])) {
+          $cookieOptions["samesite"] = $params["samesite"];
+        }
+
+        setcookie(session_name(), "", $cookieOptions);
+      }
+    }
+
+    session_destroy();
   }
+
 
   public static function attempt(array $credentials)
-  {
-    $email = $credentials["email"] ?? null;
-    $password = $credentials["password"] ?? null;
+    {
+        $email = $credentials["email"] ?? null;
+        $password = $credentials["password"] ?? null;
 
-    if (!$email || !$password) {
-      return false;
+        if (!$email || !$password) {
+            return false;
+        }
+
+        $user = User::query()
+            ->where("email", $email)
+            ->firstRaw();
+
+        if (!$user || !password_verify($password, $user["password"])) {
+            return false;
+        }
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
+
+        $_SESSION["user_id"] = $user["id"];
+
+        // Never expose or cache the password
+        unset($user["password"]);
+
+        self::$user = $user;
+
+        return $user;
     }
-
-    // Find user by email
-    $user = User::Query()
-      ->where("email", $email)
-      ->firstRaw();
-
-    if (!$user) {
-      return false;
-    }
-
-    // Verify password (assuming passwords hashed)
-    if (!password_verify($password, $user["password"])) {
-      return false;
-    }
-
-    // Login success: set session & cache user
-    $_SESSION["user_id"] = $user["id"];
-    self::$user = $user;
-
-    return $user;
-  }
 }

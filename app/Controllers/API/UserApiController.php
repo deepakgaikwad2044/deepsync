@@ -8,134 +8,138 @@ use App\Models\User;
 
 class UserApiController
 {
-  public function index()
-  {
-    // GET /users
-  }
+    public function index()
+    {
+        $authUserId = $_REQUEST["auth_user"]->id;
 
-  public function show($id)
-  {
-    // GET /users/{id}
-    return response::success("get", "hello world");
-  }
-  
-  public function store()
-  {
-    // POST /users
-    $param = $_POST;
-    $name = trim($param["name"] ?? "");
-    $email = trim($param["email"] ?? "");
-    $password = trim($param["password"] ?? "");
+        $user = User::query()
+            ->where("id", $authUserId)
+            ->first();
 
-    if (!$name || !$email || !$password) {
-      return response::error("All fields are required");
+        if (!$user) {
+            return Response::error("User not found");
+        }
+
+        return Response::success("User retrieved successfully", $user);
     }
 
-    // Check existing user
-    if (
-      User::query()
-        ->where("email", $email)
-        ->first()
-    ) {
-      return response::error("User already exists");
+    public function show($id)
+    {
+        $authUserId = $_REQUEST["auth_user"]->id;
+
+        $user = User::query()
+            ->where("id", $id)
+            ->where("id", $authUserId)
+            ->first();
+
+        if (!$user) {
+            return Response::error("User not found or access denied", 403);
+        }
+
+        return Response::success("User retrieved successfully", $user);
     }
 
-    // Create user
-    User::create([
-      "name" => $name,
-      "email" => $email,
-      "password" => password_hash($password, PASSWORD_BCRYPT),
-    ]);
-
-    $user = User::query()
-      ->where("email", $email)
-      ->first();
-
-    return response::success("user successfull created", $user);
-  }
-
-  public function update($id)
-  {
-    $input = Request::input();
-    $name = $input["name"] ?? null;
-    $email = $input["email"] ?? null;
-    $password = $input["password"] ?? null;
-
-    // Validation
-    if (!$name || !$email || !$password) {
-      return Response::error("All fields are required");
+    public function store()
+    {
+        return Response::error("Access denied", 403);
     }
 
-    // Update user
-    $updated = User::updateWhere("id", $id, [
-      "name" => $name,
-      "email" => $email,
-      "password" => password_hash($password, PASSWORD_BCRYPT),
-    ]);
+    public function update($id)
+    {
+        $authUserId = $_REQUEST["auth_user"]->id;
 
-    if (!$updated) {
-      return Response::error("User not found or not updated");
+        if ((int) $id !== (int) $authUserId) {
+            return Response::error("Access denied", 403);
+        }
+
+        $input = Request::input();
+        $name = $input["name"] ?? null;
+        $email = $input["email"] ?? null;
+        $password = $input["password"] ?? null;
+
+        if (!$name || !$email || !$password) {
+            return Response::error("All fields are required");
+        }
+
+        $updated = User::updateWhere("id", $id, [
+            "name" => $name,
+            "email" => $email,
+            "password" => password_hash($password, PASSWORD_BCRYPT),
+        ]);
+
+        if (!$updated) {
+            return Response::error("User not found or not updated");
+        }
+
+        $user = User::query()
+            ->where("id", $id)
+            ->first();
+
+        return Response::success("User successfully updated", $user);
     }
 
-    // Fetch updated user
-    $user = User::query()
-      ->where("id", $id)
-      ->first();
+    public function updatePartial($id)
+    {
+        $authUserId = $_REQUEST["auth_user"]->id;
 
-    return Response::success("User successfully updated", $user);
-  }
+        if ((int) $id !== (int) $authUserId) {
+            return Response::error("Access denied", 403);
+        }
 
-  public function updatePartial($id)
-  {
-    $input = Request::input();
+        $input = Request::input();
+        $data = [];
 
-    $data = [];
+        if (isset($input["name"])) {
+            $data["name"] = $input["name"];
+        }
 
-    if (isset($input["name"])) {
-      $data["name"] = $input["name"];
+        if (isset($input["email"])) {
+            $data["email"] = $input["email"];
+        }
+
+        if (isset($input["password"])) {
+            $data["password"] = password_hash($input["password"], PASSWORD_BCRYPT);
+        }
+
+        if (empty($data)) {
+            return Response::error("Nothing to update");
+        }
+
+        $updated = User::updateWhere("id", $id, $data);
+
+        if (!$updated) {
+            return Response::error("User not found or not updated");
+        }
+
+        $user = User::query()
+            ->where("id", $id)
+            ->first();
+
+        return Response::success("User partially updated", $user);
     }
 
-    if (isset($input["email"])) {
-      $data["email"] = $input["email"];
+    public function destroy($id)
+    {
+        $authUserId = $_REQUEST["auth_user"]->id;
+
+        if ((int) $id !== (int) $authUserId) {
+            return Response::error("Access denied", 403);
+        }
+
+        $user = User::query()
+            ->where("id", $id)
+            ->first();
+
+        if (!$user) {
+            return Response::error("User not found", 404);
+        }
+
+        $deleted = User::deleteWhere("id", $id);
+
+        if (!$deleted) {
+            return Response::error("User could not be deleted");
+        }
+
+        return Response::success("User successfully deleted");
     }
-
-    if (isset($input["password"])) {
-      $data["password"] = password_hash($input["password"], PASSWORD_BCRYPT);
-    }
-
-    if (empty($data)) {
-      return Response::error("Nothing to update");
-    }
-
-    $updated = User::updateWhere("id", $id, $data);
-
-    if (!$updated) {
-      return Response::error("User not found or not updated");
-    }
-
-    $user = User::query()
-      ->where("id", $id)
-      ->first();
-
-    return Response::success("User partially updated", $user);
-  }
-
-  public function destroy($id)
-  {
-    // DELETE /users/{id}
-    $user = User::Query()
-      ->where("id", $id)
-      ->first();
-    if (!$user) {
-      return response::error("user not  found");
-    }
-
-    $deleted = User::deleteWhere("id", $id);
-
-    if (!$deleted) {
-      return Response::error("User not found or not updated");
-    }
-
-    return response::success("user successfully  deleted");
-  }
 }

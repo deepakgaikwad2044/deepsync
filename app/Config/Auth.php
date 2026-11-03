@@ -100,36 +100,33 @@ class Auth
 
 
   public static function attempt(array $credentials)
-  {
-    $email = $credentials["email"] ?? null;
-    $password = $credentials["password"] ?? null;
+    {
+        $email = $credentials["email"] ?? null;
+        $password = $credentials["password"] ?? null;
 
-    if (!$email || !$password) {
-      return false;
+        if (!$email || !$password) {
+            return false;
+        }
+
+        $user = User::query()
+            ->where("email", $email)
+            ->firstRaw();
+
+        if (!$user || !password_verify($password, $user["password"])) {
+            return false;
+        }
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
+
+        $_SESSION["user_id"] = $user["id"];
+
+        // Never expose or cache the password
+        unset($user["password"]);
+
+        self::$user = $user;
+
+        return $user;
     }
-
-    // Find user by email
-    $user = User::Query()
-      ->where("email", $email)
-      ->firstRaw();
-
-    if (!$user) {
-      return false;
-    }
-
-    // Verify password (assuming passwords hashed)
-    if (!password_verify($password, $user["password"])) {
-      return false;
-    }
-
-    // Login success: regenerate session & set user
-    if (session_status() === PHP_SESSION_ACTIVE) {
-      session_regenerate_id(true);
-    }
-
-    $_SESSION["user_id"] = $user["id"];
-    self::$user = $user;
-
-    return $user;
-  }
 }

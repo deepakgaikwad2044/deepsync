@@ -18,38 +18,40 @@ class Router
         $previousMiddleware = self::$currentGroupMiddleware;
         $previousPrefix = self::$currentGroupPrefix;
 
-        if (is_array($group)) {
+        try {
+            if (is_array($group)) {
 
-            // ✅ Middleware merge (FIXED)
-            if (isset($group["middleware"])) {
-                $newMiddleware = is_array($group["middleware"])
-                    ? $group["middleware"]
-                    : [$group["middleware"]];
+                // ✅ Middleware merge (FIXED)
+                if (isset($group["middleware"])) {
+                    $newMiddleware = is_array($group["middleware"])
+                        ? $group["middleware"]
+                        : [$group["middleware"]];
 
+                    self::$currentGroupMiddleware = array_unique(
+                        array_merge(self::$currentGroupMiddleware, $newMiddleware)
+                    );
+                }
+
+                // ✅ Prefix merge
+                if (isset($group["prefix"])) {
+                    self::$currentGroupPrefix .= "/" . trim($group["prefix"], "/");
+                }
+
+            } else {
+                // ✅ String group also merge (FIXED)
                 self::$currentGroupMiddleware = array_unique(
-                    array_merge(self::$currentGroupMiddleware, $newMiddleware)
+                    array_merge(self::$currentGroupMiddleware, [$group])
                 );
             }
 
-            // ✅ Prefix merge
-            if (isset($group["prefix"])) {
-                self::$currentGroupPrefix .= "/" . trim($group["prefix"], "/");
-            }
+            $callback();
 
-        } else {
-            // ✅ String group also merge (FIXED)
-            self::$currentGroupMiddleware = array_unique(
-                array_merge(self::$currentGroupMiddleware, [$group])
-            );
+        } finally {
+            // 🔁 Always restore previous state
+            self::$currentGroupMiddleware = $previousMiddleware;
+            self::$currentGroupPrefix = $previousPrefix;
         }
-
-        $callback();
-
-        // 🔁 Restore previous state
-        self::$currentGroupMiddleware = $previousMiddleware;
-        self::$currentGroupPrefix = $previousPrefix;
     }
-
     /* =========================
        METHODS
     ========================== */

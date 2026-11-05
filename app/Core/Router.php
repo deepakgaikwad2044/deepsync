@@ -128,6 +128,14 @@ class Router
     }
 
     /* =========================
+       RATE LIMIT
+    ========================== */
+    public function rateLimit(int $maxAttempts = 60, int $decayMinutes = 1)
+    {
+        return $this->middleware("throttle:{$maxAttempts},{$decayMinutes}");
+    }
+
+    /* =========================
        DISPATCH
     ========================== */
     public static function dispatch()

@@ -11,7 +11,7 @@ use App\Middleware\RateLimitMiddleware;
 
 class Middleware
 {
-    public static function handle(array $middlewares)
+    public static function handle(array $middlewares, bool $isWeb = false)
     {
         foreach ($middlewares as $middleware) {
 
@@ -57,7 +57,8 @@ class Middleware
 
                     (new RateLimitMiddleware())->handle(
                         $maxAttempts,
-                        $decayMinutes
+                        $decayMinutes,
+                        $isWeb
                     );
 
                     break;

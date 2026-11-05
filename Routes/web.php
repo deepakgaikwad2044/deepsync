@@ -50,7 +50,7 @@ Router::get("/docs/{slug}", [DocsController::class, "show"])->name("docs.slug");
         "user.login"
       );
 
-      Router::post("/login", [LoginController::class, "login"])->name(
+      Router::post("/login", [LoginController::class, "login"])->rateLimit(5, 1)->name(
         "user.login.verify"
       );
       

@@ -9,7 +9,8 @@ class RateLimitMiddleware
 {
     public function handle(
         int $maxAttempts = 60,
-        int $decayMinutes = 1
+        int $decayMinutes = 1,
+        bool $isWeb = false
     ): void {
         $maxAttempts = max(1, $maxAttempts);
         $decaySeconds = max(1, $decayMinutes) * 60;
@@ -61,6 +62,15 @@ LUA;
 
         if ($current > $maxAttempts) {
             header("Retry-After: {$ttl}");
+
+            if ($isWeb) {
+                set_flash(
+                    'error',
+                    'Too many login attempts. Please try again in a minute.'
+                );
+
+                redirect('/login');
+            }
 
             Response::error(
                 "Too many requests. Please try again later.",

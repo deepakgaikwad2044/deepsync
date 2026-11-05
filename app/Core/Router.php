@@ -189,7 +189,10 @@ class Router
         ));
 
         // ✅ Run middleware
-        \App\Core\Middleware::handle($allMiddleware);
+        \App\Core\Middleware::handle(
+            $allMiddleware,
+            in_array("web", $matchedRoute["groupMiddleware"], true)
+        );
 
         [$controller, $methodName] = $matchedRoute["action"];
         $controllerInstance = new $controller();

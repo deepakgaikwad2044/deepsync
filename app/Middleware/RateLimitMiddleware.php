@@ -64,12 +64,14 @@ LUA;
             header("Retry-After: {$ttl}");
 
             if ($isWeb) {
-                set_flash(
-                    'error',
-                    'Too many login attempts. Please try again in a minute.'
-                );
+                http_response_code(429);
 
-                redirect('/login');
+                view("err429", [
+                    "code" => 429,
+                    "message" => "Too many requests. Please slow down and try again shortly."
+                ]);
+
+                exit();
             }
 
             Response::error(

@@ -902,4 +902,260 @@ Retry-After: 60
 HTMLDOC
 ],
 
+[
+    "🔐 Authentication Improvements",
+    "authentication-improvements",
+    <<<'HTMLDOC'
+<h2>🔐 Authentication Improvements</h2>
+
+<p>Deep Sync Framework provides session-based authentication for Web applications and JWT-based authentication for REST APIs.</p>
+
+<hr>
+
+<h3>🌐 Session-Based Authentication</h3>
+<p>The built-in Auth helper manages authenticated user sessions.</p>
+
+<pre>
+use App\Config\Auth;
+
+// Check authentication
+Auth::check();
+
+// Get authenticated user
+$user = Auth::user();
+
+// Get user details
+Auth::id();
+Auth::username();
+Auth::avatar();
+Auth::role();
+
+// Logout
+Auth::logout();
+</pre>
+
+<hr>
+
+<h3>🔑 Login Authentication</h3>
+<p>Use Auth::attempt() to verify user credentials and establish an authenticated session.</p>
+
+<pre>
+$user = Auth::attempt([
+    "email" => $email,
+    "password" => $password
+]);
+
+if ($user) {
+    // Authentication successful
+} else {
+    // Invalid credentials
+}
+</pre>
+
+<p>The framework verifies passwords using password_hash/password_verify-compatible hashing and regenerates the session ID after successful authentication when a session is active.</p>
+
+<hr>
+
+<h3>🛡️ Web Route Protection</h3>
+<p>Use AuthMiddleware to protect routes that require an authenticated session.</p>
+
+<pre>
+use App\Middleware\AuthMiddleware;
+
+Router::get("/dashboard", [DashboardController::class, "index"])
+    ->middleware(AuthMiddleware::class);
+</pre>
+
+<p>Unauthenticated users are redirected to the login route.</p>
+
+<hr>
+
+<h3>🌍 JWT Authentication for APIs</h3>
+<p>API authentication uses Bearer tokens. The login endpoint returns an access token and a refresh token.</p>
+
+<pre>
+POST /api/login
+
+{
+    "email": "user@example.com",
+    "password": "your-password"
+}
+</pre>
+
+<p>Send the access token in the Authorization header when accessing protected API routes.</p>
+
+<pre>
+Authorization: Bearer YOUR_ACCESS_TOKEN
+</pre>
+
+<hr>
+
+<h3>♻️ Refresh Token</h3>
+<p>Use the refresh-token endpoint to obtain a new access token. The refresh token is rotated after successful use, and its stored value is maintained as a SHA-256 hash.</p>
+
+<pre>
+POST /api/refresh-token
+
+{
+    "refresh_token": "YOUR_REFRESH_TOKEN"
+}
+</pre>
+
+<p>The logout endpoint invalidates the supplied refresh token.</p>
+
+<pre>
+POST /api/logout
+
+{
+    "refresh_token": "YOUR_REFRESH_TOKEN"
+}
+</pre>
+
+<hr>
+
+<h3>⏱️ Token Expiration</h3>
+<ul>
+<li>Access token expiry is configured through <code>JWTConfig::EXPIRE</code> (currently 120 seconds).</li>
+<li>Refresh tokens expire after 7 days.</li>
+<li>Expired or invalid access tokens are rejected by JWTMiddleware.</li>
+</ul>
+
+<hr>
+
+<h3>🔒 Security Notes</h3>
+<ul>
+<li>Never expose passwords, access tokens, refresh tokens, or JWT secrets.</li>
+<li>Keep JWT secrets outside public source code and use secure environment configuration.</li>
+<li>Use HTTPS in production to protect credentials and tokens in transit.</li>
+<li>Store refresh tokens securely on the client.</li>
+</ul>
+
+<p>🎉 Build secure Web and API authentication flows with Deep Sync Framework!</p>
+HTMLDOC
+],
+
+[
+    "🗄️ Migration Improvements",
+    "migration-improvements",
+    <<<'HTMLDOC'
+<h2>🗄️ Migration Improvements</h2>
+
+<p>Deep Sync Framework provides a migration system to create, execute, and roll back database schema changes.</p>
+
+<hr>
+
+<h3>🚀 Create a Migration</h3>
+<p>Generate a migration using the CLI:</p>
+
+<pre>
+php deep make:migration posts
+</pre>
+
+<p>The command generates a timestamped migration file. It also creates a corresponding model when one does not already exist.</p>
+
+<hr>
+
+<h3>🛡️ Built-in Protections</h3>
+<ul>
+<li>Prevents migration creation for reserved tables such as <code>users</code>, <code>password_resets</code>, and <code>migrations</code>.</li>
+<li>Checks existing migration files to prevent duplicate table creation migrations.</li>
+<li>Does not overwrite an existing model.</li>
+</ul>
+
+<hr>
+
+<h3>🧱 Migration Structure</h3>
+<p>A migration extends <code>Database\Migration</code> and defines <code>up()</code> and <code>down()</code> methods.</p>
+
+<pre>
+use Database\Migration;
+use Database\Schema;
+
+class Posts extends Migration
+{
+    public function up()
+    {
+        Schema::create('posts', function($table) {
+            $table->id();
+            $table->string("title");
+            $table->timestamps();
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('posts');
+    }
+}
+</pre>
+
+<hr>
+
+<h3>⚙️ Run Migrations</h3>
+<pre>
+php deep migrate
+</pre>
+<p>The migration runner skips migrations already recorded in the migrations table. Successfully executed migrations are recorded in batches.</p>
+
+<hr>
+
+<h3>↩️ Rollback Migrations</h3>
+<pre>
+php deep migrate:rollback
+</pre>
+<p>Rollback executes the <code>down()</code> methods for migrations in the latest batch and removes their records after successful execution.</p>
+
+<hr>
+
+<h3>🧩 Available Blueprint Methods</h3>
+<pre>
+$table->id();
+$table->int("quantity");
+$table->string("title", 255);
+$table->text("description");
+$table->tinyint("status");
+$table->enum("type", ["draft", "published"]);
+$table->date("published_at");
+$table->datetime("scheduled_at");
+
+$table->nullable();
+$table->default("value");
+$table->unique();
+$table->index();
+
+$table->foreign("user_id")
+      ->references("id")
+      ->on("users")
+      ->onDelete("CASCADE");
+
+$table->timestamps();
+</pre>
+
+<p>Blueprint also supports engine, charset, collation, unsigned columns, foreign-key update/delete actions, custom foreign-key names, and column positioning with <code>after()</code>.</p>
+
+<hr>
+
+<h3>🗑️ Schema Helpers</h3>
+<pre>
+Schema::hasTable("posts");
+Schema::drop("posts");
+Schema::dropIfExists('posts');
+</pre>
+
+<p><code>dropIfExists()</code> temporarily disables foreign-key checks and restores the previous setting afterward.</p>
+
+<hr>
+
+<h3>💡 Recommended Workflow</h3>
+<pre>
+php deep make:migration posts
+php deep migrate
+</pre>
+
+<p>Use migrations to keep database schema changes organized and version-controlled.</p>
+
+<p>🎉 Manage database structure efficiently with Deep Sync Framework Migrations!</p>
+HTMLDOC
+],
+
 ];

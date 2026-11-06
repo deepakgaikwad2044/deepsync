@@ -779,4 +779,127 @@ DELETE /api/user/1
 <p>Optimized JSON responses for frontend and mobile applications 📱</p>"
 ],
 
+
+
+[
+    "🛡️ Rate Limiting Middleware",
+    "rate-limiting",
+    <<<'HTMLDOC'
+<h2>🛡️ Rate Limiting Middleware</h2>
+
+<p>Deep Sync Framework provides Redis-powered Rate Limiting Middleware to control the number of requests a client can make within a specified time window.</p>
+
+<hr>
+
+<h3>🚀 Features</h3>
+<ul>
+<li>Redis-based request counting</li>
+<li>Configurable maximum attempts and decay time</li>
+<li>IP-based request isolation</li>
+<li>Separate limits for HTTP methods and URL paths</li>
+<li>Rate limit response headers</li>
+<li>HTTP 429 Too Many Requests handling</li>
+<li>Custom error page for Web requests</li>
+<li>JSON error response for API requests</li>
+<li>Fail-open behavior if Redis is unavailable</li>
+</ul>
+
+<hr>
+
+<h3>⚡ Fluent Route Usage</h3>
+<pre>
+Router::post("/login", [LoginController::class, "login"])
+    ->rateLimit(5, 1);
+</pre>
+
+<p>This allows 5 requests per IP address for the same HTTP method and URL path within a 1-minute window.</p>
+
+<hr>
+
+<h3>🧩 Middleware Syntax</h3>
+<pre>
+Router::post("/login", [LoginController::class, "login"])
+    ->middleware("throttle:5,1");
+</pre>
+
+<p>Syntax:</p>
+<pre>throttle:MAX_ATTEMPTS,DECAY_MINUTES</pre>
+
+<hr>
+
+<h3>⚙️ Default Configuration</h3>
+<pre>
+Maximum Attempts: 60
+Decay Time: 1 minute
+</pre>
+<p>These defaults are used when parameters are omitted or invalid. Both values are normalized to a minimum of 1.</p>
+
+<hr>
+
+<h3>🌐 API Route Example</h3>
+<pre>
+Router::post("login", [AuthApiController::class, "login"])
+    ->middleware("throttle:5,1");
+
+Router::post("refresh-token", [AuthApiController::class, "refreshToken"])
+    ->middleware("throttle:10,1");
+</pre>
+
+<p>API requests exceeding the limit receive a JSON error response with HTTP status code 429.</p>
+
+<hr>
+
+<h3>🖥️ Web Route Example</h3>
+<pre>
+Router::post("/login", [LoginController::class, "login"])
+    ->rateLimit(5, 1);
+</pre>
+<p>When a Web request exceeds its limit, the framework displays the custom <code>err429</code> error page.</p>
+
+<hr>
+
+<h3>📨 Response Headers</h3>
+<pre>
+X-RateLimit-Limit: 5
+X-RateLimit-Remaining: 0
+Retry-After: 60
+</pre>
+<ul>
+<li><code>X-RateLimit-Limit</code> — Configured maximum attempts.</li>
+<li><code>X-RateLimit-Remaining</code> — Remaining allowed requests.</li>
+<li><code>Retry-After</code> — Seconds until the current limit window expires; sent when the limit is exceeded.</li>
+</ul>
+
+<hr>
+
+<h3>🔴 Redis Integration &amp; Fail-Open Behavior</h3>
+<p>Rate limiting uses Redis to maintain request counters with automatic expiration. If Redis encounters an error, the middleware logs the error and allows the request to continue instead of blocking the application.</p>
+
+<hr>
+
+<h3>🔐 Request Identification</h3>
+<p>Each rate-limit counter is identified using the client's IP address, HTTP request method, and URL path. Limits are therefore separate for different IP addresses, methods, and paths.</p>
+
+<hr>
+
+<h3>🚫 HTTP 429 Response</h3>
+<ul>
+<li>Web requests receive the custom 429 error page.</li>
+<li>API requests receive a JSON error response.</li>
+<li>The Retry-After header indicates when the current window expires.</li>
+</ul>
+
+<hr>
+
+<h3>💡 Best Practices</h3>
+<ul>
+<li>Apply stricter limits to login and authentication routes.</li>
+<li>Choose limits according to each endpoint's requirements.</li>
+<li>Ensure Redis is configured and running for rate limiting to operate.</li>
+</ul>
+
+<p>🎉 Protect your application endpoints with Deep Sync Rate Limiting Middleware!</p>
+HTMLDOC
+],
+
 ];

@@ -17,9 +17,9 @@ class VerifyCsrfToken
         if ($this->isReadRequest() || $this->inExceptArray()) {
             return;
         }
+
         $this->verifyToken();
     }
-
 
     protected function isReadRequest(): bool
     {
@@ -32,7 +32,7 @@ class VerifyCsrfToken
             ?? $_SERVER['HTTP_X_CSRF_TOKEN']
             ?? null;
 
-        if (!$token || !$this->tokensMatch($token)) {
+        if (!is_string($token) || trim($token) === '' || !$this->tokensMatch($token)) {
             http_response_code(419);
             exit('CSRF token mismatch.');
         }
@@ -40,7 +40,13 @@ class VerifyCsrfToken
 
     protected function tokensMatch(string $token): bool
     {
-        return hash_equals($_SESSION['csrf_token'] ?? '', $token);
+        $sessionToken = $_SESSION['csrf_token'] ?? '';
+
+        if (!is_string($sessionToken) || trim($sessionToken) === '') {
+            return false;
+        }
+
+        return hash_equals($sessionToken, $token);
     }
 
     protected function inExceptArray(): bool
@@ -60,6 +66,7 @@ class VerifyCsrfToken
     {
         // Convert /api/* to regex
         $pattern = str_replace('*', '.*', $pattern);
+
         return preg_match("#^{$pattern}$#", $uri);
     }
 }

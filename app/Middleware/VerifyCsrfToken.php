@@ -264,16 +264,25 @@ class VerifyCsrfToken
 
     protected function verifyToken(): void
     {
-        $token = $_POST['csrf_token']
-            ?? $_SERVER['HTTP_X_CSRF_TOKEN']
-            ?? null;
+        $bodyToken = $_POST['csrf_token'] ?? null;
+        $headerToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
 
-        if (
-            !is_string($token) ||
-            trim($token) === '' ||
-            !$this->tokensMatch($token)
-        ) {
+        if ($bodyToken === null && $headerToken === null) {
             $this->rejectRequest('CSRF token mismatch.');
+        }
+
+        foreach ([$bodyToken, $headerToken] as $token) {
+            if ($token === null) {
+                continue;
+            }
+
+            if (
+                !is_string($token) ||
+                trim($token) === '' ||
+                !$this->tokensMatch($token)
+            ) {
+                $this->rejectRequest('CSRF token mismatch.');
+            }
         }
     }
 

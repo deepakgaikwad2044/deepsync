@@ -21,6 +21,7 @@ class VerifyCsrfToken
         $this->verifyContentType();
         $this->verifyOrigin();
         $this->verifyReferer();
+        $this->verifyNoDuplicateCsrfTokens();
         $this->verifyToken();
     }
 
@@ -111,6 +112,45 @@ class VerifyCsrfToken
     {
         http_response_code(415);
         exit('Unsupported Media Type.');
+    }
+
+    protected function verifyNoDuplicateCsrfTokens(): void
+    {
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        $mediaType = strtolower(trim(explode(';', $contentType, 2)[0]));
+
+        if ($mediaType !== 'application/x-www-form-urlencoded') {
+            return;
+        }
+
+        $rawBody = file_get_contents('php://input');
+
+        if (!is_string($rawBody) || $rawBody === '') {
+            return;
+        }
+
+        $count = 0;
+
+        foreach (explode('&', $rawBody) as $field) {
+            if ($field === '') {
+                continue;
+            }
+
+            $separator = strpos($field, '=');
+            $rawName = $separator === false
+                ? $field
+                : substr($field, 0, $separator);
+
+            $name = str_replace(['.', ' '], '_', urldecode($rawName));
+
+            if ($name === 'csrf_token') {
+                $count++;
+            }
+        }
+
+        if ($count > 1) {
+            $this->rejectRequest('CSRF token mismatch.');
+        }
     }
 
     protected function verifyOrigin(): void

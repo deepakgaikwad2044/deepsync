@@ -19,6 +19,7 @@ class VerifyCsrfToken
         }
 
         $this->verifyContentType();
+        $this->verifyJsonPayload();
         $this->verifyOrigin();
         $this->verifyReferer();
         $this->verifyNoDuplicateCsrfTokens();
@@ -106,6 +107,30 @@ class VerifyCsrfToken
         }
 
         $this->rejectUnsupportedMediaType();
+    }
+
+    protected function verifyJsonPayload(): void
+    {
+        $contentType = $_SERVER["CONTENT_TYPE"] ?? "";
+        $mediaType = strtolower(trim(explode(";", $contentType, 2)[0]));
+
+        if ($mediaType !== "application/json") {
+            return;
+        }
+
+        $rawBody = file_get_contents("php://input");
+
+        if (!is_string($rawBody)) {
+            http_response_code(400);
+            exit("Malformed JSON payload.");
+        }
+
+        try {
+            json_decode($rawBody, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            http_response_code(400);
+            exit("Malformed JSON payload.");
+        }
     }
 
     protected function rejectUnsupportedMediaType(): void

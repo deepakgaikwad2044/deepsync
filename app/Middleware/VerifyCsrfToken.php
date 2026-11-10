@@ -18,6 +18,7 @@ class VerifyCsrfToken
             return;
         }
 
+        $this->verifyContentType();
         $this->verifyOrigin();
         $this->verifyReferer();
         $this->verifyToken();
@@ -28,6 +29,90 @@ class VerifyCsrfToken
         return in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD', 'OPTIONS']);
     }
 
+    protected function verifyContentType(): void
+    {
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+
+        if (!is_string($contentType) || trim($contentType) === '') {
+            $this->rejectUnsupportedMediaType();
+        }
+
+        $parts = explode(';', $contentType);
+        $mediaType = strtolower(trim(array_shift($parts)));
+
+        $parameters = [];
+
+        foreach ($parts as $part) {
+            if (!preg_match(
+                '/^\s*([a-zA-Z0-9!#$&^_.+-]+)\s*=\s*(?:"([^"]*)"|([^;\s]+))\s*$/D',
+                $part,
+                $matches
+            )) {
+                $this->rejectUnsupportedMediaType();
+            }
+
+            $name = strtolower($matches[1]);
+            $value = $matches[2] !== ''
+                ? $matches[2]
+                : ($matches[3] ?? '');
+
+            if (array_key_exists($name, $parameters)) {
+                $this->rejectUnsupportedMediaType();
+            }
+
+            $parameters[$name] = $value;
+        }
+
+        if ($mediaType === 'application/x-www-form-urlencoded') {
+            if (
+                count($parameters) > 1 ||
+                (count($parameters) === 1 &&
+                    (!isset($parameters['charset']) ||
+                        strtolower($parameters['charset']) !== 'utf-8'))
+            ) {
+                $this->rejectUnsupportedMediaType();
+            }
+
+            return;
+        }
+
+        if ($mediaType === 'multipart/form-data') {
+            if (
+                count($parameters) !== 1 ||
+                !isset($parameters['boundary']) ||
+                !preg_match(
+                    "/^[-A-Za-z0-9'()+_,.\\/:=?]{1,70}$/",
+                    $parameters['boundary']
+                )
+            ) {
+                $this->rejectUnsupportedMediaType();
+            }
+
+            return;
+        }
+
+        if ($mediaType === 'application/json') {
+            if (
+                count($parameters) > 1 ||
+                (count($parameters) === 1 &&
+                    (!isset($parameters['charset']) ||
+                        strtolower($parameters['charset']) !== 'utf-8'))
+            ) {
+                $this->rejectUnsupportedMediaType();
+            }
+
+            return;
+        }
+
+        $this->rejectUnsupportedMediaType();
+    }
+
+    protected function rejectUnsupportedMediaType(): void
+    {
+        http_response_code(415);
+        exit('Unsupported Media Type.');
+    }
+
     protected function verifyOrigin(): void
     {
         $origin = $_SERVER['HTTP_ORIGIN'] ?? null;
@@ -36,11 +121,11 @@ class VerifyCsrfToken
         if ($origin === null || trim($origin) === '') {
             return;
         }
+
         // Reject comma-joined or ambiguous Origin values.
         if (str_contains($origin, ",")) {
             $this->rejectRequest("Invalid CSRF origin.");
         }
-
 
         $appUrl = env('APP_URL');
 

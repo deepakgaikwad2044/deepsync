@@ -36,6 +36,11 @@ class VerifyCsrfToken
         if ($origin === null || trim($origin) === '') {
             return;
         }
+        // Reject comma-joined or ambiguous Origin values.
+        if (str_contains($origin, ",")) {
+            $this->rejectRequest("Invalid CSRF origin.");
+        }
+
 
         $appUrl = env('APP_URL');
 

@@ -19,6 +19,7 @@ class VerifyCsrfToken
         }
 
         $this->verifyOrigin();
+        $this->verifyReferer();
         $this->verifyToken();
     }
 
@@ -76,6 +77,58 @@ class VerifyCsrfToken
             isset($originParts['pass'])
         ) {
             $this->rejectRequest('Foreign origin rejected.');
+        }
+    }
+
+    protected function verifyReferer(): void
+    {
+        $referer = $_SERVER['HTTP_REFERER'] ?? null;
+
+        // Preserve token validation when Referer is absent.
+        if ($referer === null || trim($referer) === '') {
+            return;
+        }
+
+        $appUrl = env('APP_URL');
+
+        if (!is_string($appUrl) || trim($appUrl) === '') {
+            $this->rejectRequest('CSRF referer configuration missing.');
+        }
+
+        $refererParts = parse_url($referer);
+        $appParts = parse_url($appUrl);
+
+        if (
+            !is_array($refererParts) ||
+            !is_array($appParts) ||
+            empty($refererParts['scheme']) ||
+            empty($refererParts['host']) ||
+            empty($appParts['scheme']) ||
+            empty($appParts['host'])
+        ) {
+            $this->rejectRequest('Invalid CSRF referer.');
+        }
+
+        $refererScheme = strtolower($refererParts['scheme']);
+        $appScheme = strtolower($appParts['scheme']);
+
+        $refererHost = strtolower($refererParts['host']);
+        $appHost = strtolower($appParts['host']);
+
+        $refererPort = $refererParts['port']
+            ?? ($refererScheme === 'https' ? 443 : 80);
+
+        $appPort = $appParts['port']
+            ?? ($appScheme === 'https' ? 443 : 80);
+
+        if (
+            $refererScheme !== $appScheme ||
+            $refererHost !== $appHost ||
+            $refererPort !== $appPort ||
+            isset($refererParts['user']) ||
+            isset($refererParts['pass'])
+        ) {
+            $this->rejectRequest('Foreign referer rejected.');
         }
     }
 

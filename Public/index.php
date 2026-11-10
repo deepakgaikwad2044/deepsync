@@ -5,6 +5,28 @@ declare(strict_types=1);
 /* =========================
    SESSION
 ========================= */
+/* =========================
+   SESSION SECURITY
+========================= */
+
+// Reject uninitialized session IDs.
+ini_set("session.use_strict_mode", "1");
+
+// Enable Secure only when the current request uses HTTPS.
+$isHttps = !empty($_SERVER["HTTPS"])
+    && strtolower((string) $_SERVER["HTTPS"]) !== "off";
+
+session_set_cookie_params([
+    "lifetime" => 0,
+    "path" => "/",
+    "secure" => $isHttps,
+    "httponly" => true,
+    "samesite" => "Lax",
+]);
+
+/* =========================
+   SESSION
+========================= */
 session_start();
 
 /* =========================

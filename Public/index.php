@@ -27,7 +27,12 @@ session_set_cookie_params([
 /* =========================
    SESSION
 ========================= */
-session_start();
+if (!@session_start()) {
+    error_log("[Deep Sync] Session initialization failed.");
+    http_response_code(503);
+    header("Content-Type: text/plain; charset=UTF-8");
+    exit("Service temporarily unavailable.");
+}
 
 /* =========================
    TIMEZONE

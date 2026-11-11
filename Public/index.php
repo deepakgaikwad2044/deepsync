@@ -27,6 +27,31 @@ session_set_cookie_params([
 /* =========================
    SESSION
 ========================= */
+// Reject ambiguous duplicate session cookies before PHP parses the session.
+$cookieHeader = $_SERVER["HTTP_COOKIE"] ?? "";
+$sessionCookieName = session_name();
+$sessionCookieCount = 0;
+
+foreach (explode(";", $cookieHeader) as $cookiePair) {
+    $separator = strpos($cookiePair, "=");
+
+    if ($separator === false) {
+        continue;
+    }
+
+    $cookieName = trim(substr($cookiePair, 0, $separator));
+
+    if ($cookieName === $sessionCookieName) {
+        $sessionCookieCount++;
+    }
+}
+
+if ($sessionCookieCount > 1) {
+    http_response_code(400);
+    header("Content-Type: text/plain; charset=UTF-8");
+    exit("Duplicate session cookie rejected.");
+}
+
 if (!@session_start()) {
     error_log("[Deep Sync] Session initialization failed.");
     http_response_code(503);

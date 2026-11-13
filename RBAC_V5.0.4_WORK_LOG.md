@@ -78,7 +78,7 @@ Authorization:
 | RBAC-010 | Map existing users | N/A | PASS | PASS | PASS | PASS |
 | RBAC-011 | Authorization service | PASS | PASS | PASS | PASS | PASS |
 | RBAC-012 | Web authorization facade | PASS | PASS | PASS | PASS | PASS |
-| RBAC-013 | JWT authorization | PENDING | PENDING | PENDING | PENDING | PENDING |
+| RBAC-013 | JWT authorization | PASS | PASS | PASS | PASS | PASS |
 | RBAC-014 | Role middleware | PENDING | PENDING | PENDING | PENDING | PENDING |
 | RBAC-015 | Permission middleware | PENDING | PENDING | PENDING | PENDING | PENDING |
 | RBAC-016 | Security and compatibility review | N/A | PENDING | PENDING | PENDING | PENDING |
@@ -99,7 +99,7 @@ Authorization:
 | RBAC-T009 | Editor permissions | NOT RUN | - | - |
 | RBAC-T010 | User permissions | NOT RUN | - | - |
 | RBAC-T011 | Web authorization | NOT RUN | - | - |
-| RBAC-T012 | JWT authorization | NOT RUN | - | - |
+| RBAC-T012 | JWT authorization | PASS | JWTAuth unauthenticated defaults; valid DB identity; HTTP /api/users compatibility (200); stale fake role/permission claims rejected; invalid and nonexistent identities rejected; missing header and malformed JWT rejected; trailing header content rejected; lowercase bearer with REDIRECT_HTTP_AUTHORIZATION accepted | v5.0.4 |
 | RBAC-T013 | Role change propagation | NOT RUN | - | - |
 | RBAC-T014 | Unauthorized access rejection | NOT RUN | - | - |
 | RBAC-T015 | Existing authentication compatibility | PASS | 10/10 isolated CLI session checks: user array, ID, username/avatar, authenticated state, logout and post-logout defaults | v5.0.4 |
@@ -396,4 +396,20 @@ Date: 13 November 2026
 - JWT authorization, role middleware and permission middleware are outside this task scope.
 - Build: PASS; Run: PASS; Tests: PASS; Review: PASS.
 - RBAC-012: PASS for Web authorization facade scope only.
+- No commit, push or merge performed.
+
+
+### RBAC-013 — JWT Authorization — 13 November 2026
+- Added app/Config/JWTAuth.php as a separate JWT identity and authorization facade.
+- Added user(), id(), check(), roles(), hasRole(), hasPermission(), hasAnyPermission(), hasAllPermissions(), setUser() and reset().
+- JWTMiddleware resolves the token user ID against the current database user record and sets JWTAuth identity.
+- Existing $_REQUEST["auth_user"] decoded-object compatibility is preserved for UserApiController.
+- Authorization roles and permissions are read through AuthorizationService; JWT role/permission claims are not trusted.
+- Invalid token identity, nonexistent user, missing Authorization header and malformed JWT are rejected; database lookup exceptions return 503.
+- Hardened Authorization header lookup for case-insensitive header names and HTTP server fallbacks; Bearer parsing requires a complete header with no trailing content.
+- Runtime checks: unauthenticated defaults, valid DB identity, HTTP /api/users compatibility, fake JWT claims rejection, invalid/nonexistent identity rejection, missing header, malformed token, strict trailing-content rejection and lowercase Bearer fallback: PASS.
+- PHP syntax checks for JWTAuth.php and JWTMiddleware.php: PASS; git diff --check: PASS.
+- RBAC-T012: PASS. RBAC-T014 remains NOT RUN; route-level unauthorized access rejection is outside this task.
+- Build: PASS; Run: PASS; Tests: PASS; Review: PASS.
+- RBAC-013 implementation, runtime evidence and final source review completed. Defensive getallheaders() array guard added; PHP syntax and git diff --check: PASS.
 - No commit, push or merge performed.

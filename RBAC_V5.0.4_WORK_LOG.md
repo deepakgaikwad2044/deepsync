@@ -75,7 +75,7 @@ Authorization:
 | RBAC-007 | Migration and rollback verification | N/A | PASS | PASS | PASS | PASS |
 | RBAC-008 | Seed default roles | PASS | PASS | PASS | PASS | PASS |
 | RBAC-009 | Seed default permissions | PASS | PASS | PASS | PASS | PASS |
-| RBAC-010 | Map existing users | PENDING | PENDING | PENDING | PENDING | PENDING |
+| RBAC-010 | Map existing users | N/A | PASS | PASS | PASS | PASS |
 | RBAC-011 | Authorization service | PENDING | PENDING | PENDING | PENDING | PENDING |
 | RBAC-012 | Web authorization | PENDING | PENDING | PENDING | PENDING | PENDING |
 | RBAC-013 | JWT authorization | PENDING | PENDING | PENDING | PENDING | PENDING |
@@ -329,6 +329,7 @@ Final Approval: PENDING
 - Implementation and verification: PASS.
 
 | RBAC-T017 | Default permission seeding, role mappings and idempotency | PASS | 13 permissions; 25 mappings; second run created 0 duplicates | v5.0.4 |
+| RBAC-T018 | Existing user role mapping and legacy compatibility | PASS | Initial users = 0; test User ID 1 mapped to User role ID 3 with role_as=0; test Admin ID 2 mapped to Admin role ID 1 with role_as=1; final JOIN verification confirmed both mappings | v5.0.4 |
 
 ### RBAC-009 — Permission Count Correction
 - Source data verification confirmed 13 unique permissions, not 12.
@@ -351,3 +352,16 @@ Date: 13 November 2026
 - RBAC-T017: PASS.
 - RBAC-009 implementation and verification: PASS.
 - PASS checks are closed; do not rerun unless relevant source changes, invalidation, or explicit retest approval occurs.
+
+
+### RBAC-010 — Existing User Mapping — 13 November 2026
+- Initial database inspection: users = 0; role_user mappings = 0; default roles already seeded.
+- Created local test account RBAC Test User (ID 1); registration produced legacy role_as = 0.
+- Mapped User ID 1 to User role ID 3 (slug: user); transaction committed successfully.
+- Created local test account RBAC Test Admin (ID 2); registration initially produced role_as = 0.
+- With explicit approval, updated only this local test account to role_as = 1 and mapped it to Admin role ID 1 (slug: admin), in one transaction.
+- Final JOIN verification: User ID 1 -> role_as 0 / User; User ID 2 -> role_as 1 / Admin. Both mappings verified.
+- RBAC-T018: PASS. No duplicate or conflicting mapping was overwritten.
+- No application source code, registration flow, .env, or installation flow was modified.
+- Build: N/A; Run: PASS; Tests: PASS; Review: PASS.
+- RBAC-010: PASS. Admin legacy role_as change was limited to the explicitly approved local test account.

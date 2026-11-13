@@ -77,7 +77,7 @@ Authorization:
 | RBAC-009 | Seed default permissions | PASS | PASS | PASS | PASS | PASS |
 | RBAC-010 | Map existing users | N/A | PASS | PASS | PASS | PASS |
 | RBAC-011 | Authorization service | PASS | PASS | PASS | PASS | PASS |
-| RBAC-012 | Web authorization | PENDING | PENDING | PENDING | PENDING | PENDING |
+| RBAC-012 | Web authorization facade | PASS | PASS | PASS | PASS | PASS |
 | RBAC-013 | JWT authorization | PENDING | PENDING | PENDING | PENDING | PENDING |
 | RBAC-014 | Role middleware | PENDING | PENDING | PENDING | PENDING | PENDING |
 | RBAC-015 | Permission middleware | PENDING | PENDING | PENDING | PENDING | PENDING |
@@ -102,7 +102,7 @@ Authorization:
 | RBAC-T012 | JWT authorization | NOT RUN | - | - |
 | RBAC-T013 | Role change propagation | NOT RUN | - | - |
 | RBAC-T014 | Unauthorized access rejection | NOT RUN | - | - |
-| RBAC-T015 | Existing authentication compatibility | NOT RUN | - | - |
+| RBAC-T015 | Existing authentication compatibility | PASS | 10/10 isolated CLI session checks: user array, ID, username/avatar, authenticated state, logout and post-logout defaults | v5.0.4 |
 | RBAC-T016 | Default role seeding and idempotency | PASS | Created 3 roles; verified all 3 names/slugs; second run created 0 and skipped 3 | v5.0.4 |
 
 ## 6. Testing Rules
@@ -383,3 +383,17 @@ Date: 13 November 2026
 - RBAC-011: PASS.
 - No .env, database records, existing authentication flow or installation flow were modified during this task.
 - No commit or push performed.
+
+
+### RBAC-012 — Web Authorization Facade — 13 November 2026
+- Integrated AuthorizationService into app/Config/Auth.php for authenticated web-session authorization.
+- Added roles(), hasRole(), hasPermission(), hasAnyPermission() and hasAllPermissions() facade methods.
+- Unauthenticated defaults verified: roles [] and authorization checks false.
+- User session checks: 6/6 PASS; Admin session checks: 7/7 PASS; unauthenticated checks: 7/7 PASS; compatibility checks: 10/10 PASS.
+- Total runtime checks: 30/30 PASS. Existing User/Admin role and permission assignments were verified read-only.
+- PHP syntax: PASS; git diff --check: PASS; source review: PASS.
+- RBAC-T015: PASS. RBAC-T011 and RBAC-T014 remain NOT RUN; route-level authorization and rejection were not tested.
+- JWT authorization, role middleware and permission middleware are outside this task scope.
+- Build: PASS; Run: PASS; Tests: PASS; Review: PASS.
+- RBAC-012: PASS for Web authorization facade scope only.
+- No commit, push or merge performed.

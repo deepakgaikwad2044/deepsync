@@ -74,7 +74,7 @@ Authorization:
 | RBAC-006 | Create permission_role migration | PASS | PASS | PASS | PASS | PASS |
 | RBAC-007 | Migration and rollback verification | N/A | PASS | PASS | PASS | PASS |
 | RBAC-008 | Seed default roles | PASS | PASS | PASS | PASS | PASS |
-| RBAC-009 | Seed default permissions | PENDING | PENDING | PENDING | PENDING | PENDING |
+| RBAC-009 | Seed default permissions | PASS | PASS | PASS | PASS | PASS |
 | RBAC-010 | Map existing users | PENDING | PENDING | PENDING | PENDING | PENDING |
 | RBAC-011 | Authorization service | PENDING | PENDING | PENDING | PENDING | PENDING |
 | RBAC-012 | Web authorization | PENDING | PENDING | PENDING | PENDING | PENDING |
@@ -312,3 +312,42 @@ Final Approval: PENDING
 - No permissions, existing users, role_as values, seed:update behavior or installation flow were changed.
 - Build: PASS; Run: PASS; Tests: PASS; Review: PASS.
 - RBAC-008 Overall: PASS.
+
+### RBAC-009 — Default Permissions Seeding Plan — 13 November 2026
+- Seed the 13 approved permission records using the approved permission matrix.
+- User receives 4 basic permissions; Editor receives 8 permissions; Admin receives all 13 permissions.
+- Seed role-permission pivot mappings using the existing Admin, Editor and User roles.
+- Use a dedicated `php deep seed:permissions` command.
+- Seeder must be idempotent and detect conflicting permission name/slug records without overwriting them.
+- Use a transaction and rollback on failure.
+- Do not recreate or modify existing roles.
+- Do not modify existing users, role_as, .env, seed:update or installation flow.
+- Database changes are not authorized until source review and build checks pass and explicit approval is received.
+- RBAC-T017 will verify permission seeding, role mappings and idempotency.
+- Initial database inspection: roles = 3; permissions = 0; permission_role = 0.
+- Source files created: permissions_data.php, PermissionsSeeder.php, SeedPermissions.php; cli/Kernel.php updated.
+- Implementation and verification: PASS.
+
+| RBAC-T017 | Default permission seeding, role mappings and idempotency | PASS | 13 permissions; 25 mappings; second run created 0 duplicates | v5.0.4 |
+
+### RBAC-009 — Permission Count Correction
+- Source data verification confirmed 13 unique permissions, not 12.
+- Admin: 13; Editor: 8; User: 4.
+- The approved permission slugs and role assignments remain unchanged.
+- This corrects the planning count only; no permission source data was changed.
+
+### RBAC-009 — Default Permissions Seeding — Final Verification
+Date: 13 November 2026
+
+- Source validation, PHP syntax and permission matrix verification: PASS.
+- Approved permission count: 13.
+- First seeding run: 13 permissions created; 25 role mappings created.
+- Database verification: permissions = 13; permission_role = 25.
+- Role mapping verification: Admin = 13; Editor = 8; User = 4.
+- Second seeding run: 0 permissions created; 13 skipped; 0 mappings created; 25 skipped.
+- Idempotency verification: PASS.
+- Existing roles and users were not modified.
+- No duplicate permission or role mapping was created.
+- RBAC-T017: PASS.
+- RBAC-009 implementation and verification: PASS.
+- PASS checks are closed; do not rerun unless relevant source changes, invalidation, or explicit retest approval occurs.

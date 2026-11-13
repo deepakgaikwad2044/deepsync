@@ -13,6 +13,7 @@ class Kernel
         'make:middleware'  => Commands\MakeMiddleware::class,
         'migrate:install'  => Commands\MigrateInstall::class,
         'seed:update'      => Commands\SeedUpdate::class,
+        'seed:roles'       => Commands\SeedRoles::class,
         'make:migration'   => Commands\MakeMigration::class,
         'migrate'          => Commands\Migrate::class,
         'migrate:rollback' => Commands\Rollback::class,

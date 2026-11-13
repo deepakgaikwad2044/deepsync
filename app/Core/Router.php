@@ -140,7 +140,7 @@ class Router
     ========================== */
     public static function dispatch()
     {
-        $method = $_SERVER["REQUEST_METHOD"];
+        $method = strtoupper($_SERVER["REQUEST_METHOD"]);
 
         // 🔥 Method spoofing (form)
         if ($method === "POST" && isset($_POST['_method'])) {

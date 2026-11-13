@@ -70,6 +70,8 @@ class RegisterController
             // Regenerate session before login
             if (session_status() === PHP_SESSION_ACTIVE) {
                 session_regenerate_id(true);
+                unset($_SESSION["csrf_token"]);
+                $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
             }
 
             // Login user

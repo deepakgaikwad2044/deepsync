@@ -5,7 +5,59 @@ declare(strict_types=1);
 /* =========================
    SESSION
 ========================= */
-session_start();
+/* =========================
+   SESSION SECURITY
+========================= */
+
+// Reject uninitialized session IDs.
+ini_set("session.use_strict_mode", "1");
+
+// Enable Secure only when the current request uses HTTPS.
+$isHttps = !empty($_SERVER["HTTPS"])
+    && strtolower((string) $_SERVER["HTTPS"]) !== "off";
+
+session_set_cookie_params([
+    "lifetime" => 0,
+    "path" => "/",
+    "secure" => $isHttps,
+    "httponly" => true,
+    "samesite" => "Lax",
+]);
+
+/* =========================
+   SESSION
+========================= */
+// Reject ambiguous duplicate session cookies before PHP parses the session.
+$cookieHeader = $_SERVER["HTTP_COOKIE"] ?? "";
+$sessionCookieName = session_name();
+$sessionCookieCount = 0;
+
+foreach (explode(";", $cookieHeader) as $cookiePair) {
+    $separator = strpos($cookiePair, "=");
+
+    if ($separator === false) {
+        continue;
+    }
+
+    $cookieName = trim(substr($cookiePair, 0, $separator));
+
+    if ($cookieName === $sessionCookieName) {
+        $sessionCookieCount++;
+    }
+}
+
+if ($sessionCookieCount > 1) {
+    http_response_code(400);
+    header("Content-Type: text/plain; charset=UTF-8");
+    exit("Duplicate session cookie rejected.");
+}
+
+if (!@session_start()) {
+    error_log("[Deep Sync] Session initialization failed.");
+    http_response_code(503);
+    header("Content-Type: text/plain; charset=UTF-8");
+    exit("Service temporarily unavailable.");
+}
 
 /* =========================
    TIMEZONE

@@ -80,7 +80,7 @@ Authorization:
 | RBAC-012 | Web authorization facade | PASS | PASS | PASS | PASS | PASS |
 | RBAC-013 | JWT authorization | PASS | PASS | PASS | PASS | PASS |
 | RBAC-014 | Role middleware | PASS | PASS | PASS | PASS | PASS |
-| RBAC-015 | Permission middleware | PENDING | PENDING | PENDING | PENDING | PENDING |
+| RBAC-015 | Permission middleware | PASS | PASS | PASS | PASS | PASS |
 | RBAC-016 | Security and compatibility review | N/A | PENDING | PENDING | PENDING | PENDING |
 | RBAC-017 | Default installation integration | PENDING | PENDING | PENDING | PENDING | PENDING |
 
@@ -104,6 +104,12 @@ Authorization:
 | RBAC-T014 | Unauthorized access rejection | PASS | Router-dispatched API-style role route: unauthenticated request received JSON 401; protected controller not reached | v5.0.4 |
 | RBAC-T015 | Existing authentication compatibility | PASS | 10/10 isolated CLI session checks: user array, ID, username/avatar, authenticated state, logout and post-logout defaults | v5.0.4 |
 | RBAC-T016 | Default role seeding and idempotency | PASS | Created 3 roles; verified all 3 names/slugs; second run created 0 and skipped 3 | v5.0.4 |
+| RBAC-T025 | JWT permission authorization | PASS | User ID 1 denied users.view (403); Admin ID 2 allowed users.view; User ID 1 allowed dashboard.view; unauthenticated JSON 401 and empty permission 403 verified | v5.0.4 |
+| RBAC-T026 | Web permission authorization | PASS | User ID 1 denied users.view (403); Admin ID 2 allowed users.view; User ID 1 allowed dashboard.view | v5.0.4 |
+| RBAC-T027 | Invalid permission parameters | PASS | Empty and 101-character permission parameters both denied with 403 | v5.0.4 |
+| RBAC-T028 | Web route-level permission enforcement | PASS | Router dispatch: User ID 1 denied with 403 and controller not reached; Admin ID 2 allowed and controller reached | v5.0.4 |
+| RBAC-T029 | API-style route unauthenticated rejection | PASS | Router dispatch returned JSON 401 Unauthenticated; protected controller not reached; no JWTMiddleware token validation in this isolated test | v5.0.4 |
+| RBAC-T030 | Web unauthenticated permission redirect | PASS | Actual HTTP request returned 302 Found with location:/login using isolated local test server | v5.0.4 |
 
 ## 6. Testing Rules
 
@@ -434,3 +440,14 @@ Date: 13 November 2026
 - RBAC-T014 API-style route-level rejection: PASS. Unauthenticated role:admin route returned HTTP 401 JSON {"error":"Unauthenticated"}; protected controller was not reached. This isolated route test exercised RoleMiddleware through Router dispatch without a JWT identity.
 - RBAC-015 Permission Middleware was not started. No commit, push or merge performed.
 - Build: PASS; Run: PASS; Tests: PASS; Source review: PASS.
+
+
+### RBAC-015 — Permission Middleware — 14 November 2026
+- Added app/Middleware/PermissionMiddleware.php and registered the permission middleware in app/Core/Middleware.php.
+- Supports one permission parameter, such as permission:users.view, for Web session and JWT contexts.
+- Web checks use Auth::hasPermission(); JWT checks use JWTAuth::hasPermission(); authorization remains database-backed through AuthorizationService.
+- Empty, overlong or control-character permission parameters are denied with 403. Unauthenticated Web requests redirect to user.login; unauthenticated JWT/API requests receive JSON 401.
+- PHP syntax checks for PermissionMiddleware.php and Middleware.php: PASS; git diff --check: PASS.
+- Runtime checks: PASS for JWT, Web session, invalid parameters and Router integration (RBAC-T025–T030). Web unauthenticated redirect verified by actual HTTP request: 302 Found with location:/login (RBAC-T030 PASS).
+- PHP syntax checks for PermissionMiddleware.php and Middleware.php: PASS; git diff --check: PASS; final source review: PASS.
+- Build: PASS; Run: PASS; Tests: PASS for executed checks; Review: PASS. No database assignments, .env values or existing routes changed. No commit, push or merge performed.

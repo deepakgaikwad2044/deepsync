@@ -9,6 +9,7 @@ use App\Middleware\JWTMiddleware;
 use App\Middleware\VerifyCsrfToken;
 use App\Middleware\RateLimitMiddleware;
 use App\Middleware\RoleMiddleware;
+use App\Middleware\PermissionMiddleware;
 
 class Middleware
 {
@@ -42,6 +43,10 @@ class Middleware
 
                 case "role":
                     (new RoleMiddleware())->handle($parameterString, $isWeb);
+                    break;
+
+                case "permission":
+                    (new PermissionMiddleware())->handle($parameterString, $isWeb);
                     break;
 
                 case "throttle":

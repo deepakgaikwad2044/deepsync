@@ -16,6 +16,7 @@ use App\Controllers\DocsController;
 use App\Controllers\DemoDatatableController;
 use App\Controllers\DemoWebsocketController;
 use App\Controllers\AppController;
+use App\Controllers\AdminRbacController;
 
 
 // Web
@@ -149,6 +150,51 @@ Router::get("/docs/{slug}", [DocsController::class, "show"])->name("docs.slug");
         DemoWebsocketController::class,
         "countedusers",
       ])->name("websocket.user.count");
+    }
+  );
+
+
+  // ADMIN RBAC MANAGEMENT ROUTES
+  Router::group(
+    [
+      "prefix" => "admin/rbac",
+      "middleware" => ["auth", "role:admin"],
+    ],
+    function () {
+      Router::get("users", [
+        AdminRbacController::class,
+        "users",
+      ])->name("admin.rbac.users");
+
+      Router::get("roles", [
+        AdminRbacController::class,
+        "roles",
+      ])->name("admin.rbac.roles");
+
+      Router::get("permissions", [
+        AdminRbacController::class,
+        "permissions",
+      ])->name("admin.rbac.permissions");
+
+      Router::post("users/assign-role", [
+        AdminRbacController::class,
+        "assignRole",
+      ])->name("admin.rbac.users.assign-role");
+
+      Router::post("users/remove-role", [
+        AdminRbacController::class,
+        "removeRole",
+      ])->name("admin.rbac.users.remove-role");
+
+      Router::post("roles/assign-permission", [
+        AdminRbacController::class,
+        "assignPermission",
+      ])->name("admin.rbac.roles.assign-permission");
+
+      Router::post("roles/remove-permission", [
+        AdminRbacController::class,
+        "removePermission",
+      ])->name("admin.rbac.roles.remove-permission");
     }
   );
 

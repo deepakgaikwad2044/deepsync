@@ -496,3 +496,14 @@ Date: 13 November 2026
 - Idempotency: repeat installation created no duplicate migrations, roles, permissions or mappings; final counts unchanged.
 - Failure propagation: forced role-seeding failure produced a non-zero process exit (255), suppressed final success output, and the trigger was removed; isolated test DB restored and verified.
 - Review: PASS. Final user approval received; RBAC-017 fully approved.
+
+### RBAC-018 — Role & Permission Assignment Management
+- Status: PASS
+- Scope: Implement secure role assignment/removal for users and permission assignment/removal for roles.
+- Authorization: Management operations must be restricted to Admin users.
+- Preserve existing registration role assignment and default permission seeding.
+- Preserve database foreign keys and unique constraints.
+- Add focused tests for assignment, removal, idempotency and unauthorized access.
+- Do not modify .env.
+- Do not repeat previously closed PASS tests unless invalidated by source changes.
+- Commit, push and merge require separate approval.

@@ -79,7 +79,7 @@ Authorization:
 | RBAC-011 | Authorization service | PASS | PASS | PASS | PASS | PASS |
 | RBAC-012 | Web authorization facade | PASS | PASS | PASS | PASS | PASS |
 | RBAC-013 | JWT authorization | PASS | PASS | PASS | PASS | PASS |
-| RBAC-014 | Role middleware | PENDING | PENDING | PENDING | PENDING | PENDING |
+| RBAC-014 | Role middleware | PASS | PASS | PASS | PASS | PASS |
 | RBAC-015 | Permission middleware | PENDING | PENDING | PENDING | PENDING | PENDING |
 | RBAC-016 | Security and compatibility review | N/A | PENDING | PENDING | PENDING | PENDING |
 | RBAC-017 | Default installation integration | PENDING | PENDING | PENDING | PENDING | PENDING |
@@ -98,10 +98,10 @@ Authorization:
 | RBAC-T008 | Admin permissions | NOT RUN | - | - |
 | RBAC-T009 | Editor permissions | NOT RUN | - | - |
 | RBAC-T010 | User permissions | NOT RUN | - | - |
-| RBAC-T011 | Web authorization | NOT RUN | - | - |
+| RBAC-T011 | Web authorization | PASS | Router-dispatched Web route: User ID 1 received 403; Admin ID 2 received 200 and protected controller executed | v5.0.4 |
 | RBAC-T012 | JWT authorization | PASS | JWTAuth unauthenticated defaults; valid DB identity; HTTP /api/users compatibility (200); stale fake role/permission claims rejected; invalid and nonexistent identities rejected; missing header and malformed JWT rejected; trailing header content rejected; lowercase bearer with REDIRECT_HTTP_AUTHORIZATION accepted | v5.0.4 |
 | RBAC-T013 | Role change propagation | NOT RUN | - | - |
-| RBAC-T014 | Unauthorized access rejection | NOT RUN | - | - |
+| RBAC-T014 | Unauthorized access rejection | PASS | Router-dispatched API-style role route: unauthenticated request received JSON 401; protected controller not reached | v5.0.4 |
 | RBAC-T015 | Existing authentication compatibility | PASS | 10/10 isolated CLI session checks: user array, ID, username/avatar, authenticated state, logout and post-logout defaults | v5.0.4 |
 | RBAC-T016 | Default role seeding and idempotency | PASS | Created 3 roles; verified all 3 names/slugs; second run created 0 and skipped 3 | v5.0.4 |
 
@@ -413,3 +413,24 @@ Date: 13 November 2026
 - Build: PASS; Run: PASS; Tests: PASS; Review: PASS.
 - RBAC-013 implementation, runtime evidence and final source review completed. Defensive getallheaders() array guard added; PHP syntax and git diff --check: PASS.
 - No commit, push or merge performed.
+
+
+### RBAC-014 — Role Middleware — 14 November 2026
+- Added app/Middleware/RoleMiddleware.php.
+- Registered role middleware in app/Core/Middleware.php; no Router changes and no existing routes made admin-only.
+- Supports single role parameters such as role:admin for Web session and JWT contexts.
+- Web authorization uses Auth; JWT authorization uses JWTAuth. Both use database-backed AuthorizationService checks; legacy users.role_as and JWT role claims are not trusted.
+- Web unauthenticated redirect verified over local HTTP: 302 Found with location:/login; user.login resolves to /login. RBAC-T024: PASS.
+- JWT unauthenticated: JSON 401 PASS. Authenticated users without requested role: 403 PASS. Authorized Admin: allowed PASS.
+- RBAC-T020 JWT role allow/deny: PASS. User ID 1 denied admin (403); Admin ID 2 allowed.
+- RBAC-T021 Web role allow/deny: PASS. User ID 1 denied admin (403); Admin ID 2 allowed.
+- RBAC-T022 Empty and malformed role parameters: PASS (403).
+- RBAC-T023 JWT unauthenticated denial: PASS (JSON 401).
+- RBAC-T024 Web unauthenticated redirect: PASS. Actual HTTP response confirmed 302 Found and location:/login.
+- PHP syntax checks: PASS for RoleMiddleware.php and Middleware.php. git diff --check: PASS.
+- Database verification used deepsyncv5.0.4; roles, permissions, role_user, permission_role and users tables found. Roles and test assignments verified read-only.
+- .env DB_NAME corrected to deepsyncv5.0.4 at the user request; no other configuration changes intended.
+- RBAC-T011 Web route-level authorization: PASS. User ID 1 denied with HTTP 403; Admin ID 2 allowed with HTTP 200 and protected controller execution.
+- RBAC-T014 API-style route-level rejection: PASS. Unauthenticated role:admin route returned HTTP 401 JSON {"error":"Unauthenticated"}; protected controller was not reached. This isolated route test exercised RoleMiddleware through Router dispatch without a JWT identity.
+- RBAC-015 Permission Middleware was not started. No commit, push or merge performed.
+- Build: PASS; Run: PASS; Tests: PASS; Source review: PASS.

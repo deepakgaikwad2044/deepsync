@@ -24,6 +24,7 @@ class SeedPermissions
             PermissionsSeeder::run($pdo);
         } catch (\Throwable $e) {
             CLI::error("Permission seeding failed: " . $e->getMessage() . "\n");
+            throw $e;
         }
     }
 }

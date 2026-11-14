@@ -24,6 +24,7 @@ class SeedRoles
             RolesSeeder::run($pdo);
         } catch (\Throwable $e) {
             CLI::error("Role seeding failed: " . $e->getMessage() . "\n");
+            throw $e;
         }
     }
 }

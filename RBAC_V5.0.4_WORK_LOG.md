@@ -82,7 +82,7 @@ Authorization:
 | RBAC-014 | Role middleware | PASS | PASS | PASS | PASS | PASS |
 | RBAC-015 | Permission middleware | PASS | PASS | PASS | PASS | PASS |
 | RBAC-016 | Security and compatibility review | N/A | PASS | PASS | PASS | PASS |
-| RBAC-017 | Default installation integration | PENDING | PENDING | PENDING | PENDING | PENDING |
+| RBAC-017 | Default installation integration | PASS | PASS | PASS | PASS | PASS |
 
 ## 5. Testing Register
 
@@ -113,6 +113,18 @@ Authorization:
 | RBAC-T031 | Default User role on web registration | PASS | registerWithDefaultRole created a new user; role_user join confirmed slug=user; temporary test user deleted successfully | v5.0.4 |
 | RBAC-T032 | Full JWT permission route integration | PASS | Router pipeline: Admin ID 2 with valid JWT reached controller; User ID 1 received Forbidden without reaching controller; missing JWT header was rejected before controller execution | v5.0.4 |
 | RBAC-T033 | Unknown middleware fail-closed | PASS | Misspelled middleware returned HTTP 500 with generic JSON configuration error; protected controller and dispatch continuation were blocked | v5.0.4 |
+
+| RBAC-T037 | Fresh isolated RBAC migrations | PASS | Created isolated users test table; executed roles, permissions, role_user, permission_role and roles NOT NULL migrations successfully | v5.0.4 |
+| RBAC-T038 | Isolated RBAC schema integration | PASS | Five InnoDB tables; 11 unique indexes; all four expected foreign keys verified through INFORMATION_SCHEMA | v5.0.4 |
+| RBAC-T039 | RolesSeeder transaction rollback | PASS | Intentional Editor insert failure; previously inserted Admin role rolled back; roles row count remained 0 | v5.0.4 |
+| RBAC-T040 | PermissionsSeeder transaction rollback | PASS | Intentional permission mapping failure; inserted permissions and mappings both rolled back; both row counts remained 0 | v5.0.4 |
+| RBAC-T041 | Default roles and permission mapping integration | PASS | Seeded 3 roles, 13 permissions and 25 mappings; verified Admin=13, Editor=8, User=4 | v5.0.4 |
+| RBAC-T042 | CLI Kernel roles seeder integration | PASS | Kernel dispatched seed:roles against isolated database; 3 existing roles skipped; no duplicates created | v5.0.4 |
+| RBAC-T043 | CLI Kernel permissions seeder integration | PASS | Kernel dispatched seed:permissions against isolated database; 13 existing permissions and 25 mappings skipped; no duplicates created | v5.0.4 |
+| RBAC-T044 | Default fresh installation integration | PASS | Single migrate:install execution created base tables, ran all five RBAC migrations, seeded 3 roles, 13 permissions and 25 mappings; success reported last | v5.0.4 |
+| RBAC-T045 | Fresh installation database verification | PASS | Verified 5 migrations, 12 docs, 3 roles, 13 permissions, 25 mappings; Admin=13, Editor=8, User=4 | v5.0.4 |
+| RBAC-T046 | Default installation idempotency | PASS | Second migrate:install skipped all 5 migrations and existing 3 roles, 13 permissions and 25 mappings; final counts unchanged | v5.0.4 |
+| RBAC-T047 | Default installation failure propagation | PASS | Forced role-seeding DB error propagated through MigrateInstall; final success message suppressed; process exited 255; trigger removed and isolated DB restored | v5.0.4 |
 
 ## 6. Testing Rules
 
@@ -155,17 +167,17 @@ No RBAC bugs recorded yet.
 
 ## 10. Final Review
 
-- [ ] All migrations reviewed
-- [ ] Database constraints verified
-- [ ] Rollback verified
-- [ ] Default roles and permissions verified
-- [ ] Existing users compatibility verified
-- [ ] Web authorization verified
-- [ ] JWT authorization verified
-- [ ] Security review completed
-- [ ] Required tests PASS
-- [ ] Default installation integration verified
-- [ ] Final approval received
+- [x] All migrations reviewed
+- [x] Database constraints verified
+- [x] Rollback verified
+- [x] Default roles and permissions verified
+- [x] Existing users compatibility verified
+- [x] Web authorization verified
+- [x] JWT authorization verified
+- [x] Security review completed
+- [x] Required tests PASS
+- [x] Default installation integration verified
+- [x] Final approval received
 
 ## 11. Final Status
 
@@ -472,3 +484,15 @@ Date: 13 November 2026
 - Router compatibility observation: the Web-context flag is derived from group middleware, so route-level-only web middleware would not set Web context for downstream middleware. Current Routes/web.php routes are inside the outer web group; no current route is affected. No Router source change made.
 - Middleware cleanup: removed the unused AdminMiddleware import; the class file and admin: middleware usage were absent. PHP syntax and git diff --check passed.
 - RBAC-016: PASS. Build: N/A; Run: PASS; Test: PASS (RBAC-T031–T036); Review: PASS. No commit, push or merge performed.
+
+### RBAC-017 Progress — 14 November 2026
+- Isolated databases: deepsync_rbac017_rollback_test, deepsync_rbac017_fresh_install_test and deepsync_rbac017_failure_test.
+- Application files changed: cli/Commands/MigrateInstall.php, Migrate.php, SeedRoles.php and SeedPermissions.php; Work Log updated with evidence.
+- Build: PHP syntax checks PASS for all four modified command files.
+- Run: PASS for fresh installation through migrate:install and repeat installation.
+- Tests: RBAC-T037–T047 PASS; evidence recorded in Testing Register.
+- Runtime rollback: RolesSeeder and PermissionsSeeder verified using temporary failure triggers; both triggers removed after testing.
+- Fresh installation: 5 migrations, 12 docs, 3 roles, 13 permissions and 25 mappings; Admin 13, Editor 8, User 4.
+- Idempotency: repeat installation created no duplicate migrations, roles, permissions or mappings; final counts unchanged.
+- Failure propagation: forced role-seeding failure produced a non-zero process exit (255), suppressed final success output, and the trigger was removed; isolated test DB restored and verified.
+- Review: PASS. Final user approval received; RBAC-017 fully approved.

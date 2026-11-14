@@ -111,7 +111,7 @@ class Migrate
                         $e->getMessage() . "\n"
                     );
 
-                    return;
+                    throw $e;
                 }
             }
 
@@ -121,6 +121,7 @@ class Migrate
             CLI::error(
                 "❌ Migration error: " . $e->getMessage() . "\n"
             );
+            throw $e;
         }
     }
 }

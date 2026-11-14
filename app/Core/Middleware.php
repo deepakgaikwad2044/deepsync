@@ -4,7 +4,6 @@ namespace App\Core;
 
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
-use App\Middleware\AdminMiddleware;
 use App\Middleware\JWTMiddleware;
 use App\Middleware\VerifyCsrfToken;
 use App\Middleware\RateLimitMiddleware;
@@ -72,6 +71,11 @@ class Middleware
                     );
 
                     break;
+                default:
+                    http_response_code(500);
+                    header("Content-Type: application/json; charset=UTF-8");
+                    echo json_encode(["error" => "Middleware configuration error"]);
+                    exit;
             }
         }
     }

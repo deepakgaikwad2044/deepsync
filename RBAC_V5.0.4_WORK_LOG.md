@@ -81,7 +81,7 @@ Authorization:
 | RBAC-013 | JWT authorization | PASS | PASS | PASS | PASS | PASS |
 | RBAC-014 | Role middleware | PASS | PASS | PASS | PASS | PASS |
 | RBAC-015 | Permission middleware | PASS | PASS | PASS | PASS | PASS |
-| RBAC-016 | Security and compatibility review | N/A | PENDING | PENDING | PENDING | PENDING |
+| RBAC-016 | Security and compatibility review | N/A | PASS | PASS | PASS | PASS |
 | RBAC-017 | Default installation integration | PENDING | PENDING | PENDING | PENDING | PENDING |
 
 ## 5. Testing Register
@@ -91,16 +91,16 @@ Authorization:
 | RBAC-T001 | Migration creation | PASS | roles migration and correction migration generated; syntax checks passed | v5.0.4 |
 | RBAC-T002 | Migration execution | PASS | roles table creation and NOT NULL correction migration executed successfully | v5.0.4 |
 | RBAC-T003 | Table structure | PASS | SHOW COLUMNS confirmed id, name, slug, description and timestamps | v5.0.4 |
-| RBAC-T004 | Foreign keys | NOT RUN | - | - |
+| RBAC-T004 | Foreign keys | PASS | information_schema confirmed all four pivot-table foreign keys and ON DELETE CASCADE rules | v5.0.4 |
 | RBAC-T005 | Unique constraints | PASS | SHOW INDEX confirmed UNIQUE indexes on name and slug | v5.0.4 |
 | RBAC-T006 | Rollback | PASS | Batch 5 rollback successful; permission_role table dropped; migration status Pending | v5.0.4 |
 | RBAC-T007 | Re-migration | PASS | Re-migrated successfully; migration status Run; columns, unique index and foreign keys verified | v5.0.4 |
-| RBAC-T008 | Admin permissions | NOT RUN | - | - |
-| RBAC-T009 | Editor permissions | NOT RUN | - | - |
-| RBAC-T010 | User permissions | NOT RUN | - | - |
+| RBAC-T008 | Admin permissions | PASS | Actual DB contains all 13 Admin permission mappings matching the seed configuration | v5.0.4 |
+| RBAC-T009 | Editor permissions | PASS | Actual DB contains all 8 Editor permission mappings matching the seed configuration | v5.0.4 |
+| RBAC-T010 | User permissions | PASS | Actual DB contains all 4 User permission mappings matching the seed configuration | v5.0.4 |
 | RBAC-T011 | Web authorization | PASS | Router-dispatched Web route: User ID 1 received 403; Admin ID 2 received 200 and protected controller executed | v5.0.4 |
 | RBAC-T012 | JWT authorization | PASS | JWTAuth unauthenticated defaults; valid DB identity; HTTP /api/users compatibility (200); stale fake role/permission claims rejected; invalid and nonexistent identities rejected; missing header and malformed JWT rejected; trailing header content rejected; lowercase bearer with REDIRECT_HTTP_AUTHORIZATION accepted | v5.0.4 |
-| RBAC-T013 | Role change propagation | NOT RUN | - | - |
+| RBAC-T013 | Role change propagation | PASS | Temporary user role changed from User to Admin; AuthorizationService reflected updated role and users.view immediately; transaction rolled back | v5.0.4 |
 | RBAC-T014 | Unauthorized access rejection | PASS | Router-dispatched API-style role route: unauthenticated request received JSON 401; protected controller not reached | v5.0.4 |
 | RBAC-T015 | Existing authentication compatibility | PASS | 10/10 isolated CLI session checks: user array, ID, username/avatar, authenticated state, logout and post-logout defaults | v5.0.4 |
 | RBAC-T016 | Default role seeding and idempotency | PASS | Created 3 roles; verified all 3 names/slugs; second run created 0 and skipped 3 | v5.0.4 |
@@ -110,6 +110,9 @@ Authorization:
 | RBAC-T028 | Web route-level permission enforcement | PASS | Router dispatch: User ID 1 denied with 403 and controller not reached; Admin ID 2 allowed and controller reached | v5.0.4 |
 | RBAC-T029 | API-style route unauthenticated rejection | PASS | Router dispatch returned JSON 401 Unauthenticated; protected controller not reached; no JWTMiddleware token validation in this isolated test | v5.0.4 |
 | RBAC-T030 | Web unauthenticated permission redirect | PASS | Actual HTTP request returned 302 Found with location:/login using isolated local test server | v5.0.4 |
+| RBAC-T031 | Default User role on web registration | PASS | registerWithDefaultRole created a new user; role_user join confirmed slug=user; temporary test user deleted successfully | v5.0.4 |
+| RBAC-T032 | Full JWT permission route integration | PASS | Router pipeline: Admin ID 2 with valid JWT reached controller; User ID 1 received Forbidden without reaching controller; missing JWT header was rejected before controller execution | v5.0.4 |
+| RBAC-T033 | Unknown middleware fail-closed | PASS | Misspelled middleware returned HTTP 500 with generic JSON configuration error; protected controller and dispatch continuation were blocked | v5.0.4 |
 
 ## 6. Testing Rules
 
@@ -451,3 +454,21 @@ Date: 13 November 2026
 - Runtime checks: PASS for JWT, Web session, invalid parameters and Router integration (RBAC-T025–T030). Web unauthenticated redirect verified by actual HTTP request: 302 Found with location:/login (RBAC-T030 PASS).
 - PHP syntax checks for PermissionMiddleware.php and Middleware.php: PASS; git diff --check: PASS; final source review: PASS.
 - Build: PASS; Run: PASS; Tests: PASS for executed checks; Review: PASS. No database assignments, .env values or existing routes changed. No commit, push or merge performed.
+
+
+### Historical Test Status Reconciliation
+- RBAC-T011 and RBAC-T014 were initially recorded as NOT RUN in the RBAC-012 and RBAC-013 historical notes.
+- Both were subsequently executed and verified PASS during RBAC-014; see the individual PASS evidence above.
+- Historical entries are retained unchanged; no retest required.
+
+### RBAC-016 — Security and Compatibility Review — 14 November 2026
+| RBAC-T034 | Stale Web session validation | PASS | Auth::check() now verifies the database user; existing user returned true, nonexistent user returned false; AuthMiddleware and GuestMiddleware compatibility reviewed | v5.0.4 |
+| RBAC-T035 | Database connection failure handling | PASS | Invalid DB driver raised RuntimeException with original PDOException preserved; two consecutive Database::connect() attempts both failed safely; .env untouched | v5.0.4 |
+| RBAC-T036 | Registration transaction rollback | PASS | In-memory SQLite test: missing default User role raised expected exception; user row and role mapping rolled back; transaction closed | v5.0.4 |
+- Normal web registration now calls User::registerWithDefaultRole(); existing User::register() remains unchanged for DemoDatatableController compatibility.
+- User creation and default User role assignment use one database transaction; missing PDO connection is guarded with RuntimeException.
+- RBAC-T031: PASS. New registration succeeded, role_user mapping resolved to roles.slug=user, and temporary test user cleanup succeeded.
+- PHP syntax checks for User.php and RegisterController.php: PASS; git diff --check: PASS.
+- Router compatibility observation: the Web-context flag is derived from group middleware, so route-level-only web middleware would not set Web context for downstream middleware. Current Routes/web.php routes are inside the outer web group; no current route is affected. No Router source change made.
+- Middleware cleanup: removed the unused AdminMiddleware import; the class file and admin: middleware usage were absent. PHP syntax and git diff --check passed.
+- RBAC-016: PASS. Build: N/A; Run: PASS; Test: PASS (RBAC-T031–T036); Review: PASS. No commit, push or merge performed.

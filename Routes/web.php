@@ -193,6 +193,8 @@ Router::get("/docs/{slug}", [DocsController::class, "show"])->name("docs.slug");
       "middleware" => ["auth:admin", "role:admin"],
     ],
     function () {
+      Router::get("/", [\App\Controllers\AdminRbacPageController::class, "index"])->name("admin.rbac.index");
+
       Router::get("users", [
         AdminRbacController::class,
         "users",

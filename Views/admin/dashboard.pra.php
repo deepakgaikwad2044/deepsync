@@ -11,7 +11,7 @@
         <p class="admin-muted">{{ $user['email'] ?? '' }}</p>
     </div>
 
-    <a class="admin-button" href="{{ route('admin.rbac.users') }}">
+    <a class="admin-button" href="{{ route('admin.rbac.index') }}">
         Manage Roles & Permissions
     </a>
 

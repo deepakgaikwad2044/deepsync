@@ -523,3 +523,19 @@ Date: 13 November 2026
 - Authentication: Required Admin role is verified before creating the Admin session; AuthorizationService role checks passed.
 - Syntax: All 8 checked PHP files passed `php -l`.
 - Do not modify `.env`. Do not commit, push or merge without separate approval.
+
+### RBAC-020 — Admin RBAC Management UI
+
+- Status: COMPLETED
+- Scope: Build an Admin interface for managing users, roles and permissions.
+- Users: Display the existing users list.
+- Roles: Display available roles and allow Admin users to assign or remove roles from users.
+- Permissions: Display available permissions and allow Admin users to assign or remove permissions from roles.
+- Backend: Reuse the existing RBAC-018 assignment and removal functionality; do not duplicate backend logic.
+- Authorization: Restrict all management pages and operations to authenticated Admin users.
+- Security: Preserve CSRF protection, existing authorization checks, database foreign keys and unique constraints.
+- Compatibility: Preserve existing Admin and normal User authentication and dashboards.
+- Testing: Add focused tests for UI access, role assignment/removal, permission assignment/removal and unauthorized access.
+- Regression: Do not repeat previously closed PASS tests unless source changes invalidate them.
+- Restrictions: Do not modify .env.
+- Git: Commit, push and merge require separate approval.

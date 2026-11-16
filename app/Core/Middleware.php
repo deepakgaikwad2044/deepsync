@@ -25,7 +25,7 @@ class Middleware
             switch ($name) {
 
                 case "auth":
-                    (new AuthMiddleware())->handle();
+                    (new AuthMiddleware())->handle($parameterString);
                     break;
 
                 case "guest":

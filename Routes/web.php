@@ -8,6 +8,9 @@ use App\Middleware\Permission;
 use App\Controllers\RegisterController;
 use App\Controllers\BaseController;
 use App\Controllers\LoginController;
+use App\Controllers\AdminLoginController;
+use App\Controllers\AdminDashboardController;
+use App\Controllers\AdminLogoutController;
 use App\Controllers\DashboardController;
 use App\Controllers\ProfileController;
 use App\Controllers\PasswordController;
@@ -58,6 +61,35 @@ Router::get("/docs/{slug}", [DocsController::class, "show"])->name("docs.slug");
     }
   );
   
+   // ADMIN AUTH ROUTES
+   Router::get("/admin/login", [
+     AdminLoginController::class,
+     "index",
+   ])->name("admin.login");
+
+   Router::post("/admin/login", [
+     AdminLoginController::class,
+     "login",
+   ])->rateLimit(5, 1)->name("admin.login.verify");
+
+   // ADMIN PROTECTED ROUTES
+   Router::group(
+     [
+       "prefix" => "admin",
+       "middleware" => ["auth:admin", "role:admin"],
+     ],
+     function () {
+       Router::get("dashboard", [
+         AdminDashboardController::class,
+         "index",
+       ])->name("admin.dashboard");
+
+       Router::post("logout", [
+         AdminLogoutController::class,
+         "logout",
+       ])->name("admin.logout");
+     }
+   );
        Router::get("/components", [BaseController::class, "components"])->name(
         "components"
       );
@@ -158,7 +190,7 @@ Router::get("/docs/{slug}", [DocsController::class, "show"])->name("docs.slug");
   Router::group(
     [
       "prefix" => "admin/rbac",
-      "middleware" => ["auth", "role:admin"],
+      "middleware" => ["auth:admin", "role:admin"],
     ],
     function () {
       Router::get("users", [

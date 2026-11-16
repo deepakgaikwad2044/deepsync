@@ -507,3 +507,19 @@ Date: 13 November 2026
 - Do not modify .env.
 - Do not repeat previously closed PASS tests unless invalidated by source changes.
 - Commit, push and merge require separate approval.
+
+### RBAC-019 — Separate Admin Authentication & Login/Logout Pages
+- Status: PASS
+- Scope: Separate Admin login, logout, dashboard and independent Admin layout.
+- Authentication: Reuse the existing users table, password verification and session authentication; require the assigned `admin` RBAC role before creating an Admin login session.
+- Authorization: Protect Admin dashboard and logout with existing `auth` and `role:admin` middleware.
+- Compatibility: Preserve existing User login, logout, dashboard and their views/layouts.
+- Views: `Views/admin/auth`, `Views/admin/layouts` and `Views/admin/dashboard.pra.php`.
+- Admin registration: Not included; Admin accounts remain managed through authorized RBAC assignment.
+- Security: Admin login POST rate-limited to 5 attempts per minute; retain web CSRF protection.
+- Verification: Admin login, dashboard and logout HTTP tests passed; Admin logout redirects unauthenticated dashboard access to `/admin/login`.
+- Authorization tests: Normal User login and dashboard remain functional; Normal User receives HTTP 403 on `/admin/dashboard` and is rejected by Admin login with `Invalid Admin credentials`.
+- Security checks: Admin login POST uses `rateLimit(5, 1)`; Admin login and logout forms include CSRF protection.
+- Authentication: Required Admin role is verified before creating the Admin session; AuthorizationService role checks passed.
+- Syntax: All 8 checked PHP files passed `php -l`.
+- Do not modify `.env`. Do not commit, push or merge without separate approval.

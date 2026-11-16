@@ -200,7 +200,7 @@ class Auth
     /**
      * Attempt login
      */
-    public static function attempt(array $credentials)
+    public static function attempt(array $credentials, ?string $requiredRole = null)
     {
         $email = $credentials["email"] ?? null;
         $password = $credentials["password"] ?? null;
@@ -215,6 +215,20 @@ class Auth
 
         if (!$user || !password_verify($password, $user["password"])) {
             return false;
+        }
+
+        if ($requiredRole !== null) {
+            $requiredRole = trim($requiredRole);
+
+            if (
+                $requiredRole === "" ||
+                !self::authorizationService()->hasRole(
+                    (int) $user["id"],
+                    $requiredRole
+                )
+            ) {
+                return false;
+            }
         }
 
         if (session_status() === PHP_SESSION_ACTIVE) {

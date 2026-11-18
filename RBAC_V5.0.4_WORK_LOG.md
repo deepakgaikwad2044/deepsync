@@ -539,3 +539,448 @@ Date: 13 November 2026
 - Regression: Do not repeat previously closed PASS tests unless source changes invalidate them.
 - Restrictions: Do not modify .env.
 - Git: Commit, push and merge require separate approval.
+
+### RBAC-021 Progress — Runtime Security & Integration Tests — 18 November 2026
+
+- Non-admin Web session authorization tests: PASS (8/8).
+  - Normal User login succeeded.
+  - Admin dashboard and all RBAC management endpoints correctly denied access with HTTP 403.
+- Admin Web session authorization tests: PASS (8/8).
+  - Admin login, dashboard, RBAC page, users, roles and permissions endpoints returned expected successful responses.
+- JWT authentication integration tests: PASS (4/4).
+  - Non-admin JWT login: HTTP 200.
+  - Valid JWT protected API access: HTTP 200.
+  - Invalid JWT rejected: HTTP 401.
+  - Non-admin access to Admin RBAC page denied: HTTP 403.
+- JWT Role/Permission middleware and database integration tests: PASS (8/8).
+  - Existing User role allowed; missing Admin role denied with HTTP 403.
+  - Unauthenticated role check returned HTTP 401.
+  - Invalid role parameter denied with HTTP 403.
+  - Existing dashboard.view permission allowed; missing admin.manage permission denied with HTTP 403.
+  - Unauthenticated permission check returned HTTP 401.
+  - Invalid permission parameter denied with HTTP 403.
+- Total runtime evidence recorded for RBAC-021 so far: 28/28 checks PASS.
+- JWT role/permission middleware tests used JWTAuth::setUser() to establish an authenticated context and verified actual database-backed authorization. These are middleware/database integration tests, not full signed-JWT end-to-end role/permission tests.
+- Existing API routes do not currently declare role: or permission: middleware; direct API route enforcement remains unavailable for runtime verification without a test route.
+- Static review finding: hardcoded JWT secret remains OPEN. JWT issuer/audience requirements and additional end-to-end authorization checks remain under review.
+- Test reports are stored under $HOME/tmp/rbac-021-reports/.
+- No application source files, .env values or database role/permission assignments were changed during these checks.
+- RBAC-021 remains IN PROGRESS; this entry records completed checks only. No commit, push or merge performed.
+
+### RBAC-021 Progress — Immediate Role & Permission Effect — 18 November 2026
+
+- Immediate authorization effect runtime tests: PASS (11/11).
+- Baseline checks: PASS (3/3).
+- Role assignment became effective on the next authorization check.
+- Role removal immediately revoked access on the next authorization check.
+- Permission assignment became effective on the next authorization check.
+- Permission removal immediately revoked access on the next authorization check.
+- Removing an existing dashboard.view permission immediately denied access.
+- Rollback verification: PASS (3/3).
+- Original role and permission assignments were restored after transaction rollback.
+- Tests used AuthorizationService directly with the same PHP process and database connection.
+- This verifies same-connection transactional authorization changes; independent HTTP-request behaviour remains pending.
+- No permanent database assignment changes intended. No application source files or .env values changed.
+- RBAC-021 remains IN PROGRESS. No commit, push or merge performed.
+
+### RBAC-021 Progress — JWTAuth & Web Auth Immediate-Effect Tests — 18 November 2026
+
+- JWTAuth facade immediate role/permission effect tests: PASS (11/11).
+  - Baseline role and permission checks: PASS (3/3).
+  - Editor role grant became effective immediately on the next authorization check.
+  - Editor role removal immediately revoked access.
+  - users.view permission grant and removal took effect immediately.
+  - dashboard.view permission revocation was effective immediately.
+  - Transaction rollback verification: PASS (3/3).
+- Web Auth session immediate role/permission effect tests: PASS (12/12).
+  - Authenticated session recognition: PASS.
+  - Baseline role and permission checks: PASS.
+  - Editor role grant and removal took effect immediately.
+  - users.view permission grant and removal took effect immediately.
+  - dashboard.view permission revocation was effective immediately.
+  - Transaction rollback verification: PASS (3/3).
+- Both tests reused the authorization service during the same PHP process and database connection.
+- Web Auth test used a simulated session context for User ID 10; independent HTTP-request behaviour remains pending.
+- JWTAuth and Web Auth tests used temporary database changes inside transactions and rolled them back.
+- No permanent database assignment changes intended. No application source files or .env values changed.
+- New runtime evidence recorded in this entry: 23/23 checks PASS.
+- RBAC-021 remains IN PROGRESS. No commit, push or merge performed.
+
+### RBAC-021 Progress — Non-Admin RBAC POST Security Tests — 18 November 2026
+
+- Non-admin RBAC management POST authorization tests: PASS (4/4).
+- Non-admin login: HTTP 302.
+- Post-login CSRF token successfully refreshed using the authenticated profile edit page.
+- All four POST requests used a valid post-login CSRF token.
+- Non-admin role assignment endpoint: HTTP 403 — PASS.
+- Non-admin role removal endpoint: HTTP 403 — PASS.
+- Non-admin permission assignment endpoint: HTTP 403 — PASS.
+- Non-admin permission removal endpoint: HTTP 403 — PASS.
+- Non-existent positive IDs were used as defensive test inputs to avoid modifying valid role or permission assignments if authorization unexpectedly failed.
+- All four requests were denied with HTTP 403.
+- Initial attempts returning HTTP 419 were invalid due to reuse of the pre-login CSRF token; they are not counted as security test results.
+- New completed runtime evidence: 4/4 PASS.
+- Cumulative completed RBAC-021 runtime evidence: 66/66 PASS.
+- No application source files, .env values, or valid database role/permission assignments were changed.
+- RBAC-021 remains IN PROGRESS. No commit, push, or merge performed.
+
+### RBAC-021 Progress — Independent HTTP Request Authorization Tests — 18 November 2026
+
+- Independent HTTP request authorization tests: PASS (9/9).
+- Initial User 10 baseline verified through a separate HTTP probe:
+  - Editor role: absent.
+  - datatable.delete permission: absent.
+- Admin authenticated HTTP endpoint successfully assigned the Editor role to User 10.
+- A subsequent independent HTTP request immediately detected the Editor role.
+- Admin HTTP endpoint successfully assigned datatable.delete to Editor.
+- A subsequent independent HTTP request immediately detected the permission.
+- Permission revocation through the admin HTTP endpoint was immediately reflected in the next independent HTTP request.
+- Editor role revocation through the admin HTTP endpoint was immediately reflected in the next independent HTTP request.
+- Automatic cleanup completed:
+  - datatable.delete removed from Editor.
+  - Editor role removed from User 10.
+  - Final independent HTTP probe confirmed both values were false.
+- Original User 10 authorization state was restored and verified.
+- Test report: $HOME/tmp/rbac-021-reports/RBAC-021-independent-HTTP-20261118-173105.tsv
+- Temporary probe server was stopped and its temporary files removed.
+- No application source files, .env values, or Git history were changed.
+- New completed runtime evidence: 9/9 PASS.
+- Cumulative completed RBAC-021 runtime evidence: 75/75 PASS.
+- RBAC-021 remains IN PROGRESS. No commit, push, or merge performed.
+
+### RBAC-021 Progress — HTTP Role/Permission Middleware Enforcement — 18 November 2026
+
+- Web session RoleMiddleware and PermissionMiddleware HTTP tests: PASS (6/6).
+- Verified non-admin web session:
+  - role:user allowed — HTTP 200.
+  - role:admin denied — HTTP 403.
+  - dashboard.view allowed — HTTP 200.
+  - datatable.delete denied — HTTP 403.
+- Actual signed JWT end-to-end middleware HTTP tests: PASS (6/6).
+- JWTMiddleware successfully validated a locally generated signed JWT, fetched the user from the database, and established JWTAuth context.
+- Verified JWT authorization:
+  - role:user allowed — HTTP 200.
+  - role:admin denied — HTTP 403.
+  - dashboard.view allowed — HTTP 200.
+  - datatable.delete denied — HTTP 403.
+  - Missing JWT rejected — HTTP 401.
+  - Invalid JWT rejected — HTTP 401.
+- Temporary JWT was generated locally for User ID 10. No API login or refresh-token update was performed.
+- Reports:
+  - $HOME/tmp/rbac-021-reports/RBAC-021-web-middleware-20261118-174106.tsv
+  - $HOME/tmp/rbac-021-reports/RBAC-021-JWT-middleware-20261118-174355.tsv
+- Temporary probe server on port 7001 was stopped and temporary router files were removed.
+- Main application availability verified: HTTP 200.
+- No application source files, .env values, database assignments, or Git history were changed.
+- New completed runtime evidence: 12/12 PASS.
+- Cumulative completed RBAC-021 runtime evidence: 87/87 PASS.
+- RBAC-021 remains IN PROGRESS. Hardcoded JWT secret finding and remaining review items are still open. No commit, push, or merge performed.
+
+## 18 November 2026 — RBAC-021 JWT Secret Remediation
+
+Status: PASS
+
+Targeted verification:
+- [PASS] Valid JWT signing and verification round-trip.
+- [PASS] Invalid JWT token rejected.
+- [PASS] Missing JWT_SECRET rejected.
+- [PASS] Weak JWT_SECRET rejected.
+- [PASS] Git diff whitespace check (`git diff --check`).
+
+Additional verification:
+- [PASS] PHP syntax check: app/Config/JWTConfig.php
+- [PASS] PHP syntax check: app/Helpers/JWTHelper.php
+- [PASS] JWT secret value is loaded from environment configuration.
+- [PASS] No remaining JWTConfig::SECRET references.
+
+Result: 5/5 targeted checks PASS.
+No commit, push, or merge performed.
+
+## 18 November 2026 — RBAC-021 JWT Issuer and Audience Enforcement
+
+Status: PASS
+
+Findings closed:
+- RBAC021-021 — JWT Issuer (`iss`) enforcement: PASS.
+- RBAC021-022 — JWT Audience (`aud`) enforcement: PASS.
+
+Implementation:
+- JWT issuer uses the configured APP_URL.
+- JWT audience uses the stable identifier `deepsync-api`.
+- Token validation rejects missing or mismatched issuer claims.
+- Token validation rejects missing or mismatched audience claims.
+- Login and refresh token generation share the updated JWTHelper.
+
+Targeted verification:
+- [PASS] Generated JWT accepted with correct issuer and audience.
+- [PASS] Generated JWT contains exact expected claims.
+- [PASS] Wrong issuer rejected.
+- [PASS] Wrong audience rejected.
+- [PASS] Missing issuer rejected.
+- [PASS] Missing audience rejected.
+- [PASS] Malformed JWT rejected.
+- [PASS] PHP syntax checks for JWTConfig.php and JWTHelper.php.
+- [PASS] Git diff whitespace check.
+
+Result: 7/7 JWT issuer/audience tests PASS.
+No commit, push, or merge performed.
+
+RBAC-021 remains IN PROGRESS. RBAC021-023 remains open for review.
+
+## 18 November 2026 — RBAC-021 Consolidated Runtime Security Verification
+
+Status: PASS
+
+Consolidated results:
+- [PASS] Previously recorded runtime security checks: 20/20.
+- [PASS] Non-admin RBAC POST authorization checks: 4/4.
+- [PASS] Total consolidated checks: 24/24.
+
+Non-admin POST authorization:
+- [PASS] POST /admin/rbac/users/assign-role — HTTP 403.
+- [PASS] POST /admin/rbac/users/remove-role — HTTP 403.
+- [PASS] POST /admin/rbac/roles/assign-permission — HTTP 403.
+- [PASS] POST /admin/rbac/roles/remove-permission — HTTP 403.
+
+Verification notes:
+- Valid non-admin authenticated session used.
+- Valid CSRF token and matching application Origin/Referer used.
+- All four non-admin mutation requests were denied with HTTP 403.
+- Invalid entity IDs were used; no RBAC data was modified.
+- Earlier HTTP 419 responses were CSRF rejections, not authorization results. The corrected valid-CSRF checks returned HTTP 403.
+
+RBAC-021 remains IN PROGRESS.
+No source-code changes, commit, push, or merge performed.
+
+## 18 November 2026 — RBAC-021 Admin POST Authorization Verification
+
+Status: PASS
+
+- [PASS] Admin login and CSRF verification.
+- [PASS] Admin dashboard access.
+- [PASS] Admin role assignment endpoint — HTTP 404 for nonexistent IDs.
+- [PASS] Admin role removal endpoint — HTTP 404 for nonexistent IDs.
+- [PASS] Admin permission assignment endpoint — HTTP 404 for nonexistent IDs.
+- [PASS] Admin permission removal endpoint — HTTP 404 for nonexistent IDs.
+- Total: 10/10 checks PASS.
+- Nonexistent positive IDs were used; no valid RBAC assignments were changed.
+
+## 18 November 2026 — RBAC-021 JWT Middleware Retest After JWT Remediation
+
+Status: PASS
+
+Retested the six signed-JWT HTTP middleware checks after JWT secret, issuer, and audience enforcement changes.
+
+- [PASS] Valid JWT with role:user — HTTP 200.
+- [PASS] Valid JWT with role:admin denied — HTTP 403.
+- [PASS] Valid JWT with dashboard.view — HTTP 200.
+- [PASS] Valid JWT with datatable.delete denied — HTTP 403.
+- [PASS] Missing JWT rejected — HTTP 401.
+- [PASS] Invalid JWT rejected — HTTP 401.
+
+Result: 6/6 PASS.
+
+The temporary probe server was stopped and temporary test files were cleaned up.
+No database mutation, source-code modification, commit, push, or merge was performed by these tests.
+
+The six JWT middleware checks are a retest of previously recorded checks and are not counted as six additional unique tests.
+
+RBAC-021 remains IN PROGRESS pending final review of outstanding findings.
+
+## 18 November 2026 — RBAC-021 Actual API IDOR Verification
+
+Status: PASS
+
+Report:
+`$HOME/tmp/rbac-021-reports/RBAC-021-API-IDOR-20261118-203834.tsv`
+
+Actual HTTP verification using a temporary signed JWT:
+
+- GET /api/users — HTTP 200 for authenticated user.
+- GET /api/users/10 — HTTP 200 for the authenticated user's own record.
+- GET /api/users/{other-existing-id} — HTTP 403.
+- User list response — expected user identity confirmed; password and refresh-token fields absent.
+- Own user response — expected user identity confirmed; password and refresh-token fields absent.
+
+Result: 5/5 checks PASS.
+
+Safety:
+- Read-only GET requests only.
+- No POST, PUT, PATCH, or DELETE requests sent.
+- No database records modified.
+
+Additional:
+- Removed the test-only POST /api/dummy route from Routes/api.php.
+- PHP syntax verification passed.
+- Confirmed no getDummyData or dummy route reference remains in Routes/api.php.
+
+RBAC-021 remains IN PROGRESS pending final reconciliation of all outstanding findings.
+
+## 18 November 2026 — RBAC-021 Final Evidence Reconciliation
+
+Status: IN PROGRESS
+
+### Resolved findings
+- RBAC021-004: Hardcoded JWT secret remediated. Secret moved to environment configuration with a minimum 64-character validation. Targeted verification: 5/5 PASS.
+- RBAC021-021: JWT issuer enforcement implemented and verified.
+- RBAC021-022: JWT audience enforcement implemented and verified.
+- JWT issuer/audience targeted verification: 7/7 PASS.
+- Signed JWT middleware retest after remediation: 6/6 PASS.
+
+### Authorization and runtime evidence
+- Admin web access verification: 8/8 PASS.
+- Non-admin access denial verification: 8/8 PASS.
+- JWT role/permission integration verification: 8/8 PASS.
+- Non-admin RBAC POST authorization with valid CSRF: 4/4 PASS.
+- Independent HTTP role/permission assignment and revocation verification: 9/9 PASS.
+- Web middleware verification: 6/6 PASS.
+- Admin POST verification: 10/10 PASS. The four invalid-ID mutation requests returned HTTP 404; these results establish not-found handling only.
+- API IDOR verification: 5/5 PASS. Authenticated user's own records were accessible; another user's record was denied with HTTP 403. Sensitive password and refresh-token fields were absent from responses.
+
+### API test route cleanup
+- Removed the test-only POST /api/dummy route from Routes/api.php.
+- PHP syntax verification passed.
+- Confirmed no dummy route reference remains in Routes/api.php.
+- The controller method was not removed.
+
+### Evidence reconciliation qualifications
+- JWT middleware 6/6 is a retest after JWT remediation, not six additional unique tests.
+- The consolidated 24/24 report is a summary, not 24 additional unique tests.
+- The earlier four CSRF-related 419 responses were not authorization outcomes; valid-CSRF retesting confirmed HTTP 403 for non-admin requests.
+- The 201539 report contains only a header and provides no test evidence.
+- No cumulative test total is claimed in this reconciliation.
+
+### Outstanding item
+- RBAC021-R003 remains NEED REVIEW.
+- Original test URL/definition could not be located in the available temporary runner scripts or reports.
+- The report records expected HTTP 302/303 but received HTTP 404.
+- No retest was performed and no root cause has been established.
+- Do not classify R003 as PASS or NOT APPLICABLE without further evidence.
+
+Overall RBAC-021 status remains IN PROGRESS. Do not close until R003 and all remaining review items are reconciled.
+
+
+## 18 November 2026 — RBAC-021 R003 Trailing-Slash Route Fix
+
+Status: PASS
+
+Finding: RBAC021-R003 — Admin RBAC page returned HTTP 404 for `/admin/rbac/`.
+
+Root cause: Router dispatch parsed the incoming path but did not normalize trailing slashes, while route registration normalized route paths.
+
+Fix: Added incoming URI normalization in `app/Core/Router.php`:
+`$uri = "/" . trim($uri, "/");`
+
+Verification:
+- `/admin/rbac` — HTTP 302 to `/admin/login`.
+- `/admin/rbac/` — HTTP 302 to `/admin/login`.
+- PHP syntax check — PASS.
+- `git diff --check` — PASS.
+
+Both URL variants now match the route. The unauthenticated requests were redirected by the admin authentication middleware as expected. Authenticated admin page rendering was not part of this test.
+
+RBAC-021 remains IN PROGRESS pending reconciliation of remaining findings.
+## 18 November 2026 — RBAC-021 R003 Authenticated Admin Verification
+
+Status: PASS — CLOSED
+
+Authenticated Admin login was verified using the RBAC test account.
+
+Evidence:
+- Admin login page: HTTP 200.
+- CSRF token extraction: PASS.
+- Admin login POST: HTTP 302, redirect to `/admin/dashboard`.
+- `/admin/dashboard`: HTTP 200.
+- `/admin/rbac`: HTTP 200.
+- `/admin/rbac/`: HTTP 200.
+
+Conclusion:
+Both normalized RBAC route variants are accessible to an authenticated Admin. The Router trailing-slash normalization fix is verified end-to-end.
+
+R003 is CLOSED/PASS. RBAC-021 overall remains IN PROGRESS pending remaining finding reconciliation.
+
+## 18 November 2026 — RBAC-021 R003 Authenticated Admin Verification
+
+Status: PASS — CLOSED
+
+Authenticated Admin login was verified using the RBAC test account.
+
+Evidence:
+- Admin login page: HTTP 200.
+- CSRF token extraction: PASS.
+- Admin login POST: HTTP 302, redirect to `/admin/dashboard`.
+- `/admin/dashboard`: HTTP 200.
+- `/admin/rbac`: HTTP 200.
+- `/admin/rbac/`: HTTP 200.
+
+Conclusion:
+Both normalized RBAC route variants are accessible to an authenticated Admin. The Router trailing-slash normalization fix is verified end-to-end.
+
+R003 is CLOSED/PASS. RBAC-021 overall remains IN PROGRESS pending remaining finding reconciliation.
+
+## 18 November 2026 — RBAC-021 R003 Authenticated Admin Verification
+
+Status: PASS — CLOSED
+
+Authenticated Admin login was verified using the RBAC test account.
+
+Evidence:
+- Admin login page: HTTP 200.
+- CSRF token extraction: PASS.
+- Admin login POST: HTTP 302, redirect to `/admin/dashboard`.
+- `/admin/dashboard`: HTTP 200.
+- `/admin/rbac`: HTTP 200.
+- `/admin/rbac/`: HTTP 200.
+
+Conclusion:
+Both normalized RBAC route variants are accessible to an authenticated Admin. The Router trailing-slash normalization fix is verified end-to-end.
+
+R003 is CLOSED/PASS. RBAC-021 overall remains IN PROGRESS pending remaining finding reconciliation.
+
+## 18 November 2026 — RBAC-021 Static Finding 020 Reconciliation
+
+Finding: RBAC021-020
+Status: PASS — CLOSED
+
+Verified AuthorizationService behavior:
+- normalizePermissionSlugs() returns null for empty permission lists.
+- It returns null for non-string permission values.
+- It returns null for blank permission slugs.
+- hasAnyPermission() returns false when the normalized list is null.
+- hasAllPermissions() returns false when the normalized list is null.
+- Both methods also deny invalid user IDs.
+
+Conclusion:
+Invalid or empty permission input does not grant authorization. The fail-closed behavior is confirmed by source inspection.
+
+No source changes or additional runtime tests were performed.
+
+RBAC021-020 is CLOSED/PASS. RBAC-021 overall remains IN PROGRESS pending final evidence reconciliation.
+
+## 18 November 2026 — RBAC-021 Final Evidence Reconciliation
+
+Finding: RBAC021-023
+Status: PASS — CLOSED
+
+Evidence reconciliation:
+- Non-admin web access restrictions verified.
+- Non-admin RBAC mutation endpoints retested with valid CSRF tokens; all four requests returned HTTP 403 (4/4 PASS).
+- Historical HTTP 419 results were CSRF rejections and are superseded by the valid-CSRF authorization retest. Historical report rows remain unchanged.
+- Admin RBAC users, roles and permissions pages returned HTTP 200.
+- Independent authenticated Admin HTTP tests verified role assignment, permission assignment, permission revocation and role revocation, including state changes across new requests (9/9 PASS).
+- API IDOR checks verified own-record access, denial of another user's record, and safe response fields (5/5 PASS).
+- Admin POST tests using nonexistent IDs returned 404; these results are not treated as proof of successful mutations. Successful mutation evidence is taken from the independent HTTP report.
+- R003 trailing-slash routing and authenticated Admin verification are CLOSED/PASS.
+- JWT secret remediation and issuer/audience enforcement remain verified PASS.
+- RBAC021-020 fail-closed permission input handling is CLOSED/PASS.
+
+Report handling:
+- The empty RBAC-021-023-20261118-201539.tsv contains only a header and is excluded from evidence.
+- Overlapping JWT middleware reports are not added together.
+- Historical failures and earlier review statuses are preserved; this entry records their superseding evidence.
+- Repeated R003 authenticated verification entries in the append-only log are acknowledged; no historical entries were edited or deleted.
+
+No additional runtime tests or source-code changes were performed during this reconciliation.
+
+RBAC021-023: CLOSED/PASS.
+RBAC-021: Evidence reconciliation completed; no outstanding finding identified in the reviewed 23-item register.

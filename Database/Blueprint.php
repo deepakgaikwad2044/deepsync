@@ -140,6 +140,12 @@ public function unsigned()
         return $this;
     }
 
+    // 🔒 NOT NULL
+    public function notNull()
+    {
+        $this->columns[$this->lastIndex] .= " NOT NULL";
+        return $this;
+    }
     // ❓ NULLABLE
     public function nullable()
     {

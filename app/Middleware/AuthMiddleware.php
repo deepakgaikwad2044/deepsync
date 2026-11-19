@@ -2,14 +2,19 @@
 
 namespace App\Middleware;
 
-use App\Config\Auth;   // ✅ CORRECT namespace
+use App\Config\Auth;
 
 class AuthMiddleware
 {
-    public function handle()
+    public function handle(?string $guard = null): void
     {
         if (!Auth::check()) {
-            redirect(route("user.login"));
+            if ($guard === "admin") {
+                redirect(route("admin.login"));
+            } else {
+                redirect(route("user.login"));
+            }
+
             exit;
         }
     }

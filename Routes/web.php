@@ -8,6 +8,9 @@ use App\Middleware\Permission;
 use App\Controllers\RegisterController;
 use App\Controllers\BaseController;
 use App\Controllers\LoginController;
+use App\Controllers\AdminLoginController;
+use App\Controllers\AdminDashboardController;
+use App\Controllers\AdminLogoutController;
 use App\Controllers\DashboardController;
 use App\Controllers\ProfileController;
 use App\Controllers\PasswordController;
@@ -16,6 +19,7 @@ use App\Controllers\DocsController;
 use App\Controllers\DemoDatatableController;
 use App\Controllers\DemoWebsocketController;
 use App\Controllers\AppController;
+use App\Controllers\AdminRbacController;
 
 
 // Web
@@ -57,6 +61,35 @@ Router::get("/docs/{slug}", [DocsController::class, "show"])->name("docs.slug");
     }
   );
   
+   // ADMIN AUTH ROUTES
+   Router::get("/admin/login", [
+     AdminLoginController::class,
+     "index",
+   ])->name("admin.login");
+
+   Router::post("/admin/login", [
+     AdminLoginController::class,
+     "login",
+   ])->rateLimit(5, 1)->name("admin.login.verify");
+
+   // ADMIN PROTECTED ROUTES
+   Router::group(
+     [
+       "prefix" => "admin",
+       "middleware" => ["auth:admin", "role:admin"],
+     ],
+     function () {
+       Router::get("dashboard", [
+         AdminDashboardController::class,
+         "index",
+       ])->name("admin.dashboard");
+
+       Router::post("logout", [
+         AdminLogoutController::class,
+         "logout",
+       ])->name("admin.logout");
+     }
+   );
        Router::get("/components", [BaseController::class, "components"])->name(
         "components"
       );
@@ -149,6 +182,53 @@ Router::get("/docs/{slug}", [DocsController::class, "show"])->name("docs.slug");
         DemoWebsocketController::class,
         "countedusers",
       ])->name("websocket.user.count");
+    }
+  );
+
+
+  // ADMIN RBAC MANAGEMENT ROUTES
+  Router::group(
+    [
+      "prefix" => "admin/rbac",
+      "middleware" => ["auth:admin", "role:admin"],
+    ],
+    function () {
+      Router::get("/", [\App\Controllers\AdminRbacPageController::class, "index"])->name("admin.rbac.index");
+
+      Router::get("users", [
+        AdminRbacController::class,
+        "users",
+      ])->name("admin.rbac.users");
+
+      Router::get("roles", [
+        AdminRbacController::class,
+        "roles",
+      ])->name("admin.rbac.roles");
+
+      Router::get("permissions", [
+        AdminRbacController::class,
+        "permissions",
+      ])->name("admin.rbac.permissions");
+
+      Router::post("users/assign-role", [
+        AdminRbacController::class,
+        "assignRole",
+      ])->name("admin.rbac.users.assign-role");
+
+      Router::post("users/remove-role", [
+        AdminRbacController::class,
+        "removeRole",
+      ])->name("admin.rbac.users.remove-role");
+
+      Router::post("roles/assign-permission", [
+        AdminRbacController::class,
+        "assignPermission",
+      ])->name("admin.rbac.roles.assign-permission");
+
+      Router::post("roles/remove-permission", [
+        AdminRbacController::class,
+        "removePermission",
+      ])->name("admin.rbac.roles.remove-permission");
     }
   );
 

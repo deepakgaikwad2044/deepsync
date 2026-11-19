@@ -20,9 +20,6 @@ Router::group(["prefix" => "api"], function () {
     // 🔒 Private Routes (JWT Required)
     Router::group(["middleware" => "JWT"], function () {
 
-        Router::post("dummy", [AuthApiController::class, "getDummyData"])->name(
-            "get.dummy.data"
-        );
 
         // Users RESTFULL Resource
         Router::get("users", [UserApiController::class, "index"]);

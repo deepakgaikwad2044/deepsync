@@ -4,7 +4,6 @@ namespace CLI\Commands;
 
 use App\Core\Console\CLI;
 use PDO;
-use PDOException;
 
 class MigrateInstall
 {
@@ -136,10 +135,17 @@ class MigrateInstall
                 CLI::info("✔ Synced: $slug");
             }
 
+            (new Migrate())->handle();
+
+            (new SeedRoles())->handle($args);
+
+            (new SeedPermissions())->handle($args);
+
             CLI::success("📚 Migration completed successfully!");
 
-        } catch (PDOException $e) {
+        } catch (\Throwable $e) {
             CLI::error("❌ Fatal Error: " . $e->getMessage());
+            throw $e;
         }
     }
 }

@@ -41,7 +41,7 @@ class RegisterController
 
         try {
             // Register only once
-            $user = User::register([
+            $user = User::registerWithDefaultRole([
                 "name" => $data["name"],
                 "email" => $data["email"],
                 "password" => $data["password"],

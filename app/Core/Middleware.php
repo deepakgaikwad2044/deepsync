@@ -4,10 +4,11 @@ namespace App\Core;
 
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
-use App\Middleware\AdminMiddleware;
 use App\Middleware\JWTMiddleware;
 use App\Middleware\VerifyCsrfToken;
 use App\Middleware\RateLimitMiddleware;
+use App\Middleware\RoleMiddleware;
+use App\Middleware\PermissionMiddleware;
 
 class Middleware
 {
@@ -24,7 +25,7 @@ class Middleware
             switch ($name) {
 
                 case "auth":
-                    (new AuthMiddleware())->handle();
+                    (new AuthMiddleware())->handle($parameterString);
                     break;
 
                 case "guest":
@@ -37,6 +38,14 @@ class Middleware
 
                 case "JWT":
                     (new JWTMiddleware())->handle();
+                    break;
+
+                case "role":
+                    (new RoleMiddleware())->handle($parameterString, $isWeb);
+                    break;
+
+                case "permission":
+                    (new PermissionMiddleware())->handle($parameterString, $isWeb);
                     break;
 
                 case "throttle":
@@ -62,6 +71,11 @@ class Middleware
                     );
 
                     break;
+                default:
+                    http_response_code(500);
+                    header("Content-Type: application/json; charset=UTF-8");
+                    echo json_encode(["error" => "Middleware configuration error"]);
+                    exit;
             }
         }
     }

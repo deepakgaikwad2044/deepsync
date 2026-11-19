@@ -318,7 +318,7 @@ class AuthorizationService
             INNER JOIN permissions AS p
                 ON p.id = pr.permission_id
             WHERE ru.user_id = ?
-              AND p.slug = ?
+              AND BINARY p.slug = BINARY ?
             LIMIT 1
         ";
 
@@ -343,7 +343,7 @@ class AuthorizationService
 
         $placeholders = implode(
             ', ',
-            array_fill(0, count($permissions), '?')
+            array_fill(0, count($permissions), 'BINARY ?')
         );
 
         $sql = "
@@ -354,7 +354,7 @@ class AuthorizationService
             INNER JOIN permissions AS p
                 ON p.id = pr.permission_id
             WHERE ru.user_id = ?
-              AND p.slug IN ({$placeholders})
+              AND BINARY p.slug IN ({$placeholders})
             LIMIT 1
         ";
 
@@ -379,7 +379,7 @@ class AuthorizationService
 
         $placeholders = implode(
             ', ',
-            array_fill(0, count($permissions), '?')
+            array_fill(0, count($permissions), 'BINARY ?')
         );
 
         $sql = "
@@ -390,7 +390,7 @@ class AuthorizationService
             INNER JOIN permissions AS p
                 ON p.id = pr.permission_id
             WHERE ru.user_id = ?
-              AND p.slug IN ({$placeholders})
+              AND BINARY p.slug IN ({$placeholders})
         ";
 
         $stmt = $this->connection->prepare($sql);

@@ -17,9 +17,17 @@
         .rbac-page { padding: 25px 0; }
         .rbac-heading { margin-bottom: 25px; }
         .rbac-heading h1 { margin-bottom: 8px; }
-        .rbac-back { display: inline-block; margin-bottom: 18px; color: #aaa; }
+        .rbac-back {
+            display: inline-block;
+            margin-bottom: 18px;
+            color: var(--primary-light);
+        }
+        .rbac-back:hover { color: #fff; }
         .rbac-section { margin: 28px 0; }
-        .rbac-section h2 { margin-bottom: 15px; }
+        .rbac-section h2 {
+            margin-bottom: 15px;
+            color: var(--primary-light);
+        }
         .rbac-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
@@ -27,21 +35,21 @@
         }
         .rbac-card {
             padding: 18px;
-            background: #0d0d0d;
-            border: 1px solid #2a2a2a;
+            background: var(--surface);
+            border: 1px solid var(--primary-border);
             border-radius: 12px;
             min-width: 0;
         }
         .rbac-card h3 { margin: 0 0 7px; }
-        .rbac-muted { color: #aaa; overflow-wrap: anywhere; }
+        .rbac-muted { color: var(--muted); overflow-wrap: anywhere; }
         .rbac-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
         .rbac-chip {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             padding: 7px 10px;
-            background: #191919;
-            border: 1px solid #333;
+            background: var(--primary-soft);
+            border: 1px solid var(--primary-border);
             border-radius: 7px;
             font-size: 13px;
         }
@@ -63,17 +71,31 @@
             padding: 11px;
             color: #fff;
             background: #050505;
-            border: 1px solid #333;
+            border: 1px solid var(--border);
             border-radius: 7px;
+            outline: none;
+        }
+        .rbac-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-soft);
         }
         .rbac-btn {
             padding: 10px 13px;
-            color: #000;
-            background: #fff;
-            border: 0;
+            color: #fff;
+            background: var(--primary);
+            border: 1px solid var(--primary);
             border-radius: 7px;
             font-weight: bold;
             cursor: pointer;
+            transition: background .2s ease, border-color .2s ease;
+        }
+        .rbac-btn:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        .rbac-btn:focus-visible {
+            outline: 2px solid var(--primary-light);
+            outline-offset: 3px;
         }
         .rbac-btn:disabled { opacity: .45; cursor: not-allowed; }
         .rbac-notice {

@@ -103,12 +103,14 @@
         </div>
       </li>
 
+      <?php if (\App\Config\Auth::hasPermission("datatable.view")): ?>
       <li class="nav-item">
         <div class="d-flex align-items-center">
           <span class="material-symbols-outlined">table</span>
           <a href="<?= route('table.show') ?>" class="nav-link">datatable</a>
         </div>
       </li>
+      <?php endif; ?>
 
       <li class="nav-item">
         <div class="d-flex align-items-center">

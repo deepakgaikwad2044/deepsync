@@ -147,25 +147,25 @@ Router::get("/docs/{slug}", [DocsController::class, "show"])->name("docs.slug");
       "middleware" => "auth",
     ],
     function () {
-      Router::get("all", [DemoDatatableController::class, "index"])->name(
-        "table.show"
-      );
+      Router::get("all", [DemoDatatableController::class, "index"])
+        ->middleware("permission:datatable.view")
+        ->name("table.show");
 
-      Router::get("data", [DemoDatatableController::class, "getData"])->name(
-        "table.data"
-      );
+      Router::get("data", [DemoDatatableController::class, "getData"])
+        ->middleware("permission:datatable.view")
+        ->name("table.data");
 
-      Router::post("create", [DemoDatatableController::class, "create"])->name(
-        "datatable.create"
-      );
+      Router::post("create", [DemoDatatableController::class, "create"])
+        ->middleware("permission:datatable.create")
+        ->name("datatable.create");
 
-      Router::post("update", [DemoDatatableController::class, "update"])->name(
-        "datatable.update"
-      );
+      Router::post("update", [DemoDatatableController::class, "update"])
+        ->middleware("permission:datatable.update")
+        ->name("datatable.update");
 
-      Router::post("delete", [DemoDatatableController::class, "delete"])->name(
-        "datatable.delete"
-      );
+      Router::post("delete", [DemoDatatableController::class, "delete"])
+        ->middleware("permission:datatable.delete")
+        ->name("datatable.delete");
     }
   );
 

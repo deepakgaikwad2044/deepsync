@@ -103,12 +103,14 @@
         </div>
       </li>
 
+      @permission('datatable.view')
       <li class="nav-item">
         <div class="d-flex align-items-center">
           <span class="material-symbols-outlined">table</span>
           <a href="<?= route('table.show') ?>" class="nav-link">datatable</a>
         </div>
       </li>
+      @endpermission
 
       <li class="nav-item">
         <div class="d-flex align-items-center">

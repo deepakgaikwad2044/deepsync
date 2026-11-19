@@ -734,6 +734,45 @@ $data['__componentRenderer'] =
 
         /*
         |--------------------------------------------------------------------------
+        | @permission
+        |--------------------------------------------------------------------------
+        */
+
+        $template = preg_replace_callback(
+            '~@permission\s*\(\s*([\'"])(.*?)\1\s*\)~',
+            function ($match) {
+                $permission = trim($match[2]);
+
+                if (
+                    $permission === "" ||
+                    !preg_match('/\A[a-zA-Z0-9_.:-]+\z/', $permission)
+                ) {
+                    throw new \RuntimeException(
+                        "PRANCHI permission name is invalid."
+                    );
+                }
+
+                return "<?php if (\\App\\Config\\Auth::hasPermission(" .
+                    var_export($permission, true) .
+                    ")): ?>";
+            },
+            $template
+        );
+
+        $template = preg_replace(
+            '/@endpermission\b/',
+            "<?php endif; ?>",
+            $template
+        );
+
+        if (preg_match('/@permission\b(?!\s*\(\s*[\'"][a-zA-Z0-9_.:-]+[\'"]\s*\))/', $template)) {
+            throw new \RuntimeException(
+                "PRANCHI permission directive is malformed."
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
         | @if
         |--------------------------------------------------------------------------
         */

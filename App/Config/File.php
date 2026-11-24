@@ -252,6 +252,6 @@ class File
             throw new \RuntimeException("File upload failed");
         }
 
-        return "/storage/{$folder}/{$fileName}";
+        return "/Storage/{$folder}/{$fileName}";
     }
 }

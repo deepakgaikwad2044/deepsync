@@ -4,6 +4,7 @@ namespace CLI\Commands;
 
 use App\Core\Console\CLI;
 use PDO;
+use Throwable;
 
 class MigrateStatus
 {
@@ -16,40 +17,65 @@ class MigrateStatus
         $pass = env('DB_PASSWORD');
 
         try {
-            $pdo = new PDO("mysql:host=$host;port=$port;dbname=$db", $user, $pass);
-        } catch (\PDOException $e) {
-            CLI::error("❌ Database connection failed: " . $e->getMessage() . "\n");
-            return;
+            $dsn = "mysql:host=$host;port=$port;dbname=$db";
+
+            $charset = env('DB_CHARSET');
+            if (!empty($charset)) {
+                $dsn .= ";charset=$charset";
+            }
+
+            $pdo = new PDO(
+                $dsn,
+                $user,
+                $pass,
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                ]
+            );
+
+            // Read existing migration records only. Never create or alter tables.
+            $records = $pdo->query(
+                "SELECT migration, batch FROM migrations"
+            )->fetchAll();
+
+            $migrated = [];
+
+            foreach ($records as $record) {
+                $migrated[$record['migration']] = $record['batch'];
+            }
+
+            $files = glob(__DIR__ . '/../../Database/migrations/*.php');
+
+            CLI::info("📝 Migrations Status:\n");
+            CLI::info(str_pad("Migration", 50) . str_pad("Batch", 10) . "Status\n");
+            CLI::info(str_repeat("-", 70) . "\n");
+
+            foreach ($files as $file) {
+                $name = basename($file);
+
+                if (array_key_exists($name, $migrated)) {
+                    $batchText = $migrated[$name] ?? "-";
+                    $status = "✅ Run";
+                } else {
+                    $batchText = "-";
+                    $status = "❌ Pending";
+                }
+
+                CLI::info(
+                    str_pad($name, 50) .
+                    str_pad((string) $batchText, 10) .
+                    $status . "\n"
+                );
+            }
+
+            CLI::info("\n");
+
+        } catch (Throwable $e) {
+            CLI::error(
+                "❌ Migration status check failed: " .
+                $e->getMessage() . "\n"
+            );
         }
-
-        // Ensure migrations table exists
-        $pdo->exec("
-            CREATE TABLE IF NOT EXISTS migrations (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                migration VARCHAR(255),
-                batch INT
-            )
-        ");
-
-        $files = glob(__DIR__ . '/../../database/migrations/*.php');
-
-        CLI::info("📝 Migrations Status:\n");
-        CLI::info(str_pad("Migration", 50) . str_pad("Batch", 10) . "Status\n");
-        CLI::info(str_repeat("-", 70) . "\n");
-
-        foreach ($files as $file) {
-            $name = basename($file);
-
-            $stmt = $pdo->prepare("SELECT batch FROM migrations WHERE migration = ?");
-            $stmt->execute([$name]);
-            $batch = $stmt->fetchColumn();
-
-            $status = $batch ? "✅ Run" : "❌ Pending";
-            $batchText = $batch ? $batch : "-";
-
-            CLI::info(str_pad($name, 50) . str_pad($batchText, 10) . $status . "\n");
-        }
-
-        CLI::info("\n");
     }
 }

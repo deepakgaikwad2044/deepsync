@@ -17,7 +17,7 @@ class ComponentManager
         ?string $basePath = null
     ) {
         $this->basePath = rtrim(
-            $basePath ?? base_path("views/components"),
+            $basePath ?? base_path("Views/components"),
             DIRECTORY_SEPARATOR
         );
     }

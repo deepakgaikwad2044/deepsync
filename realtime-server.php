@@ -8,7 +8,7 @@ use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
 use Ratchet\Server\IoServer;
 use Clue\React\Redis\Factory as RedisFactory;
-use App\Websockets\Realtime\DS_Realtime;
+use App\WebSockets\Realtime\DS_Realtime;
 
 /*
 |--------------------------------------------------------------------------

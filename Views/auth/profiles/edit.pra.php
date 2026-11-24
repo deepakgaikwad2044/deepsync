@@ -174,7 +174,7 @@ body{
       name="profile"
       id="image"
       hidden
-      accept="image/*"
+      accept="image/jpeg,image/png,image/webp"
     >
 
     <label for="image"

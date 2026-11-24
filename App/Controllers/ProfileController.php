@@ -28,7 +28,7 @@ public function update()
   ];
 
   if (!empty($data["profile"]["name"])) {
-    $rules["profile"] = "image|max:2MB|mimes:jpg,png";
+    $rules["profile"] = "image|max:2MB|mimes:jpg,png,webp";
   }
 
   $validator = new Validator();
@@ -50,33 +50,53 @@ public function update()
     "email" => trim($data["email"]),
   ];
 
-  // IMAGE UPLOAD ONLY IF FILE EXISTS
+  // Upload new avatar before updating the database.
   $file = $data["profile"];
+  $newAvatar = null;
 
   if (!empty($file["name"])) {
     try {
       $newAvatar = File::upload($file, "profiles");
-
-      if ($avatar && File::exists($avatar)) {
-        File::delete($avatar);
-      }
-
       $updateData["avtar"] = $newAvatar;
-
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
       $_SESSION["errors"]["profile"] = $e->getMessage();
       redirect(route("user.profile.edit"));
       return;
     }
   }
 
-  if (User::update($authUserId, $updateData)) {
-    setFlash("flash_success", "Profile updated");
-    redirect(route("user.dashboard"));
+  try {
+    $updated = User::update($authUserId, $updateData);
+  } catch (\Throwable $e) {
+    if ($newAvatar !== null) {
+      File::delete($newAvatar);
+    }
+
+    $_SESSION["errors"]["profile"] = "Profile update failed.";
+    redirect(route("user.profile.edit"));
     return;
   }
 
-  redirect(route("user.profile.edit"));
+  if (!$updated) {
+    if ($newAvatar !== null) {
+      File::delete($newAvatar);
+    }
+
+    redirect(route("user.profile.edit"));
+    return;
+  }
+
+  // Delete the previous avatar only after database success.
+  if (
+    $newAvatar !== null &&
+    $avatar &&
+    File::exists($avatar)
+  ) {
+    File::delete($avatar);
+  }
+
+  setFlash("flash_success", "Profile updated");
+  redirect(route("user.dashboard"));
 }
 }
 ?>

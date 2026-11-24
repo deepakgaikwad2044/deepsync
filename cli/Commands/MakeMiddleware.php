@@ -16,7 +16,7 @@ class MakeMiddleware
         
         $name = $name. "Middleware";
 
-        $path = __DIR__ . '/../../app/Middleware/' . $name . '.php';
+        $path = __DIR__ . '/../../App/Middleware/' . $name . '.php';
 
         if (!is_dir(dirname($path))) {
             mkdir(dirname($path), 0777, true);

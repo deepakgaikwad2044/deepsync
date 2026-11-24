@@ -25,8 +25,19 @@ class Database
 
     $this->conn = null;
     try {
+      $dsn = "$this->driver:host=$this->host;dbname=$this->dbname";
+
+      if (!empty($this->port)) {
+        $dsn .= ";port=$this->port";
+      }
+
+      $charset = env("DB_CHARSET");
+      if (!empty($charset)) {
+        $dsn .= ";charset=$charset";
+      }
+
       $this->conn = new PDO(
-        "$this->driver:host=$this->host; dbname=$this->dbname",
+        $dsn,
         $this->user,
         $this->pass
       );

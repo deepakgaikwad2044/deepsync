@@ -15,7 +15,7 @@ class MakeModel
             return;
         }
 
-        $path = __DIR__ . '/../../app/Models/' . $name . '.php';
+        $path = __DIR__ . '/../../App/Models/' . $name . '.php';
 
         if (!is_dir(dirname($path))) {
             mkdir(dirname($path), 0777, true);

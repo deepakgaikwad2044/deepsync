@@ -31,7 +31,7 @@ class Pranchi
     public function __construct()
     {
         $this->viewPath = rtrim(
-            base_path("views"),
+            base_path("Views"),
             DIRECTORY_SEPARATOR
         ) . DIRECTORY_SEPARATOR;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace CLI\Command;
+namespace CLI\Commands;
 
 use App\Core\Console\CLI;
 

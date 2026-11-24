@@ -1,5 +1,5 @@
 <?php //demo
-namespace App\Events;
+namespace App\WebSockets\Events;
 
 use App\Core\Helpers\Realtime;
 

@@ -31,7 +31,7 @@ class MakeComponent
         $className = ucfirst($name);
         $fileName  = $name . '.pra.php';
 
-        $basePath = __DIR__ . '/../../views/components';
+        $basePath = __DIR__ . '/../../Views/components';
 
         // build directory path
         $dirPath = $basePath;

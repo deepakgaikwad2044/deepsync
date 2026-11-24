@@ -17,8 +17,14 @@ class Rollback
             $user = env('DB_USERNAME');
             $pass = env('DB_PASSWORD');
 
+            $charset = env('DB_CHARSET');
+            $dsn = "mysql:host=$host;port=$port;dbname=$db";
+            if (!empty($charset)) {
+                $dsn .= ";charset=$charset";
+            }
+
             $pdo = new PDO(
-                "mysql:host=$host;port=$port;dbname=$db",
+                $dsn,
                 $user,
                 $pass,
                 [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
@@ -42,7 +48,7 @@ class Rollback
 
             foreach ($migrations as $migration) {
                 try {
-                    $file = __DIR__ . '/../../database/migrations/' . $migration['migration'];
+                    $file = __DIR__ . '/../../Database/migrations/' . $migration['migration'];
 
                     if (!file_exists($file)) {
                         throw new \RuntimeException(

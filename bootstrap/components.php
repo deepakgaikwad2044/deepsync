@@ -38,7 +38,7 @@ if (method_exists($pranchi, 'setComponentCompiler')) {
 clearstatcache(true);
 
 $base = rtrim(base_path(), DIRECTORY_SEPARATOR);
-$componentPath = $base . DIRECTORY_SEPARATOR . 'views/components';
+$componentPath = $base . DIRECTORY_SEPARATOR . 'Views/components';
 
 if (!is_dir($componentPath)) {
     throw new RuntimeException("Components directory not found: {$componentPath}");

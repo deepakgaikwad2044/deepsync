@@ -17,7 +17,7 @@ class MakeController
         
         $name = $name."Controller";
 
-        $path = __DIR__ . '/../../app/Controllers/' . $name . '.php';
+        $path = __DIR__ . '/../../App/Controllers/' . $name . '.php';
 
         if (!is_dir(dirname($path))) {
             mkdir(dirname($path), 0777, true);

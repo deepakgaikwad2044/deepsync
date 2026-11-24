@@ -1,5 +1,5 @@
 <?php
-namespace App\WebSockets\Realtime;
+namespace App\WebSockets;
 
 use App\WebSockets\Realtime\Realtime;
 

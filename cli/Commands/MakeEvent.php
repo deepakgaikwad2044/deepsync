@@ -23,7 +23,7 @@ class MakeEvent
 
         $channel = $baseName . "Channel";
 
-        $path = __DIR__ . '/../../app/WebSockets/Events/' . $name . '.php';
+        $path = __DIR__ . '/../../App/WebSockets/Events/' . $name . '.php';
 
         if (!is_dir(dirname($path))) {
             mkdir(dirname($path), 0777, true);

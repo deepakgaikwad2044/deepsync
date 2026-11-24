@@ -1,5 +1,5 @@
 <?php
-namespace App\Controllers\Api;
+namespace App\Controllers\API;
 
 use App\Helpers\JWTHelper;
 use App\Core\Response;

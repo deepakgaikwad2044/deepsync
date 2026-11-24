@@ -17,8 +17,14 @@ class Migrate
         $pass = env('DB_PASSWORD');
 
         try {
+            $charset = env('DB_CHARSET');
+            $dsn = "mysql:host=$host;port=$port;dbname=$db";
+            if (!empty($charset)) {
+                $dsn .= ";charset=$charset";
+            }
+
             $pdo = new PDO(
-                "mysql:host=$host;port=$port;dbname=$db",
+                $dsn,
                 $user,
                 $pass,
                 [
@@ -55,7 +61,7 @@ class Migrate
             $batch = $batch ? $batch + 1 : 1;
 
             // Get migration files
-            $migrationDir = __DIR__ . '/../../database/migrations/';
+            $migrationDir = __DIR__ . '/../../Database/migrations/';
             $files = glob($migrationDir . '*.php');
 
             if (empty($files)) {

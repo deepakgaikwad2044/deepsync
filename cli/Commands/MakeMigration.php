@@ -27,7 +27,7 @@ class MakeMigration
         }
 
         // Migration directory
-        $migrationDir = __DIR__ . "/../../database/migrations/";
+        $migrationDir = __DIR__ . "/../../Database/migrations/";
 
         if (!is_dir($migrationDir)) {
             mkdir($migrationDir, 0755, true);
@@ -121,7 +121,7 @@ PHP;
     // Create Model
     private function createModel($modelName)
     {
-        $modelDir = __DIR__ . "/../../app/Models/";
+        $modelDir = __DIR__ . "/../../App/Models/";
 
         if (!is_dir($modelDir)) {
             mkdir($modelDir, 0755, true);

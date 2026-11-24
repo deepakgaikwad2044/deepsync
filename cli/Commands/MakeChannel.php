@@ -21,8 +21,8 @@ class MakeChannel
         $eventName     = $name . "Event";
 
         // Paths
-        $channelPath = __DIR__ . '/../../app/WebSockets/Realtime/Channels/' . $channelName . '.php';
-        $eventPath   = __DIR__ . '/../../app/WebSockets/Events/' . $eventName . '.php';
+        $channelPath = __DIR__ . '/../../App/WebSockets/Realtime/Channels/' . $channelName . '.php';
+        $eventPath   = __DIR__ . '/../../App/WebSockets/Events/' . $eventName . '.php';
 
         // Create folders
         if (!is_dir(dirname($channelPath))) {

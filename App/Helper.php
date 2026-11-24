@@ -47,17 +47,27 @@ function view(string $file_path, array $data = []): void
 //handle includes file
 function includes($file_path)
 {
-  $path = str_replace("\\", DIRECTORY_SEPARATOR, $file_path);
+    $path = str_replace(
+        ["\\", "."],
+        ["/", "/"],
+        trim($file_path, "/")
+    );
 
-  $path = str_replace(".", DIRECTORY_SEPARATOR, $path);
+    $praFile = APP_ROOT . "/Views/" . $path . ".pra.php";
 
-  $file = APP_ROOT . DIRECTORY_SEPARATOR . "views/" . $path . ".php";
+    if (is_file($praFile)) {
+        echo $GLOBALS['pranchi']->render($path);
+        return;
+    }
 
-  if (file_exists($file)) {
-    return require $file;
-  } else {
-    echo "Page not found " . $file;
-  }
+    $phpFile = APP_ROOT . "/Views/" . $path . ".php";
+
+    if (is_file($phpFile)) {
+        require $phpFile;
+        return;
+    }
+
+    echo "Page not found " . $praFile;
 }
 
 

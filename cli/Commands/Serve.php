@@ -7,6 +7,6 @@ class Serve
     {
         echo "🚀 Server running at http://localhost:7000\n";
         // 👇 router file add kiya
-       passthru("php -S localhost:7000 -t public");
+       passthru("php -S localhost:7000 -t Public");
     }
 }

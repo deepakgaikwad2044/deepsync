@@ -21,7 +21,7 @@ class Database
     $this->port = env("DB_PORT");
     $this->user = env("DB_USERNAME");
     $this->pass = env("DB_PASSWORD");
-    $this->dbname = env("DB_NAME");
+    $this->dbname = env("DB_DATABASE") ?: env("DB_NAME");
 
     $this->conn = null;
     try {

@@ -123,5 +123,6 @@ try {
     Router::dispatch();
 } catch (\Throwable $e) {
     http_response_code(500);
-    echo "Application Error: " . $e->getMessage();
+    error_log((string) $e);
+    echo "Internal Server Error";
 }

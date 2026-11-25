@@ -292,7 +292,7 @@ tbody tr:hover {
 
 @section("scripts")
 
-<script src="/public/js/ds-datatable.js"></script>
+<script src="/js/ds-datatable.js"></script>
 
 <script>
 DS_Table.init("datatable", {

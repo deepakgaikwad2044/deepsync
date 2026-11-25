@@ -1,6 +1,9 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Block executable scripts inside uploaded storage.
+    RewriteRule ^Storage/.*\.(?:php[0-9]*|phtml|phar|cgi|pl|py|sh)(?:/|$) - [F,NC,L]
+
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]

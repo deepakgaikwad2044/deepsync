@@ -6,6 +6,16 @@ class File
 {
     protected static function basePath(): string
     {
+        $documentRoot = $_SERVER["DOCUMENT_ROOT"] ?? null;
+
+        if (is_string($documentRoot) && $documentRoot !== "") {
+            $resolvedRoot = realpath($documentRoot);
+
+            if ($resolvedRoot !== false && is_dir($resolvedRoot)) {
+                return $resolvedRoot;
+            }
+        }
+
         return APP_ROOT . "/Public";
     }
 
